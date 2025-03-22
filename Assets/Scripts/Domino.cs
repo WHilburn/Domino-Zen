@@ -1,19 +1,37 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 public class Domino : MonoBehaviour
 {
+    private Rigidbody rb;
+    private float stillnessThreshold = 0.05f;  // Velocity threshold to consider "stationary"
+    private float checkDelay = 0.5f; // How often to check if it's stationary
     public Vector3 holdPoint;
-    // Start is called before the first frame update
+
     void Start()
     {
-        
+        rb = GetComponent<Rigidbody>();
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // Start with high accuracy
+        StartCoroutine(CheckStillnessRoutine()); // Start the coroutine
     }
 
-    // Update is called once per frame
-    void Update()
+    private IEnumerator CheckStillnessRoutine()
     {
-        
+        while (true)
+        {
+            yield return new WaitForSeconds(checkDelay);
+
+            if (rb.velocity.sqrMagnitude < stillnessThreshold * stillnessThreshold ||
+                rb.angularVelocity.sqrMagnitude < stillnessThreshold * stillnessThreshold)
+            {
+                rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            }
+            else
+            {
+                rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            }
+        }
     }
 }
+
+
