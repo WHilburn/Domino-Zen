@@ -7,9 +7,11 @@ public class DominoPlacement : MonoBehaviour
     private Rigidbody heldRb;        // Rigidbody of the held domino
     private Transform heldHand;
     private Vector3 anchor;
+    private float savedDrag;
+    private float savedAngularDrag;
     public float followSpeed = 5f;  // How quickly the domino follows the mouse
     public float cameraSpeed = 10f; // Speed of camera movement
-    public float hoverOffset = 1.5f; // Distance the hand should hover over the ground when placing
+    public float hoverOffset = 1.6f; // Distance the hand should hover over the ground when placing
     public float rotationSpeed = 100f; // Degrees per second to rotate dominoes
     public bool debug = true;
 
@@ -43,8 +45,6 @@ public class DominoPlacement : MonoBehaviour
                 ReleaseDomino();
             }
         }
-
-        MoveCamera(); // Camera movement with WASD
     }
 
     void SpawnDomino()
@@ -55,8 +55,10 @@ public class DominoPlacement : MonoBehaviour
 
         heldDomino = Instantiate(dominoPrefab, spawnPos, spawnRotation);
         heldRb = heldDomino.GetComponent<Rigidbody>();
+        savedDrag = heldRb.drag;
+        savedAngularDrag = heldRb.angularDrag;
         heldRb.drag = 10f;
-        heldRb.angularDrag = 50f;
+        heldRb.angularDrag = 90f;
         heldRb.constraints = RigidbodyConstraints.FreezeRotationZ;
 
         // Create an invisible hand (it’s a placeholder for movement)
@@ -107,8 +109,9 @@ public class DominoPlacement : MonoBehaviour
         // Allow the domino to fall naturally now
         heldRb.velocity = Vector3.zero;
         heldRb.angularVelocity = Vector3.zero;
-        heldRb.drag = 0.05f;
-        heldRb.angularDrag = 0.05f;
+        heldRb.drag = savedDrag;
+        heldRb.angularDrag = savedAngularDrag;
+        heldRb.constraints = RigidbodyConstraints.None;
 
         // Destroy the "hand" object
         if (heldHand != null)
@@ -130,7 +133,7 @@ public class DominoPlacement : MonoBehaviour
         Vector3 targetPosition = GetMouseWorldPosition();
         
         // Smoothly move the hand to the target position
-        heldHand.position = Vector3.Lerp(heldHand.position, targetPosition, 15f * Time.deltaTime);
+        heldHand.position = Vector3.Lerp(heldHand.position, targetPosition, followSpeed * Time.deltaTime);
     }
 
 
@@ -147,31 +150,31 @@ public class DominoPlacement : MonoBehaviour
         }
     }
 
-    void MoveCamera()
-    {
-        Vector3 forward = Camera.main.transform.forward;
-        Vector3 right = Camera.main.transform.right;
+    // void MoveCamera()
+    // {
+    //     Vector3 forward = Camera.main.transform.forward;
+    //     Vector3 right = Camera.main.transform.right;
 
-        // Prevent vertical movement (remove Y component)
-        forward.y = 0f;
-        right.y = 0f;
+    //     // Prevent vertical movement (remove Y component)
+    //     forward.y = 0f;
+    //     right.y = 0f;
         
-        forward.Normalize();
-        right.Normalize();
+    //     forward.Normalize();
+    //     right.Normalize();
 
-        Vector3 moveDirection = Vector3.zero;
+    //     Vector3 moveDirection = Vector3.zero;
 
-        if (Input.GetKey(KeyCode.W))
-            moveDirection += forward;
-        if (Input.GetKey(KeyCode.S))
-            moveDirection -= forward;
-        if (Input.GetKey(KeyCode.A))
-            moveDirection -= right;
-        if (Input.GetKey(KeyCode.D))
-            moveDirection += right;
+    //     if (Input.GetKey(KeyCode.W))
+    //         moveDirection += forward;
+    //     if (Input.GetKey(KeyCode.S))
+    //         moveDirection -= forward;
+    //     if (Input.GetKey(KeyCode.A))
+    //         moveDirection -= right;
+    //     if (Input.GetKey(KeyCode.D))
+    //         moveDirection += right;
 
-        Camera.main.transform.position += moveDirection * cameraSpeed * Time.deltaTime;
-    }
+    //     Camera.main.transform.position += moveDirection * cameraSpeed * Time.deltaTime;
+    // }
 
     Vector3 GetMouseWorldPosition()
     {

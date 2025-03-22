@@ -507,6 +507,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 187377337603714810, guid: 52bb33b21036841258a137de54ef9ea0, type: 3}
+      propertyPath: m_Range
+      value: 600
+      objectReference: {fileID: 0}
+    - target: {fileID: 187377337603714810, guid: 52bb33b21036841258a137de54ef9ea0, type: 3}
+      propertyPath: m_Color.b
+      value: 0.5424528
+      objectReference: {fileID: 0}
+    - target: {fileID: 187377337603714810, guid: 52bb33b21036841258a137de54ef9ea0, type: 3}
+      propertyPath: m_Color.g
+      value: 0.87724346
+      objectReference: {fileID: 0}
+    - target: {fileID: 187377337603714810, guid: 52bb33b21036841258a137de54ef9ea0, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1308338867020124390, guid: 52bb33b21036841258a137de54ef9ea0, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 310dfd7626ed74fe083d99707c299cd8, type: 2}
     - target: {fileID: 2632976140968704013, guid: 52bb33b21036841258a137de54ef9ea0, type: 3}
       propertyPath: m_Name
       value: LivingRoom
@@ -550,6 +570,18 @@ PrefabInstance:
     - target: {fileID: 5237526210010727254, guid: 52bb33b21036841258a137de54ef9ea0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7392158128554711566, guid: 52bb33b21036841258a137de54ef9ea0, type: 3}
+      propertyPath: m_Color.b
+      value: 0.3254717
+      objectReference: {fileID: 0}
+    - target: {fileID: 7392158128554711566, guid: 52bb33b21036841258a137de54ef9ea0, type: 3}
+      propertyPath: m_Color.g
+      value: 0.81902903
+      objectReference: {fileID: 0}
+    - target: {fileID: 7392158128554711566, guid: 52bb33b21036841258a137de54ef9ea0, type: 3}
+      propertyPath: m_Color.r
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -771,13 +803,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.2854127, y: 0.37176397, z: -0.121282816, w: -0.87499803}
-  m_LocalPosition: {x: 5.43, y: 1.9651312, z: -4.19}
+  m_LocalRotation: {x: -0.000000014901161, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1288420492}
-  m_Father: {fileID: 0}
+  m_Children: []
+  m_Father: {fileID: 1288420492}
   m_LocalEulerAnglesHint: {x: 17.908, y: -67.426, z: 0}
 --- !u!1 &1164506417
 GameObject:
@@ -922,6 +953,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1288420492}
   - component: {fileID: 1288420493}
+  - component: {fileID: 1288420494}
   m_Layer: 0
   m_Name: Player Object
   m_TagString: Untagged
@@ -937,12 +969,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1288420491}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0.28541273, y: 0.371764, z: -0.12128282, w: -0.8749981}
+  m_LocalPosition: {x: 5.43, y: 1.9651312, z: -4.19}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 963194228}
+  m_Children:
+  - {fileID: 963194228}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1288420493
 MonoBehaviour:
@@ -957,10 +990,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dominoPrefab: {fileID: 3709038208395034117, guid: 336bcad52e1c74c77ae1b4939e3a0feb, type: 3}
-  followSpeed: 20
+  followSpeed: 5
   cameraSpeed: 10
   hoverOffset: 1.2
   rotationSpeed: 100
+  debug: 1
+--- !u!114 &1288420494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1288420491}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3a20cc895ee64777bda9c8288937d07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotationSpeed: 1
+  verticalLimit: 80
+  zoomSpeed: 10
+  minFov: 20
+  maxFov: 60
+  moveSpeed: 5
 --- !u!1 &1388085299
 GameObject:
   m_ObjectHideFlags: 0
@@ -1306,7 +1358,7 @@ Light:
   serializedVersion: 10
   m_Type: 2
   m_Shape: 0
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0.82723695, b: 0.5707547, a: 1}
   m_Intensity: 0.54
   m_Range: 35.6
   m_SpotAngle: 30
@@ -1577,8 +1629,8 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 963194228}
   - {fileID: 1769911858}
+  - {fileID: 1288420492}
   - {fileID: 1763713671}
   - {fileID: 2073826760}
   - {fileID: 513351274}
