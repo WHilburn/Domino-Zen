@@ -5,24 +5,13 @@ public class DominoPlacement : MonoBehaviour
     public GameObject dominoPrefab;  // Assign your domino prefab in the Inspector
     private GameObject heldDomino;   // The domino currently being held
     private Rigidbody heldRb;        // Rigidbody of the held domino
-    public float followSpeed = 20f;  // How quickly the domino follows the mouse
+    private Transform heldHand;
+    private Vector3 anchor;
+    public float followSpeed = 5f;  // How quickly the domino follows the mouse
     public float cameraSpeed = 10f; // Speed of camera movement
-    public float hoverOffset = 1.2f; // Distance the hand should hover over the ground when placing
+    public float hoverOffset = 1.5f; // Distance the hand should hover over the ground when placing
     public float rotationSpeed = 100f; // Degrees per second to rotate dominoes
-
-    void SpawnDomino()
-    {
-        // Instantiate the domino with a 90-degree rotation on the X-axis
-        Vector3 spawnPos = GetMouseWorldPosition();
-        Quaternion spawnRotation = Quaternion.Euler(90f, 0f, 0f); // Rotates on X-axis
-        heldDomino = Instantiate(dominoPrefab, spawnPos, spawnRotation);
-        
-        heldRb = heldDomino.GetComponent<Rigidbody>();
-
-        // Enable physics with some drag for smooth movement
-        heldRb.useGravity = false;
-        heldRb.drag = 5f;
-    }
+    public bool debug = true;
 
     void Update()
     {
@@ -30,6 +19,17 @@ public class DominoPlacement : MonoBehaviour
         {
             MoveHeldDomino();
             HandleRotation(); // Add rotation controls
+        }
+
+        if (debug && heldHand != null)
+        {
+            Debug.DrawLine(heldHand.position + Vector3.left * 0.5f, heldHand.position + Vector3.right * 0.5f, Color.red);
+            Debug.DrawLine(heldHand.position + Vector3.up * 0.5f, heldHand.position + Vector3.down * 0.5f, Color.red);
+            Debug.DrawLine(heldHand.position + Vector3.forward * 0.5f, heldHand.position + Vector3.back * 0.5f, Color.red);
+
+            Debug.DrawLine(heldDomino.transform.position + anchor + Vector3.left * 0.5f, heldDomino.transform.position + anchor + Vector3.right * 0.5f, Color.blue);
+            Debug.DrawLine(heldDomino.transform.position + anchor + Vector3.up * 0.5f, heldDomino.transform.position + anchor + Vector3.down * 0.5f, Color.blue);
+            Debug.DrawLine(heldDomino.transform.position + anchor + Vector3.forward * 0.5f, heldDomino.transform.position + anchor + Vector3.back * 0.5f, Color.blue);
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -47,15 +47,90 @@ public class DominoPlacement : MonoBehaviour
         MoveCamera(); // Camera movement with WASD
     }
 
+    void SpawnDomino()
+    {
+        // Spawn the domino as before
+        Vector3 spawnPos = GetMouseWorldPosition();
+        Quaternion spawnRotation = Quaternion.Euler(90f, 0f, 0f); // Upright rotation
+
+        heldDomino = Instantiate(dominoPrefab, spawnPos, spawnRotation);
+        heldRb = heldDomino.GetComponent<Rigidbody>();
+        heldRb.drag = 10f;
+        heldRb.angularDrag = 50f;
+        heldRb.constraints = RigidbodyConstraints.FreezeRotationZ;
+
+        // Create an invisible hand (it’s a placeholder for movement)
+        GameObject handObject = new GameObject("Hand");
+        heldHand = handObject.transform;
+        heldHand.position = spawnPos + new Vector3(0f, 0.5f, 0f); // Offset to top-middle
+
+        // Add a Rigidbody to the hand for physics-based movement
+        Rigidbody handRb = handObject.AddComponent<Rigidbody>();
+        handRb.isKinematic = true; // Hand follows cursor directly
+
+        // Move the domino to the hand position
+        heldDomino.transform.position = heldHand.position;
+
+        // Attach the domino to the hand using a SpringJoint
+        SpringJoint spring = heldDomino.AddComponent<SpringJoint>();
+        spring.connectedBody = handRb;
+        // spring.anchor = new Vector3(0f, 0.5f, 0f); // Anchor at top-middle of domino
+        spring.anchor = heldDomino.GetComponent<Domino>().holdPoint;
+        anchor = spring.anchor;
+        spring.autoConfigureConnectedAnchor = false;
+        spring.connectedAnchor = Vector3.zero;
+        spring.tolerance = 0.001f;
+
+        // Spring joint parameters to keep the domino "suspended" smoothly
+        spring.spring = 500f;  // Increase spring strength to hold it in place
+        spring.damper = 1f;   // Moderate damping for smoothness
+        spring.massScale = 1f;
+
+        heldRb.velocity = Vector3.zero; // Stop any initial movement
+        heldRb.angularVelocity = Vector3.zero; // Prevent any initial spin
+    }
+
+    void ReleaseDomino()
+    {
+        if (heldDomino == null) return; // No domino to release
+
+        // Remove the SpringJoint
+        SpringJoint spring = heldDomino.GetComponent<SpringJoint>();
+        if (spring != null)
+        {
+            Destroy(spring);
+        }
+
+        // Reactivate gravity when released
+        heldRb.useGravity = true;
+
+        // Allow the domino to fall naturally now
+        heldRb.velocity = Vector3.zero;
+        heldRb.angularVelocity = Vector3.zero;
+        heldRb.drag = 0.05f;
+        heldRb.angularDrag = 0.05f;
+
+        // Destroy the "hand" object
+        if (heldHand != null)
+        {
+            Destroy(heldHand.gameObject);
+        }
+
+        // Clear the references for future use
+        heldDomino = null;
+        heldRb = null;
+        heldHand = null;
+    }
+
+
     void MoveHeldDomino()
     {
+        if (heldHand == null) return; // Prevents errors if no domino is held
+
         Vector3 targetPosition = GetMouseWorldPosition();
-
-        // Offset the domino so its top-middle aligns with the hand position
-        Vector3 dominoOffset = new Vector3(0f, -0.5f, 0f); // Moves it down by half its height
-
-        Vector3 newPosition = Vector3.Lerp(heldDomino.transform.position, targetPosition + dominoOffset, followSpeed * Time.deltaTime);
-        heldRb.MovePosition(newPosition);
+        
+        // Smoothly move the hand to the target position
+        heldHand.position = Vector3.Lerp(heldHand.position, targetPosition, 15f * Time.deltaTime);
     }
 
 
@@ -70,15 +145,6 @@ public class DominoPlacement : MonoBehaviour
         {
             heldDomino.transform.Rotate(Vector3.forward, rotationSpeed * Time.deltaTime);
         }
-    }
-
-    void ReleaseDomino()
-    {
-        // Release the domino by resetting drag and removing the reference
-        heldRb.drag = 0f; // Reset drag so it behaves naturally
-        heldRb.useGravity = true;
-        heldDomino = null;
-        heldRb = null;
     }
 
     void MoveCamera()
