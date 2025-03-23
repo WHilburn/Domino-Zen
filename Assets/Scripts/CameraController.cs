@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    public float rotationSpeed = 2.0f;    // Sensitivity of camera rotation
+    public float rotationSpeed = .1f;    // Sensitivity of camera rotation
     public float verticalLimit = 80f;     // Limit the vertical rotation (up/down)
     public float zoomSpeed = 10f;         // Speed of zooming in and out
     public float minFov = 20f;            // Minimum field of view for zooming

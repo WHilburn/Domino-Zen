@@ -5,11 +5,12 @@ public class Domino : MonoBehaviour
 {
     private Rigidbody rb;
     private float stillnessThreshold = 0.05f;  // Velocity threshold to consider "stationary"
-    private float checkDelay = 0.5f; // How often to check if it's stationary
+    private float checkDelay = 0.4f; // How often to check if it's stationary
     public Vector3 holdPoint;
 
     void Start()
     {
+        checkDelay += Random.Range(0f, 0.2f);
         rb = GetComponent<Rigidbody>();
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // Start with high accuracy
         StartCoroutine(CheckStillnessRoutine()); // Start the coroutine

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DominoPlacement : MonoBehaviour
 {
@@ -54,6 +55,9 @@ public class DominoPlacement : MonoBehaviour
         Quaternion spawnRotation = Quaternion.Euler(90f, 0f, 0f); // Upright rotation
 
         heldDomino = Instantiate(dominoPrefab, spawnPos, spawnRotation);
+        DominoShadow shadow = heldDomino.GetComponent<DominoShadow>();
+        shadow.enabled = true;
+        shadow.CreateShadow();
         heldRb = heldDomino.GetComponent<Rigidbody>();
         savedDrag = heldRb.drag;
         savedAngularDrag = heldRb.angularDrag;

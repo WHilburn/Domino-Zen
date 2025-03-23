@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 6523229146847408400}
   - component: {fileID: 5095771503209502396}
   - component: {fileID: -2827611252534224556}
+  - component: {fileID: 8973017810111620454}
   m_Layer: 2
   m_Name: Small Domino
   m_TagString: DominoTag
@@ -274,6 +275,19 @@ MonoBehaviour:
   - {fileID: 8300000, guid: e85233d67fa5c456a9d31b0e90300c68, type: 3}
   - {fileID: 8300000, guid: 86a8e44d40b984a0abf8269c84e3d700, type: 3}
   - {fileID: 8300000, guid: f12c9f613bd25492387af2666f1d9996, type: 3}
+--- !u!114 &8973017810111620454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3709038208395034117}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1947e743900e649ddbbb3e72691202f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shadowPrefab: {fileID: 65740439149603699, guid: e06864a5aa936483da105608958ea031, type: 3}
 --- !u!1 &7744307541045906752
 GameObject:
   m_ObjectHideFlags: 0
