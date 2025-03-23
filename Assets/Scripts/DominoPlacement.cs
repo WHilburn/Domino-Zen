@@ -1,13 +1,16 @@
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 public class DominoPlacement : MonoBehaviour
 {
-    public GameObject dominoPrefab;  // Assign your domino prefab in the Inspector
+    public GameObject dominoPrefab;
+    public GameObject handPrefab;
     private GameObject heldDomino;   // The domino currently being held
     private Rigidbody heldRb;        // Rigidbody of the held domino
     private Transform heldHand;
     private Vector3 anchor;
+    private DecalProjector decalProjector;
     private float savedDrag;
     private float savedAngularDrag;
     public float followSpeed = 5f;  // How quickly the domino follows the mouse
@@ -21,7 +24,8 @@ public class DominoPlacement : MonoBehaviour
         if (heldDomino)
         {
             MoveHeldDomino();
-            HandleRotation(); // Add rotation controls
+            HandleRotation();
+            // animate the decal projector by shifting the offsets
         }
 
         if (debug && heldHand != null)
@@ -50,14 +54,15 @@ public class DominoPlacement : MonoBehaviour
 
     void SpawnDomino()
     {
-        // Spawn the domino as before
         Vector3 spawnPos = GetMouseWorldPosition();
         Quaternion spawnRotation = Quaternion.Euler(90f, 0f, 0f); // Upright rotation
 
         heldDomino = Instantiate(dominoPrefab, spawnPos, spawnRotation);
-        DominoShadow shadow = heldDomino.GetComponent<DominoShadow>();
-        shadow.enabled = true;
-        shadow.CreateShadow();
+        // DominoShadow shadow = heldDomino.GetComponent<DominoShadow>();
+        // shadow.enabled = true;
+        // shadow.CreateShadow();
+        decalProjector = heldDomino.GetComponent<DecalProjector>();
+        decalProjector.enabled = true;
         heldRb = heldDomino.GetComponent<Rigidbody>();
         savedDrag = heldRb.drag;
         savedAngularDrag = heldRb.angularDrag;
@@ -65,21 +70,17 @@ public class DominoPlacement : MonoBehaviour
         heldRb.angularDrag = 90f;
         heldRb.constraints = RigidbodyConstraints.FreezeRotationZ;
 
-        // Create an invisible hand (it’s a placeholder for movement)
-        GameObject handObject = new GameObject("Hand");
+        // Create a hand
+        GameObject handObject = Instantiate(handPrefab, spawnPos, Quaternion.identity);
         heldHand = handObject.transform;
         heldHand.position = spawnPos + new Vector3(0f, 0.5f, 0f); // Offset to top-middle
-
-        // Add a Rigidbody to the hand for physics-based movement
-        Rigidbody handRb = handObject.AddComponent<Rigidbody>();
-        handRb.isKinematic = true; // Hand follows cursor directly
 
         // Move the domino to the hand position
         heldDomino.transform.position = heldHand.position;
 
         // Attach the domino to the hand using a SpringJoint
         SpringJoint spring = heldDomino.AddComponent<SpringJoint>();
-        spring.connectedBody = handRb;
+        spring.connectedBody = handObject.GetComponent<Rigidbody>();
         // spring.anchor = new Vector3(0f, 0.5f, 0f); // Anchor at top-middle of domino
         spring.anchor = heldDomino.GetComponent<Domino>().holdPoint;
         anchor = spring.anchor;
@@ -109,6 +110,7 @@ public class DominoPlacement : MonoBehaviour
 
         // Reactivate gravity when released
         heldRb.useGravity = true;
+        decalProjector.enabled = false;
 
         // Allow the domino to fall naturally now
         heldRb.velocity = Vector3.zero;
