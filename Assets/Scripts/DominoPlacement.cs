@@ -25,18 +25,6 @@ public class DominoPlacement : MonoBehaviour
         {
             MoveHeldDomino();
             HandleRotation();
-            // animate the decal projector by shifting the offsets
-        }
-
-        if (debug && heldHand != null)
-        {
-            Debug.DrawLine(heldHand.position + Vector3.left * 0.5f, heldHand.position + Vector3.right * 0.5f, Color.red);
-            Debug.DrawLine(heldHand.position + Vector3.up * 0.5f, heldHand.position + Vector3.down * 0.5f, Color.red);
-            Debug.DrawLine(heldHand.position + Vector3.forward * 0.5f, heldHand.position + Vector3.back * 0.5f, Color.red);
-
-            Debug.DrawLine(heldDomino.transform.position + anchor + Vector3.left * 0.5f, heldDomino.transform.position + anchor + Vector3.right * 0.5f, Color.blue);
-            Debug.DrawLine(heldDomino.transform.position + anchor + Vector3.up * 0.5f, heldDomino.transform.position + anchor + Vector3.down * 0.5f, Color.blue);
-            Debug.DrawLine(heldDomino.transform.position + anchor + Vector3.forward * 0.5f, heldDomino.transform.position + anchor + Vector3.back * 0.5f, Color.blue);
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -50,6 +38,15 @@ public class DominoPlacement : MonoBehaviour
                 ReleaseDomino();
             }
         }
+
+        // Detect mouse click to pick up a domino
+        if (Input.GetMouseButtonDown(0)) // Left Click
+        {
+            if (heldDomino == null)
+            {
+                TryPickUpDomino();
+            }
+        }
     }
 
     void SpawnDomino()
@@ -58,9 +55,7 @@ public class DominoPlacement : MonoBehaviour
         Quaternion spawnRotation = Quaternion.Euler(90f, 0f, 0f); // Upright rotation
 
         heldDomino = Instantiate(dominoPrefab, spawnPos, spawnRotation);
-        // DominoShadow shadow = heldDomino.GetComponent<DominoShadow>();
-        // shadow.enabled = true;
-        // shadow.CreateShadow();
+        heldDomino.layer = LayerMask.NameToLayer("Ignore Raycast");
         decalProjector = heldDomino.GetComponent<DecalProjector>();
         decalProjector.enabled = true;
         heldRb = heldDomino.GetComponent<Rigidbody>();
@@ -96,54 +91,96 @@ public class DominoPlacement : MonoBehaviour
         heldRb.velocity = Vector3.zero; // Stop any initial movement
         heldRb.angularVelocity = Vector3.zero; // Prevent any initial spin
     }
+    void TryPickUpDomino()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            Domino domino = hit.collider.GetComponent<Domino>();
+            if (domino != null)
+            {
+                PickUpDomino(domino.gameObject);
+            }
+        }
+    }
+
+    void PickUpDomino(GameObject domino)
+    {
+        heldDomino = domino;
+        heldDomino.layer = LayerMask.NameToLayer("Ignore Raycast");
+        heldRb = heldDomino.GetComponent<Rigidbody>();
+
+        // Prevent picking up dominos that are actively falling
+        if (heldRb.velocity.magnitude > 1f || heldRb.angularVelocity.magnitude > 1f)
+        {
+            heldDomino = null;
+            heldRb = null;
+            return;
+        }
+
+        decalProjector = heldDomino.GetComponent<DecalProjector>();
+        if (decalProjector) decalProjector.enabled = true;
+
+        savedDrag = heldRb.drag;
+        savedAngularDrag = heldRb.angularDrag;
+        heldRb.drag = 10f;
+        heldRb.angularDrag = 90f;
+        heldRb.constraints = RigidbodyConstraints.FreezeRotationZ;
+
+        // Create a hand object
+        Vector3 spawnPos = heldDomino.transform.position;
+        GameObject handObject = Instantiate(handPrefab, spawnPos, Quaternion.identity);
+        heldHand = handObject.transform;
+        heldHand.position = spawnPos + new Vector3(0f, 0.5f, 0f);
+
+        // Attach the domino to the hand
+        heldDomino.transform.position = heldHand.position;
+        SpringJoint spring = heldDomino.AddComponent<SpringJoint>();
+        spring.connectedBody = handObject.GetComponent<Rigidbody>();
+        spring.anchor = heldDomino.GetComponent<Domino>().holdPoint;
+        anchor = spring.anchor;
+        spring.autoConfigureConnectedAnchor = false;
+        spring.connectedAnchor = Vector3.zero;
+        spring.tolerance = 0.001f;
+        spring.spring = 500f;
+        spring.damper = 1f;
+        spring.massScale = 1f;
+
+        heldRb.velocity = Vector3.zero;
+        heldRb.angularVelocity = Vector3.zero;
+    }
 
     void ReleaseDomino()
     {
-        if (heldDomino == null) return; // No domino to release
+        if (heldDomino == null) return;
 
-        // Remove the SpringJoint
+        heldDomino.layer = LayerMask.NameToLayer("Default");
+
         SpringJoint spring = heldDomino.GetComponent<SpringJoint>();
-        if (spring != null)
-        {
-            Destroy(spring);
-        }
+        if (spring != null) Destroy(spring);
 
-        // Reactivate gravity when released
         heldRb.useGravity = true;
-        decalProjector.enabled = false;
-
-        // Allow the domino to fall naturally now
+        if (decalProjector) decalProjector.enabled = false;
         heldRb.velocity = Vector3.zero;
         heldRb.angularVelocity = Vector3.zero;
         heldRb.drag = savedDrag;
         heldRb.angularDrag = savedAngularDrag;
         heldRb.constraints = RigidbodyConstraints.None;
 
-        // Destroy the "hand" object
-        if (heldHand != null)
-        {
-            Destroy(heldHand.gameObject);
-        }
+        if (heldHand != null) Destroy(heldHand.gameObject);
 
-        // Clear the references for future use
         heldDomino = null;
         heldRb = null;
         heldHand = null;
     }
 
-
     void MoveHeldDomino()
     {
-        if (heldHand == null) return; // Prevents errors if no domino is held
-
+        if (heldHand == null) return;
         Vector3 targetPosition = GetMouseWorldPosition();
-        
-        // Smoothly move the hand to the target position
         heldHand.position = Vector3.Lerp(heldHand.position, targetPosition, followSpeed * Time.deltaTime);
     }
 
-
-    // Rotate held domino on the Y-axis using Q and E
     void HandleRotation()
     {
         if (Input.GetKey(KeyCode.Q))
@@ -156,40 +193,13 @@ public class DominoPlacement : MonoBehaviour
         }
     }
 
-    // void MoveCamera()
-    // {
-    //     Vector3 forward = Camera.main.transform.forward;
-    //     Vector3 right = Camera.main.transform.right;
-
-    //     // Prevent vertical movement (remove Y component)
-    //     forward.y = 0f;
-    //     right.y = 0f;
-        
-    //     forward.Normalize();
-    //     right.Normalize();
-
-    //     Vector3 moveDirection = Vector3.zero;
-
-    //     if (Input.GetKey(KeyCode.W))
-    //         moveDirection += forward;
-    //     if (Input.GetKey(KeyCode.S))
-    //         moveDirection -= forward;
-    //     if (Input.GetKey(KeyCode.A))
-    //         moveDirection -= right;
-    //     if (Input.GetKey(KeyCode.D))
-    //         moveDirection += right;
-
-    //     Camera.main.transform.position += moveDirection * cameraSpeed * Time.deltaTime;
-    // }
-
     Vector3 GetMouseWorldPosition()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            return hit.point + Vector3.up * hoverOffset; // Hover 1.2 units above the surface
+            return hit.point + Vector3.up * hoverOffset;
         }
-        return ray.origin + ray.direction * 5f; // Default depth if no hit
+        return ray.origin + ray.direction * 5f;
     }
-
 }

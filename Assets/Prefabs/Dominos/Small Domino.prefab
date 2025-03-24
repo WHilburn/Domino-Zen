@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 5095771503209502396}
   - component: {fileID: -2827611252534224556}
   - component: {fileID: 7340539583291809194}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: Small Domino
   m_TagString: DominoTag
   m_Icon: {fileID: 0}
@@ -248,6 +248,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   holdPoint: {x: 0, y: 0, z: -0.025}
   soundManager: {fileID: 0}
+  isMoving: 0
 --- !u!114 &-2827611252534224556
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -309,7 +310,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4934067514602613131}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: Hold Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}

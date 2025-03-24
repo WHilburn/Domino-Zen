@@ -28,7 +28,7 @@ public class DominoSound : MonoBehaviour
             // Select a random sound
             AudioClip clip = dominoSounds[Random.Range(0, dominoSounds.Length)];
             // Adjust volume based on impact force (clamped between 0.1 and 1.0)
-            float volume = Mathf.Clamp(impactForce / 5f, 0.1f, 1.0f);
+            float volume = Mathf.Clamp(impactForce / 10f, 0.1f, 1.0f);
             audioSource.PlayOneShot(clip, volume);
             rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         }

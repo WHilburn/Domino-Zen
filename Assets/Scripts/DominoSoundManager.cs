@@ -7,18 +7,14 @@ public class DominoSoundManager : MonoBehaviour
     public AudioSource cascadeSource; // Background cascade sound
     public AudioClip cascadeClip;     // Rolling cascade sound
     public List<Domino> allDominoes;  // List of all dominoes in the scene
-
     public float maxVolume = 0.7f;   // Max volume when many dominoes are moving
     public float velocityScale = 0.05f; // Scale factor for volume adjustment
     public float volumeLerpSpeed = 2f; // Speed at which volume adjusts
     private float targetVolume = 0f; // The volume we want to reach
-    public float minimumVelocity = -100f; // Minimum velocity to play the sound
+    public float minimumVelocity = -100f; // Minimum velocity to play the sound, total must exceed this
 
     void Start()
     {
-        // Find all dominoes in the scene
-        // allDominoes = FindObjectsOfType<Domino>();
-
         // Setup cascade audio
         cascadeSource.clip = cascadeClip;
         cascadeSource.loop = true;
@@ -49,7 +45,8 @@ public class DominoSoundManager : MonoBehaviour
                     Rigidbody rb = domino.GetComponent<Rigidbody>();
                     if (rb != null)
                     {
-                        totalMovement += rb.velocity.magnitude + rb.angularVelocity.magnitude;
+                        float velocityAdd = Mathf.Clamp(rb.velocity.magnitude + rb.angularVelocity.magnitude, 0f, 20f);
+                        totalMovement += velocityAdd > 3f ? velocityAdd : 0;
                     }
                 }
             }
