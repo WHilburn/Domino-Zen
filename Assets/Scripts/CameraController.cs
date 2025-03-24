@@ -30,8 +30,8 @@ public class CameraController : MonoBehaviour
 
     private void HandleCameraRotation()
     {
-        // Check if the left mouse button is held down
-        if (Input.GetMouseButton(0)) // 0 is the left mouse button
+        // Check if the right mouse button is held down
+        if (Input.GetMouseButton(1))  // Right mouse button
         {
             // Calculate mouse movement
             Vector2 mouseDelta = (Vector2)Input.mousePosition - lastMousePosition;
