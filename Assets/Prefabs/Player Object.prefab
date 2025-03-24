@@ -113,11 +113,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cascadeSource: {fileID: 399126334952297066}
   cascadeClip: {fileID: 8300000, guid: 58ba9a0944de44e65a72c178ddcbff3a, type: 3}
-  allDominoes: []
   maxVolume: 1
   velocityScale: 0.01
   volumeLerpSpeed: 5
-  minimumVelocity: -100
+  minimumVelocity: -75
 --- !u!82 &399126334952297066
 AudioSource:
   m_ObjectHideFlags: 0

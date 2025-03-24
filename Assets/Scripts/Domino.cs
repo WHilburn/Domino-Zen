@@ -14,13 +14,13 @@ public class Domino : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // Start with high accuracy
         soundManager = FindObjectOfType<DominoSoundManager>(); // Get reference
-        soundManager.allDominoes.Add(this); // Register this domino
-        soundManager?.StartCoroutine(soundManager.UpdateTargetVolume());
+        // soundManager.allDominoes.Add(this); // Register this domino
+        // soundManager?.StartCoroutine(soundManager.UpdateTargetVolume());
     }
 
     void OnDestroy()
     {
-        soundManager?.allDominoes.Remove(this); // Unregister this domino
+        // soundManager?.allDominoes.Remove(this); // Unregister this domino
     }
 
     void Update()
