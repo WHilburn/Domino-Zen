@@ -1,4 +1,3 @@
-- held domino casts a blue shadow straight down
 - domino cascades fade in a unique sound when falling in large numbers
 - outlines for expected domino placement guides
 - find some chill music

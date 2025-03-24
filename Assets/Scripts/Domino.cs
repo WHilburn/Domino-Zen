@@ -4,35 +4,36 @@ using System.Collections;
 public class Domino : MonoBehaviour
 {
     private Rigidbody rb;
-    private float stillnessThreshold = 0.05f;  // Velocity threshold to consider "stationary"
-    private float checkDelay = 0.4f; // How often to check if it's stationary
-    public Vector3 holdPoint;
+    private float stillnessThreshold = 0.2f;  // Velocity threshold to consider "stationary"
+    public Vector3 holdPoint; // Offset from center to hold the domino
+    public DominoSoundManager soundManager;
+    public bool isMoving = false;
 
     void Start()
     {
-        checkDelay += Random.Range(0f, 0.2f);
         rb = GetComponent<Rigidbody>();
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // Start with high accuracy
-        StartCoroutine(CheckStillnessRoutine()); // Start the coroutine
+        soundManager = FindObjectOfType<DominoSoundManager>(); // Get reference
     }
 
-    private IEnumerator CheckStillnessRoutine()
+    void Update()
     {
-        while (true)
+        bool currentlyMoving = rb.velocity.sqrMagnitude >= stillnessThreshold * stillnessThreshold || 
+        rb.angularVelocity.sqrMagnitude >= stillnessThreshold * stillnessThreshold;
+
+        if (currentlyMoving && !isMoving)
         {
-            yield return new WaitForSeconds(checkDelay);
-
-            if (rb.velocity.sqrMagnitude < stillnessThreshold * stillnessThreshold ||
-                rb.angularVelocity.sqrMagnitude < stillnessThreshold * stillnessThreshold)
-            {
-                rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
-            }
-            else
-            {
-                rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            }
+            isMoving = true;
+            soundManager?.RegisterMovingDomino(); // Notify sound manager
+            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         }
+        else if (!currentlyMoving && isMoving)
+        {
+            isMoving = false;
+            soundManager?.UnregisterMovingDomino(); // Notify sound manager
+            rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+        }
+        isMoving = currentlyMoving;
     }
+
 }
-
-
