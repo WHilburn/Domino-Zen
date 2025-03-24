@@ -1,11 +1,12 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class DominoSoundManager : MonoBehaviour
 {
     public AudioSource cascadeSource; // Background cascade sound
     public AudioClip cascadeClip;     // Rolling cascade sound
-    private Domino[] allDominoes;     // List of all dominoes in scene
+    public List<Domino> allDominoes;  // List of all dominoes in the scene
 
     public float maxVolume = 0.7f;   // Max volume when many dominoes are moving
     public float velocityScale = 0.05f; // Scale factor for volume adjustment
@@ -16,7 +17,7 @@ public class DominoSoundManager : MonoBehaviour
     void Start()
     {
         // Find all dominoes in the scene
-        allDominoes = FindObjectsOfType<Domino>();
+        // allDominoes = FindObjectsOfType<Domino>();
 
         // Setup cascade audio
         cascadeSource.clip = cascadeClip;
