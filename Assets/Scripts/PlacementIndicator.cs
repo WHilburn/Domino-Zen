@@ -8,7 +8,7 @@ public class PlacementIndicator : MonoBehaviour
     public float fadeSpeed = 2f;
     private Coroutine fadeCoroutine;
     private GameObject trackedDomino;
-    private bool isFadingOut = false;
+    public bool isFadingOut = false;
     private float maxAlpha = 0.6f;
     public float maxDistance = 0.15f;
     private AudioSource audioSource;
