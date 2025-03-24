@@ -1196,7 +1196,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cascadeSource: {fileID: 1288420496}
   cascadeClip: {fileID: 8300000, guid: 58ba9a0944de44e65a72c178ddcbff3a, type: 3}
-  movingDominoes: 0
+  maxVolume: 1
+  velocityScale: 0.05
+  volumeLerpSpeed: 5
+  minimumVelocity: -100
 --- !u!1001 &1394368766
 PrefabInstance:
   m_ObjectHideFlags: 0

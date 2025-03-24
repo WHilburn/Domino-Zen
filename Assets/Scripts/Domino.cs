@@ -14,6 +14,7 @@ public class Domino : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // Start with high accuracy
         soundManager = FindObjectOfType<DominoSoundManager>(); // Get reference
+        soundManager?.StartCoroutine(soundManager.UpdateTargetVolume());
     }
 
     void Update()
@@ -24,13 +25,13 @@ public class Domino : MonoBehaviour
         if (currentlyMoving && !isMoving)
         {
             isMoving = true;
-            soundManager?.RegisterMovingDomino(); // Notify sound manager
+            // soundManager?.RegisterMovingDomino(); // Notify sound manager
             rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         }
         else if (!currentlyMoving && isMoving)
         {
             isMoving = false;
-            soundManager?.UnregisterMovingDomino(); // Notify sound manager
+            // soundManager?.UnregisterMovingDomino(); // Notify sound manager
             rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         }
         isMoving = currentlyMoving;
