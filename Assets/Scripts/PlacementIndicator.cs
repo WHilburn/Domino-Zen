@@ -16,6 +16,7 @@ public class PlacementIndicator : MonoBehaviour
     {
         indicatorRenderer = GetComponent<Renderer>();
         placementCollider = GetComponent<Collider>();
+        SnapToGround();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -37,13 +38,27 @@ public class PlacementIndicator : MonoBehaviour
         }
     }
 
+    private void SnapToGround()
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, Mathf.Infinity))
+        {
+            Collider col = GetComponent<Collider>();
+            if (col is BoxCollider box)
+            {
+                float bottomOffset = box.bounds.extents.y; // Get half the height
+                transform.position = hitInfo.point + Vector3.up * bottomOffset;
+            }
+        }
+    }
+
     private IEnumerator MonitorDominoPlacement()
     {
         Rigidbody dominoRb = trackedDomino?.GetComponent<Rigidbody>();
 
-        if (dominoRb == null)
+        if (trackedDomino == null || dominoRb == null)
         {
             trackedDomino = null;
+            fadeCoroutine = StartCoroutine(FadeIn());
             yield break; // Exit coroutine if the domino is null
         }
 
@@ -52,11 +67,12 @@ public class PlacementIndicator : MonoBehaviour
             // Check if trackedDomino is still valid
             if (trackedDomino == null || dominoRb == null)
             {
+                fadeCoroutine = StartCoroutine(FadeIn());
                 yield break; // Exit the coroutine safely
             }
 
             // Wait until the domino is stationary
-            while (dominoRb.velocity.magnitude > 0.05f || dominoRb.angularVelocity.magnitude > 0.05f)
+            while (dominoRb != null && (dominoRb.velocity.magnitude > 0.05f || dominoRb.angularVelocity.magnitude > 0.05f))
             {
                 yield return null;
             }
@@ -64,6 +80,7 @@ public class PlacementIndicator : MonoBehaviour
             // Ensure trackedDomino still exists
             if (trackedDomino == null || dominoRb == null)
             {
+                fadeCoroutine = StartCoroutine(FadeIn());
                 yield break;
             }
 
@@ -89,6 +106,9 @@ public class PlacementIndicator : MonoBehaviour
 
             yield return new WaitForSeconds(0.1f);
         }
+
+        // If the trackedDomino is null (e.g., destroyed), fade back in
+        fadeCoroutine = StartCoroutine(FadeIn());
     }
 
     private IEnumerator FadeOut()

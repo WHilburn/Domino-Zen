@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 8938158811970107191}
   - component: {fileID: 394292742988151520}
   - component: {fileID: 770507577754096161}
-  - component: {fileID: 541870218259342269}
   m_Layer: 2
   m_Name: Placement Indicator
   m_TagString: Untagged
@@ -120,15 +119,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeSpeed: 1
---- !u!114 &541870218259342269
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6552790223727392609}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f24d3354c1c434e7abab71fc391879ef, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  maxDistance: 0.15

@@ -47,6 +47,12 @@ public class DominoPlacement : MonoBehaviour
                 TryPickUpDomino();
             }
         }
+
+        // Delete the held domino when Esc is pressed
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            DeleteHeldDomino();
+        }
     }
 
     void SpawnDomino()
@@ -167,6 +173,19 @@ public class DominoPlacement : MonoBehaviour
         heldRb.angularDrag = savedAngularDrag;
         heldRb.constraints = RigidbodyConstraints.None;
 
+        if (heldHand != null) Destroy(heldHand.gameObject);
+
+        heldDomino = null;
+        heldRb = null;
+        heldHand = null;
+    }
+
+    void DeleteHeldDomino()
+    {
+        if (heldDomino == null) return;
+
+        // Destroy the held domino and clean up references
+        Destroy(heldDomino);
         if (heldHand != null) Destroy(heldHand.gameObject);
 
         heldDomino = null;
