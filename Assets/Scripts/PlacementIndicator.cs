@@ -11,9 +11,11 @@ public class PlacementIndicator : MonoBehaviour
     private bool isFadingOut = false;
     private float maxAlpha = 0.6f;
     public float maxDistance = 0.15f;
+    private AudioSource audioSource;
 
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         indicatorRenderer = GetComponent<Renderer>();
         placementCollider = GetComponent<Collider>();
         SnapToGround();
@@ -116,7 +118,7 @@ public class PlacementIndicator : MonoBehaviour
         isFadingOut = true;
         Color startColor = indicatorRenderer.material.color;
         float alpha = startColor.a;
-
+        audioSource.Play(); //Play before fading out
         while (alpha > 0)
         {
             alpha -= Time.deltaTime * fadeSpeed;
@@ -124,6 +126,7 @@ public class PlacementIndicator : MonoBehaviour
             yield return null;
         }
 
+        // audioSource.Play(); // Play after fading out
         indicatorRenderer.enabled = false;
     }
 
