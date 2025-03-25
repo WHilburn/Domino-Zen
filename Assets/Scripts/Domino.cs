@@ -10,6 +10,7 @@ public class Domino : MonoBehaviour
     public CameraController cameraController;
     public bool isMoving = false;
     public bool isHeld = false;
+    public float velocityMagnitude;
 
     void Start()
     {
@@ -30,6 +31,13 @@ public class Domino : MonoBehaviour
         {
             return;
         }
+        
+        if (rb != null && soundManager != null)
+        {
+            velocityMagnitude = rb.angularVelocity.magnitude;
+            soundManager.UpdateDominoMovement(velocityMagnitude);
+        }
+
         bool currentlyMoving = rb.velocity.sqrMagnitude >= stillnessThreshold * stillnessThreshold || 
         rb.angularVelocity.sqrMagnitude >= stillnessThreshold * stillnessThreshold;
 
