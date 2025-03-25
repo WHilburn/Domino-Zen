@@ -40,6 +40,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 73581542299468990}
     m_Modifications:
+    - target: {fileID: 415018194288119817, guid: 336bcad52e1c74c77ae1b4939e3a0feb, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 57b1f1547066bef49b386f0bea09aaef, type: 2}
     - target: {fileID: 3709038208395034117, guid: 336bcad52e1c74c77ae1b4939e3a0feb, type: 3}
       propertyPath: m_Name
       value: Standard Domino
