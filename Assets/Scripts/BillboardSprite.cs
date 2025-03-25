@@ -6,7 +6,7 @@ public class BillboardSprite : MonoBehaviour
 
     void Start()
     {
-        mainCamera = Camera.main;
+        mainCamera = FindFirstObjectByType<Camera>();
     }
 
     void Update()

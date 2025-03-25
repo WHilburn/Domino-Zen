@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
+using Cinemachine;
 
 public class DominoPlacement : MonoBehaviour
 {
@@ -17,7 +18,12 @@ public class DominoPlacement : MonoBehaviour
     public float cameraSpeed = 10f; // Speed of camera movement
     public float hoverOffset = 1.6f; // Distance the hand should hover over the ground when placing
     public float rotationSpeed = 100f; // Degrees per second to rotate dominoes
-    public bool debug = true;
+    public Camera activeCamera; // Reference to the active Cinemachine camera
+
+    void Start()
+    {
+        activeCamera = FindFirstObjectByType<Camera>();
+    }
 
     void Update()
     {
@@ -98,9 +104,10 @@ public class DominoPlacement : MonoBehaviour
         heldRb.velocity = Vector3.zero; // Stop any initial movement
         heldRb.angularVelocity = Vector3.zero; // Prevent any initial spin
     }
+
     void TryPickUpDomino()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             Domino domino = hit.collider.GetComponent<Domino>();
@@ -217,7 +224,7 @@ public class DominoPlacement : MonoBehaviour
 
     Vector3 GetMouseWorldPosition()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             return hit.point + Vector3.up * hoverOffset;
