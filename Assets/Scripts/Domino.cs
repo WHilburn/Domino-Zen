@@ -4,7 +4,7 @@ using System.Collections;
 public class Domino : MonoBehaviour
 {
     private Rigidbody rb;
-    private float stillnessThreshold = 1f;  // Velocity threshold to consider "stationary"
+    private float stillnessThreshold = 5f;  // Velocity threshold to consider "stationary"
     public Vector3 holdPoint; // Offset from center to hold the domino
     public DominoSoundManager soundManager;
     public CameraController cameraController;
@@ -40,7 +40,7 @@ public class Domino : MonoBehaviour
             {
                 cameraController.fallingDominoes.Add(transform);
             }
-            StartCoroutine(RemoveFromFallingDominoes(0.5f));
+            StartCoroutine(RemoveFromFallingDominoes(0.25f));
             rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
         }
@@ -55,7 +55,7 @@ public class Domino : MonoBehaviour
     public IEnumerator RemoveFromFallingDominoes(float delay)
     {
         yield return new WaitForSeconds(delay);
-        // cameraController?.fallingDominoes.Remove(transform);
+        cameraController?.fallingDominoes.Remove(transform);
     }
 
 }

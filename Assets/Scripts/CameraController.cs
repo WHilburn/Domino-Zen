@@ -51,6 +51,10 @@ public class CameraController : MonoBehaviour
         for (int i = 0; i < fallingDominoes.Count; i++)
         {
             float dominoVelocity = fallingDominoes[i].GetComponent<Rigidbody>().angularVelocity.magnitude;
+            if (dominoVelocity < .1f)
+            {
+                dominoVelocity = .1f;
+            }
             targetGroup.m_Targets[i] = new CinemachineTargetGroup.Target
             {
                 target = fallingDominoes[i],
@@ -80,7 +84,7 @@ public class CameraController : MonoBehaviour
             targetPosition += domino.position;
         }
         targetPosition /= fallingDominoes.Count;
-        targetPosition.y += heightOffset; // Raise the center
+        targetPosition.y -= heightOffset; // Raise the center
 
         // Smoothly move the target group
         targetGroup.transform.position = Vector3.SmoothDamp(targetGroup.transform.position, targetPosition, ref velocity, smoothTime);
