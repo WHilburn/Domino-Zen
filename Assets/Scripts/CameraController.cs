@@ -48,16 +48,16 @@ public class CameraController : MonoBehaviour
         targetGroup.m_Targets = new CinemachineTargetGroup.Target[fallingDominoes.Count];
         for (int i = 0; i < fallingDominoes.Count; i++)
         {
-            float dominoVelocity = fallingDominoes[i].GetComponent<Rigidbody>().angularVelocity.magnitude;
-            if (dominoVelocity < .1f)
-            {
-                // dominoVelocity = .1f;
-            }
+            // float dominoVelocity = fallingDominoes[i].GetComponent<Rigidbody>().angularVelocity.magnitude;
+            // if (dominoVelocity < .1f)
+            // {
+            //     dominoVelocity = .1f;
+            // }
             targetGroup.m_Targets[i] = new CinemachineTargetGroup.Target
             {
                 target = fallingDominoes[i],
-                weight = dominoVelocity,// Adjust weight based on rotational velocity
-                radius = 3f // Adjust for better framing
+                weight = 1,
+                radius = 3f
             };
         }
 
