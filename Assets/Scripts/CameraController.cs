@@ -8,21 +8,28 @@ public class CameraController : MonoBehaviour
     public float minFov = 20f;            // Minimum field of view for zooming
     public float maxFov = 60f;            // Maximum field of view for zooming
     public float moveSpeed = 5f;          // Speed of lateral camera movement
+    private float speedMultiplier = 1f;   // Speed multiplier for camera movement
 
     private float xRotation = 0f;         // Track current vertical rotation
     private Vector2 lastMousePosition;    // To track mouse movement
 
     private Camera cameraComponent;       // Reference to the Camera component
-    private float targetFov;              // Field of view to smoothly zoom
 
     void Start()
     {
         cameraComponent = Camera.main;    // Get the main camera
-        targetFov = cameraComponent.fieldOfView;  // Initialize target FOV to current camera FOV
     }
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.LeftShift)) // double camera speed
+        {
+            speedMultiplier *= 2;
+        }
+        if (Input.GetKeyUp(KeyCode.LeftShift)) // reset camera speed
+        {
+            speedMultiplier /= 2;
+        }
         HandleCameraRotation();
         HandleZoom();
         HandleCameraMovement();
@@ -58,15 +65,14 @@ public class CameraController : MonoBehaviour
 
     private void HandleZoom()
     {
-        // Get mouse scroll wheel input for zooming
+        // Get mouse scroll wheel input for moving the camera forward/backward
         float zoomInput = Input.GetAxis("Mouse ScrollWheel");
 
-        // Adjust the field of view based on the zoom input
-        targetFov -= zoomInput * zoomSpeed;
-        targetFov = Mathf.Clamp(targetFov, minFov, maxFov);  // Clamp FOV within min and max limits
+        // Move the camera forward/backward based on the zoom input
+        Vector3 forwardMovement = cameraComponent.transform.forward * zoomInput * zoomSpeed;
 
-        // Smoothly interpolate between current FOV and target FOV for zoom effect
-        cameraComponent.fieldOfView = Mathf.Lerp(cameraComponent.fieldOfView, targetFov, Time.deltaTime * zoomSpeed);
+        // Apply the movement to the camera's position
+        transform.position += forwardMovement * speedMultiplier;
     }
 
     private void HandleCameraMovement()
@@ -83,7 +89,7 @@ public class CameraController : MonoBehaviour
         right.y = 0f;
 
         // Move the camera laterally (left/right, forward/backward)
-        transform.position += forward * verticalMovement * moveSpeed * Time.deltaTime;
-        transform.position += right * horizontalMovement * moveSpeed * Time.deltaTime;
+        transform.position += forward * verticalMovement * moveSpeed * Time.deltaTime * speedMultiplier;
+        transform.position += right * horizontalMovement * moveSpeed * Time.deltaTime * speedMultiplier;
     }
 }

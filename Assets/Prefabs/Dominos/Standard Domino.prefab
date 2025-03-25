@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 7340539583291809194}
   - component: {fileID: 3037082172810108690}
   m_Layer: 0
-  m_Name: Small Domino
+  m_Name: Standard Domino
   m_TagString: DominoTag
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -314,6 +314,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce18473ddd0bda242bd90e7ce3e384d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  velocityMagnitude: 0
 --- !u!1 &7744307541045906752
 GameObject:
   m_ObjectHideFlags: 0
