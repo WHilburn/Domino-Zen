@@ -13,6 +13,7 @@ public class CameraController : MonoBehaviour
     public List<Transform> fallingDominoes = new List<Transform>();
 
     public float heightOffset = 2f; // Extra height to prevent low shots
+    public float cameraHeightBoost = 10f; // Extra height for tracking camera
     public float smoothTime = 0.5f; // Smoothing time for camera adjustments
     private Vector3 velocity = Vector3.zero; // Used for smooth dampening
 
@@ -27,7 +28,7 @@ public class CameraController : MonoBehaviour
     {
         if (fallingDominoes.Count >= 2)
         {
-            StartTracking();
+            TrackDominoes();
         }
         else
         {
@@ -36,23 +37,25 @@ public class CameraController : MonoBehaviour
         if (isTracking)
         {
             UpdateTargetGroup();
+            UpdateCameraPosition();
         }
     }
 
-    public void StartTracking()
+    public void TrackDominoes()
     {
-        if (isTracking) return; // Prevent re-triggering unnecessarily
+        //if (isTracking) return; // Prevent re-triggering unnecessarily
         isTracking = true;
 
         // Add dominoes to target group with smooth weight adjustments
         targetGroup.m_Targets = new CinemachineTargetGroup.Target[fallingDominoes.Count];
         for (int i = 0; i < fallingDominoes.Count; i++)
         {
+            float dominoVelocity = fallingDominoes[i].GetComponent<Rigidbody>().angularVelocity.magnitude;
             targetGroup.m_Targets[i] = new CinemachineTargetGroup.Target
             {
                 target = fallingDominoes[i],
-                weight = 1f,
-                radius = 5f // Adjust for better framing
+                weight = dominoVelocity,// Adjust weight based on rotational velocity
+                radius = 3f // Adjust for better framing
             };
         }
 
@@ -70,29 +73,28 @@ public class CameraController : MonoBehaviour
     {
         if (fallingDominoes.Count == 0) return;
 
-        // Compute the smooth center position of the target group
+        // Compute the center position of the target group
         Vector3 targetPosition = Vector3.zero;
         foreach (Transform domino in fallingDominoes)
         {
             targetPosition += domino.position;
         }
         targetPosition /= fallingDominoes.Count;
-        targetPosition.y += heightOffset; // Raise the center smoothly
+        targetPosition.y += heightOffset; // Raise the center
 
-        // Smoothly move the target group to prevent jitter
+        // Smoothly move the target group
         targetGroup.transform.position = Vector3.SmoothDamp(targetGroup.transform.position, targetPosition, ref velocity, smoothTime);
+    }
 
-        // Adjust look-at target to always be slightly above the center
-        if (lookAtTarget != null)
-        {
-            lookAtTarget.position = targetGroup.transform.position + Vector3.up * heightOffset;
-        }
+    private void UpdateCameraPosition()
+    {
+        if (!isTracking) return;
 
-        // If all dominoes stop falling, stop tracking
-        if (fallingDominoes.Count == 0)
-        {
-            StopTracking();
-        }
+        // Compute a higher camera position above the target group
+        Vector3 cameraTargetPosition = targetGroup.transform.position + Vector3.up * cameraHeightBoost;
+
+        // Smoothly move the camera itself
+        trackingCamera.transform.position = Vector3.SmoothDamp(trackingCamera.transform.position, cameraTargetPosition, ref velocity, smoothTime);
     }
 
     private void EnableFreeLook()

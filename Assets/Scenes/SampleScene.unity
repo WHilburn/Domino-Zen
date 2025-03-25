@@ -171,6 +171,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5712590507675573964, guid: cf899218bc89fab449fcc427fb2103eb, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.502
+      objectReference: {fileID: 0}
+    - target: {fileID: 5712590507675573964, guid: cf899218bc89fab449fcc427fb2103eb, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.111
+      objectReference: {fileID: 0}
+    - target: {fileID: 8481016212477046924, guid: cf899218bc89fab449fcc427fb2103eb, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -4.854
+      objectReference: {fileID: 0}
+    - target: {fileID: 8481016212477046924, guid: cf899218bc89fab449fcc427fb2103eb, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8852988654274777080, guid: cf899218bc89fab449fcc427fb2103eb, type: 3}
       propertyPath: m_Name
       value: Domino Line (23)
@@ -1056,7 +1072,7 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 898150367}
+  m_LookAt: {fileID: 662383360}
   m_Follow: {fileID: 662383360}
   m_Lens:
     FieldOfView: 60.000004
@@ -4333,7 +4349,8 @@ MonoBehaviour:
   trackingCamera: {fileID: 424850683}
   targetGroup: {fileID: 662383359}
   fallingDominoes: []
-  heightOffset: 150
+  heightOffset: 1
+  cameraHeightBoost: 100
   smoothTime: 0.5
   lookAtTarget: {fileID: 898150367}
 --- !u!114 &1953229836831725910

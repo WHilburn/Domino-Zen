@@ -55,7 +55,7 @@ public class Domino : MonoBehaviour
     public IEnumerator RemoveFromFallingDominoes(float delay)
     {
         yield return new WaitForSeconds(delay);
-        cameraController?.fallingDominoes.Remove(transform);
+        // cameraController?.fallingDominoes.Remove(transform);
     }
 
 }
