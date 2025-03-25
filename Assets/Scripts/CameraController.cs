@@ -17,8 +17,6 @@ public class CameraController : MonoBehaviour
     public float smoothTime = 0.5f; // Smoothing time for camera adjustments
     private Vector3 velocity = Vector3.zero; // Used for smooth dampening
 
-    public Transform lookAtTarget; // Empty GameObject to control camera look direction
-
     void Start()
     {
         EnableFreeLook(); // Start with player control
@@ -113,6 +111,6 @@ public class CameraController : MonoBehaviour
         trackingCamera.Priority = 20; // Higher priority takes over
 
         // Make sure tracking camera looks at the adjusted target
-        trackingCamera.LookAt = lookAtTarget;
+        // trackingCamera.LookAt = lookAtTarget;
     }
 }
