@@ -1,11 +1,12 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class CameraController : MonoBehaviour
 {
     public float rotationSpeed = .1f;    // Sensitivity of camera rotation
     public float verticalLimit = 80f;     // Limit the vertical rotation (up/down)
     public float zoomSpeed = 10f;         // Speed of zooming in and out
-    public float minFov = 20f;            // Minimum field of view for zooming
+    public float minFov = 40f;            // Minimum field of view for zooming
     public float maxFov = 60f;            // Maximum field of view for zooming
     public float moveSpeed = 5f;          // Speed of lateral camera movement
     private float speedMultiplier = 1f;   // Speed multiplier for camera movement
@@ -14,6 +15,13 @@ public class CameraController : MonoBehaviour
     private Vector2 lastMousePosition;    // To track mouse movement
 
     private Camera cameraComponent;       // Reference to the Camera component
+    public List<Transform> fallingDominoes = new List<Transform>();
+    public Bounds bounds;
+    private bool trackingDominoes = false;
+    public float trackingTransitionSpeed = 2f;  // Smooth transition speed
+    public float trackingFOVSpeed = 2f;  // Smooth zoom speed
+    public Vector3 targetPosition;
+    public float targetFov;
 
     void Start()
     {
@@ -21,18 +29,75 @@ public class CameraController : MonoBehaviour
     }
 
     void Update()
+    {   
+        if (fallingDominoes.Count < 2 && trackingDominoes)
+        {
+            trackingDominoes = false;
+        }
+        else if (fallingDominoes.Count >= 2 && !trackingDominoes)
+        {
+            trackingDominoes = true;
+            var dominoPlacement = FindObjectOfType<DominoPlacement>();
+        }
+        if (trackingDominoes)
+        {
+            UpdateTrackingCamera();
+        }
+        else
+        {
+            if (Input.GetKeyDown(KeyCode.LeftShift)) // double camera speed
+            {
+                speedMultiplier *= 2;
+            }
+            if (Input.GetKeyUp(KeyCode.LeftShift)) // reset camera speed
+            {
+                speedMultiplier /= 2;
+            }
+            HandleCameraRotation();
+            HandleZoom();
+            HandleCameraMovement();
+            cameraComponent.fieldOfView = Mathf.Lerp(cameraComponent.fieldOfView, 60, Time.deltaTime * trackingFOVSpeed);
+        }
+
+    }
+
+    public void TrackFallingDominoes(List<Transform> dominos)
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift)) // double camera speed
+        fallingDominoes = dominos;
+        trackingDominoes = true;
+    }
+
+    private void UpdateDominoBounds()
+    {
+        if (fallingDominoes.Count == 0) return;
+
+        // Compute bounding box
+        bounds = new Bounds(fallingDominoes[0].position, Vector3.zero);
+        foreach (Transform domino in fallingDominoes)
         {
-            speedMultiplier *= 2;
+            bounds.Encapsulate(domino.position);
         }
-        if (Input.GetKeyUp(KeyCode.LeftShift)) // reset camera speed
-        {
-            speedMultiplier /= 2;
-        }
-        HandleCameraRotation();
-        HandleZoom();
-        HandleCameraMovement();
+
+        // Set target camera position
+        Vector3 center = bounds.center;
+        float maxExtent = bounds.extents.magnitude;
+
+        // Adjust the target position to ensure all dominoes are in view
+        targetPosition = center + new Vector3(0, maxExtent * 2, -maxExtent * 2);
+        targetFov = Mathf.Clamp(maxExtent * 10, minFov, maxFov);
+    }
+
+    private void UpdateTrackingCamera()
+    {
+        if (!trackingDominoes) return;
+
+        UpdateDominoBounds();
+
+        // Smoothly move camera
+        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * trackingTransitionSpeed);
+
+        // Smoothly adjust FOV
+        cameraComponent.fieldOfView = Mathf.Lerp(cameraComponent.fieldOfView, targetFov, Time.deltaTime * trackingFOVSpeed);
     }
 
     private void HandleCameraRotation()

@@ -62,6 +62,7 @@ public class DominoPlacement : MonoBehaviour
 
         heldDomino = Instantiate(dominoPrefab, spawnPos, spawnRotation);
         heldDomino.layer = LayerMask.NameToLayer("Ignore Raycast");
+        heldDomino.GetComponent<Domino>().isHeld = true;
         decalProjector = heldDomino.GetComponent<DecalProjector>();
         decalProjector.enabled = true;
         heldRb = heldDomino.GetComponent<Rigidbody>();
@@ -113,6 +114,7 @@ public class DominoPlacement : MonoBehaviour
     void PickUpDomino(GameObject domino)
     {
         heldDomino = domino;
+        heldDomino.GetComponent<Domino>().isHeld = true;
         heldDomino.layer = LayerMask.NameToLayer("Ignore Raycast");
         heldRb = heldDomino.GetComponent<Rigidbody>();
 
@@ -161,6 +163,7 @@ public class DominoPlacement : MonoBehaviour
         if (heldDomino == null) return;
 
         heldDomino.layer = LayerMask.NameToLayer("Default");
+        heldDomino.GetComponent<Domino>().isHeld = false;
 
         SpringJoint spring = heldDomino.GetComponent<SpringJoint>();
         if (spring != null) Destroy(spring);
@@ -180,7 +183,7 @@ public class DominoPlacement : MonoBehaviour
         heldHand = null;
     }
 
-    void DeleteHeldDomino()
+    public void DeleteHeldDomino()
     {
         if (heldDomino == null) return;
 
