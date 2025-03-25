@@ -34,8 +34,8 @@ public class CameraController : MonoBehaviour
         }
         if (isTracking)
         {
-            UpdateTargetGroup();
-            UpdateCameraPosition();
+            // UpdateTargetGroup();
+            // UpdateCameraPosition();
         }
     }
 
@@ -51,7 +51,7 @@ public class CameraController : MonoBehaviour
             float dominoVelocity = fallingDominoes[i].GetComponent<Rigidbody>().angularVelocity.magnitude;
             if (dominoVelocity < .1f)
             {
-                dominoVelocity = .1f;
+                // dominoVelocity = .1f;
             }
             targetGroup.m_Targets[i] = new CinemachineTargetGroup.Target
             {
