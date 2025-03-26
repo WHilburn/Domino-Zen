@@ -5,14 +5,17 @@ public class DominoSound : MonoBehaviour
     private AudioSource audioSource;
     private Rigidbody rb;
     public DominoSoundList soundList;
+    public DominoSoundList dominoClickSounds;
 
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
+        audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
         rb = GetComponent<Rigidbody>();
-        if (audioSource == null)
+
+        // If domino sound list is DominoClickSounds, set source pitch to 2
+        if (soundList == dominoClickSounds)
         {
-            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.pitch = 2;
         }
     }
 
@@ -24,9 +27,9 @@ public class DominoSound : MonoBehaviour
 
         // Only play a sound if impact is strong enough
         if (impactForce > 0.2f)
-        {
-            // Select a random sound
-            AudioClip clip = soundList.sounds[Random.Range(0, soundList.sounds.Length)];
+        {   
+            AudioClip clip = soundList.sounds[Random.Range(0, soundList.sounds.Length)];// Choose a random sound from the list
+
             // Adjust volume based on impact force (clamped between 0.1 and 1.0)
             float volume = Mathf.Clamp(impactForce / 10f, 0.1f, 1.0f);
             audioSource.PlayOneShot(clip, volume);
