@@ -14,8 +14,7 @@ public class DominoPlacement : MonoBehaviour
     private DecalProjector decalProjector;
     private float savedDrag;
     private float savedAngularDrag;
-    public float followSpeed = 5f;  // How quickly the domino follows the mouse
-    public float cameraSpeed = 10f; // Speed of camera movement
+    public float followSpeed = 1f;  // How quickly the domino follows the mouse
     public float hoverOffset = 1.6f; // Distance the hand should hover over the ground when placing
     public float rotationSpeed = 100f; // Degrees per second to rotate dominoes
     public Camera activeCamera; // Reference to the active Cinemachine camera
@@ -63,6 +62,7 @@ public class DominoPlacement : MonoBehaviour
 
     void SpawnDomino()
     {
+        if (!activeCamera.enabled || activeCamera == null) return;
         Vector3 spawnPos = GetMouseWorldPosition();
         Quaternion spawnRotation = Quaternion.Euler(90f, 0f, 0f); // Upright rotation
 
@@ -107,6 +107,7 @@ public class DominoPlacement : MonoBehaviour
 
     void TryPickUpDomino()
     {
+        if (!activeCamera.enabled || activeCamera == null) return;
         Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {

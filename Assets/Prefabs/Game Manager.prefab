@@ -143,6 +143,7 @@ GameObject:
   - component: {fileID: 6505670368063732493}
   - component: {fileID: 9135664522685762556}
   - component: {fileID: 5122199391851711232}
+  - component: {fileID: 2013973248376679852}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: Untagged
@@ -302,8 +303,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dominoPrefab: {fileID: 3709038208395034117, guid: 336bcad52e1c74c77ae1b4939e3a0feb, type: 3}
   handPrefab: {fileID: 2954985963256647315, guid: 3b89fa04c77274e7a81bf1e4bfc749a1, type: 3}
-  followSpeed: 5
-  cameraSpeed: 10
+  followSpeed: 1
   hoverOffset: 1.2
   rotationSpeed: 100
   activeCamera: {fileID: 0}
@@ -358,6 +358,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   allIndicators: []
+--- !u!114 &2013973248376679852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 897745026259224019}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29977e2bb21498048945c6be6a30a425, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2588598984292239514
 GameObject:
   m_ObjectHideFlags: 0
@@ -663,8 +675,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73a6eff22df03494c8539a9ab64177f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 50
+  moveSpeed: 10
   lookSpeed: 5
-  minDistance: 2
-  maxDistance: 10
-  collisionRadius: 1
+  collisionRadius: 2
+  verticalSpeed: 5
+  damping: 10
