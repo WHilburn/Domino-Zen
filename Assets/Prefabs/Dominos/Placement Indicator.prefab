@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 9053457055911053428}
   m_Layer: 2
   m_Name: Placement Indicator
-  m_TagString: Untagged
+  m_TagString: IndicatorTag
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -15,6 +15,20 @@ public class PlayerCameraController : MonoBehaviour
     private float currentRotationX = 0f;
     private float currentRotationY = 0f;
 
+    void Start()
+    {
+        // Initialize rotation values from the camera's current rotation
+        Vector3 initialEulerAngles = transform.eulerAngles;
+        currentRotationX = initialEulerAngles.x;
+        currentRotationY = initialEulerAngles.y;
+    }
+
+    void OnEnable()
+    {
+        Vector3 initialEulerAngles = transform.eulerAngles;
+        currentRotationX = initialEulerAngles.x;
+        currentRotationY = initialEulerAngles.y;
+    }
     void Update()
     {
         float currentMoveSpeed = Input.GetKey(KeyCode.LeftShift) ? moveSpeed * 3f : moveSpeed;

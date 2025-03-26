@@ -41,11 +41,11 @@ public class DominoSound : MonoBehaviour
             {
                 lastPlayedNoteIndex = (lastPlayedNoteIndex + 1) % soundList.sounds.Length;
                 clip = soundList.sounds[lastPlayedNoteIndex];
-                Debug.Log("Playing note " + lastPlayedNoteIndex);
+                // Debug.Log("Playing note " + lastPlayedNoteIndex);
             }
 
             // Adjust volume based on impact force (clamped between 0.1 and 1.0)
-            float volume = Mathf.Clamp(impactForce / 10f, 0.1f, 1.0f);
+            float volume = Mathf.Clamp(impactForce / 20f, 0.1f, 1.0f);
             audioSource.PlayOneShot(clip, volume);
 
             rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;

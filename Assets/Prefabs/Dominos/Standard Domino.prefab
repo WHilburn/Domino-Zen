@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 2eb8b70a42ce24a25a84e149d170ca0b, type: 2}
+  - {fileID: 2100000, guid: 2e819c8ba9f3546ff815821b37ea875c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -99,6 +99,7 @@ GameObject:
   - component: {fileID: -2827611252534224556}
   - component: {fileID: 7340539583291809194}
   - component: {fileID: 6187838271345159952}
+  - component: {fileID: 2668708824225100415}
   m_Layer: 0
   m_Name: Standard Domino
   m_TagString: DominoTag
@@ -286,7 +287,6 @@ MonoBehaviour:
   isMoving: 0
   isHeld: 0
   velocityMagnitude: 0
-  materialList: {fileID: 11400000, guid: 1c1c03eb8896b474abdc27ed5b386e2e, type: 2}
 --- !u!114 &-2827611252534224556
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -350,6 +350,19 @@ LODGroup:
     renderers:
     - renderer: {fileID: 4393015718317914254}
   m_Enabled: 1
+--- !u!114 &2668708824225100415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3709038208395034117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f2f10b34ea0011488e812f589db69bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  materialList: {fileID: 11400000, guid: 1c1c03eb8896b474abdc27ed5b386e2e, type: 2}
 --- !u!1 &4033301335061731980
 GameObject:
   m_ObjectHideFlags: 0
@@ -411,7 +424,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 2eb8b70a42ce24a25a84e149d170ca0b, type: 2}
+  - {fileID: 2100000, guid: 2e819c8ba9f3546ff815821b37ea875c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

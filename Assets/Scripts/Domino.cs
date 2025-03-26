@@ -11,7 +11,7 @@ public class Domino : MonoBehaviour
     public bool isMoving = false;
     public bool isHeld = false;
     public float velocityMagnitude;
-    public DominoMaterialList materialList; // Reference to the shared material list
+    // public DominoMaterialList materialList; // Reference to the shared material list
 
     void Start()
     {
@@ -20,21 +20,21 @@ public class Domino : MonoBehaviour
         soundManager = FindObjectOfType<DominoSoundManager>(); // Get reference
         cameraController = FindObjectOfType<CameraController>();
 
-        if (materialList == null || materialList.materials.Length == 0)
-        {
-            Debug.LogWarning("No material list assigned or the list is empty!", gameObject);
-            return;
-        }
+        // if (materialList == null || materialList.materials.Length == 0)
+        // {
+        //     Debug.LogWarning("No material list assigned or the list is empty!", gameObject);
+        //     return;
+        // }
 
-        // Choose a random material from the shared list
-        Material chosenMaterial = materialList.materials[Random.Range(0, materialList.materials.Length)];
+        // // Choose a random material from the shared list
+        // Material chosenMaterial = materialList.materials[Random.Range(0, materialList.materials.Length)];
 
-        // Apply to all LOD models
-        MeshRenderer[] meshRenderers = GetComponentsInChildren<MeshRenderer>();
-        foreach (MeshRenderer renderer in meshRenderers)
-        {
-            renderer.material = chosenMaterial;
-        }
+        // // Apply to all LOD models
+        // MeshRenderer[] meshRenderers = GetComponentsInChildren<MeshRenderer>();
+        // foreach (MeshRenderer renderer in meshRenderers)
+        // {
+        //     renderer.material = chosenMaterial;
+        // }
 
     }
 
