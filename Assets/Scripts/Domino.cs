@@ -11,6 +11,7 @@ public class Domino : MonoBehaviour
     public bool isMoving = false;
     public bool isHeld = false;
     public float velocityMagnitude;
+    public Material[] dominoMaterials; // List of materials to choose from
 
     void Start()
     {
@@ -18,6 +19,22 @@ public class Domino : MonoBehaviour
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // Start with high accuracy
         soundManager = FindObjectOfType<DominoSoundManager>(); // Get reference
         cameraController = FindObjectOfType<CameraController>();
+
+        if (dominoMaterials.Length == 0)
+        {
+            Debug.LogWarning("No materials assigned to DominoMaterialRandomizer!");
+            return;
+        }
+
+        // Choose a random material from the list
+        Material chosenMaterial = dominoMaterials[Random.Range(0, dominoMaterials.Length)];
+
+        // Apply to all child LOD models
+        MeshRenderer[] meshRenderers = GetComponentsInChildren<MeshRenderer>();
+        foreach (MeshRenderer renderer in meshRenderers)
+        {
+            renderer.material = chosenMaterial;
+        }
     }
 
     void OnDestroy()
