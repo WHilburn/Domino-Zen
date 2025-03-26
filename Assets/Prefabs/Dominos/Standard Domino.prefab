@@ -287,35 +287,7 @@ MonoBehaviour:
   isMoving: 0
   isHeld: 0
   velocityMagnitude: 0
-  dominoMaterials:
-  - {fileID: 2100000, guid: 2eb8b70a42ce24a25a84e149d170ca0b, type: 2}
-  - {fileID: 2100000, guid: c0873ee89900940a49721acb102fcf0e, type: 2}
-  - {fileID: 2100000, guid: 549a069517c234fae96df6bda3ffcd98, type: 2}
-  - {fileID: 2100000, guid: da41d45b3643e49c48e489735ae76c37, type: 2}
-  - {fileID: 2100000, guid: 8d9b4be6747b84bf8abdf8af46bf36b5, type: 2}
-  - {fileID: 2100000, guid: b835b75299cf6418f8c77ec28b4845ce, type: 2}
-  - {fileID: 2100000, guid: 372c43516c3804cf790683fb30f48b69, type: 2}
-  - {fileID: 2100000, guid: 515e731343d974b8faf9eecb2cdb3304, type: 2}
-  - {fileID: 2100000, guid: d574229f55a034a5eab79abbdf05e372, type: 2}
-  - {fileID: 2100000, guid: 182e6af393ec74c22bc60bc4035e78ca, type: 2}
-  - {fileID: 2100000, guid: 2e819c8ba9f3546ff815821b37ea875c, type: 2}
-  - {fileID: 2100000, guid: b8a885aaece194156a64d738471da863, type: 2}
-  - {fileID: 2100000, guid: 51f0b2d247c9e4e4db77bd50185d74cc, type: 2}
-  - {fileID: 2100000, guid: ee2dacdd8f5134ab4bb03bb2eb8ecbe6, type: 2}
-  - {fileID: 2100000, guid: a5daacf65dfed46b8a0c26d8bf2f5dfc, type: 2}
-  - {fileID: 2100000, guid: e022918426e534d48990ecf1dc8389f8, type: 2}
-  - {fileID: 2100000, guid: 1a7036ee3192d489fb3f408b8361c83d, type: 2}
-  - {fileID: 2100000, guid: 09adbdb00ca6040b59406b3c9ce66baa, type: 2}
-  - {fileID: 2100000, guid: 70bad59195f4c4c589da8cd84f1e2f4c, type: 2}
-  - {fileID: 2100000, guid: e95eb5c17de384a048d4963d23a376c1, type: 2}
-  - {fileID: 2100000, guid: 7f0b76550b00647b98684f0ed4cc9d40, type: 2}
-  - {fileID: 2100000, guid: 0f1c4ffa741b849a09a2eb7bb38f3d14, type: 2}
-  - {fileID: 2100000, guid: 17dd0738e545d4e3b85e8393b724b6a2, type: 2}
-  - {fileID: 2100000, guid: 901ba0db4ba304869b00a97cbfa55a26, type: 2}
-  - {fileID: 2100000, guid: 1f973182cd5ec4d6f8a8df08df58820c, type: 2}
-  - {fileID: 2100000, guid: 715823e79a03e4a608d1971623344374, type: 2}
-  - {fileID: 2100000, guid: 9098c9233d3c74386852bdc98b706b7f, type: 2}
-  - {fileID: 2100000, guid: 0320e3de5cd2e46aab1c19c6dcedbbfa, type: 2}
+  materialList: {fileID: 11400000, guid: 1c1c03eb8896b474abdc27ed5b386e2e, type: 2}
 --- !u!114 &-2827611252534224556
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -328,22 +300,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce000b794d65e4bfd860856709aa7f9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dominoSounds:
-  - {fileID: 8300000, guid: 007b87632d3824ea396e99bd654cbea8, type: 3}
-  - {fileID: 8300000, guid: 0853e8490ab3e43678e5f53f6cc9e644, type: 3}
-  - {fileID: 8300000, guid: 36f16a0eea8474679a857c4c761ec12b, type: 3}
-  - {fileID: 8300000, guid: 26532a3248198428587eb19e08c6e463, type: 3}
-  - {fileID: 8300000, guid: c415456192d7e4862820b142871c1ef7, type: 3}
-  - {fileID: 8300000, guid: ff34c8e17f1fe47289c4b00f070ff327, type: 3}
-  - {fileID: 8300000, guid: c0305624acc564b19bf09e1ba62b15d3, type: 3}
-  - {fileID: 8300000, guid: d13d792b4f0a24da1a802b91d69a6216, type: 3}
-  - {fileID: 8300000, guid: bb46225afc6d24ad0ab4b9663145d13a, type: 3}
-  - {fileID: 8300000, guid: 790fbf56ee9ed4809bd64abc2ac33d97, type: 3}
-  - {fileID: 8300000, guid: ec27a29d89f114fbd9f89dbaf3ca8416, type: 3}
-  - {fileID: 8300000, guid: dac79b68dd0de4500b7e217ef1d16b02, type: 3}
-  - {fileID: 8300000, guid: e85233d67fa5c456a9d31b0e90300c68, type: 3}
-  - {fileID: 8300000, guid: 86a8e44d40b984a0abf8269c84e3d700, type: 3}
-  - {fileID: 8300000, guid: f12c9f613bd25492387af2666f1d9996, type: 3}
+  soundList: {fileID: 11400000, guid: b75dc4c91cf6ef244897d08b0a63e357, type: 2}
 --- !u!114 &7340539583291809194
 MonoBehaviour:
   m_ObjectHideFlags: 0

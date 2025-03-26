@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class DominoSound : MonoBehaviour
 {
-    public AudioClip[] dominoSounds;
     private AudioSource audioSource;
     private Rigidbody rb;
+    public DominoSoundList soundList;
 
     void Start()
     {
@@ -18,7 +18,7 @@ public class DominoSound : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (dominoSounds.Length == 0) return; // Exit if no sounds are assigned
+        if (soundList == null || soundList.sounds.Length == 0) return; // Exit if no sounds are assigned
 
         float impactForce = collision.relativeVelocity.magnitude; // Get collision force
 
@@ -26,7 +26,7 @@ public class DominoSound : MonoBehaviour
         if (impactForce > 0.2f)
         {
             // Select a random sound
-            AudioClip clip = dominoSounds[Random.Range(0, dominoSounds.Length)];
+            AudioClip clip = soundList.sounds[Random.Range(0, soundList.sounds.Length)];
             // Adjust volume based on impact force (clamped between 0.1 and 1.0)
             float volume = Mathf.Clamp(impactForce / 10f, 0.1f, 1.0f);
             audioSource.PlayOneShot(clip, volume);
