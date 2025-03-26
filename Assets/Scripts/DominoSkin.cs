@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [ExecuteInEditMode]
-public class ApplyDominoSkin : MonoBehaviour
+public class DominoSkin : MonoBehaviour
 {
     public DominoMaterialList materialList; // Reference to the shared material list
 
@@ -17,7 +17,7 @@ public class ApplyDominoSkin : MonoBehaviour
     }
 #endif
 
-    void ApplyRandomMaterial()
+    public void ApplyRandomMaterial()
     {
         if (materialList == null || materialList.materials.Length == 0)
         {

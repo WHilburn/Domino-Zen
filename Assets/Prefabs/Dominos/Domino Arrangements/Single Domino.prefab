@@ -48,6 +48,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Standard Domino
       objectReference: {fileID: 0}
+    - target: {fileID: 4393015718317914254, guid: 336bcad52e1c74c77ae1b4939e3a0feb, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: a5daacf65dfed46b8a0c26d8bf2f5dfc, type: 2}
     - target: {fileID: 5550980744008321483, guid: 336bcad52e1c74c77ae1b4939e3a0feb, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -88,6 +92,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6860525181692580436, guid: 336bcad52e1c74c77ae1b4939e3a0feb, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: a5daacf65dfed46b8a0c26d8bf2f5dfc, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
