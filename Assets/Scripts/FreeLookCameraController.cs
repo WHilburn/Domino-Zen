@@ -45,11 +45,11 @@ public class FreeLookCameraController : MonoBehaviour
             float mouseX = Input.GetAxis("Mouse X") * rotationSpeed;
             float mouseY = Input.GetAxis("Mouse Y") * rotationSpeed;
 
-            // Rotate the camera based on mouse movement
             freeLookCamera.m_XAxis.Value += mouseX;
-            freeLookCamera.m_YAxis.Value -= mouseY; // Invert Y-axis for natural control
+            freeLookCamera.m_YAxis.Value = Mathf.Clamp(freeLookCamera.m_YAxis.Value + (mouseY * -0.01f), 0f, 1f);
         }
     }
+
 
     private void HandleMovement()
     {
