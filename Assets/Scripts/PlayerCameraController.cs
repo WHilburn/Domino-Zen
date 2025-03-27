@@ -1,3 +1,4 @@
+using Cinemachine;
 using UnityEngine;
 
 public class PlayerCameraController : MonoBehaviour
@@ -7,12 +8,11 @@ public class PlayerCameraController : MonoBehaviour
     public float collisionRadius = 0.5f;
     public float verticalSpeed = 2f;
     public float damping = 20f; // Controls gradual stopping
-
     private Vector3 moveDirection;
     private float targetVerticalVelocity = 0f; // Tracks vertical movement for smooth transitions
-
     private float currentRotationX = 0f;
     private float currentRotationY = 0f;
+    public CinemachineBrain brain;
 
     void Start()
     {
@@ -31,9 +31,11 @@ public class PlayerCameraController : MonoBehaviour
         }
     }
 
-
     void Update()
     {
+        // Only move when this camera is active and not blending
+        if (!brain || brain.ActiveVirtualCamera.VirtualCameraGameObject != gameObject || brain.IsBlending) return;
+
         float currentMoveSpeed = GetCurrentMoveSpeed();
 
         // Handle movement
@@ -76,6 +78,8 @@ public class PlayerCameraController : MonoBehaviour
 
     private void HandleVerticalMovement()
     {
+        if(DominoPlacement.heldDomino != null) return; // Prevent camera movement while holding a domino
+
         // Vertical movement (Q/E keys & mouse scroll wheel)
         if (Input.GetKey(KeyCode.Q)) targetVerticalVelocity = -verticalSpeed / 20f;
         else if (Input.GetKey(KeyCode.E)) targetVerticalVelocity = verticalSpeed / 20f;

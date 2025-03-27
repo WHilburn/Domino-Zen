@@ -7,7 +7,7 @@ public class DominoPlacement : MonoBehaviour
 {
     public GameObject dominoPrefab;
     public GameObject handPrefab;
-    private GameObject heldDomino;
+    public static GameObject heldDomino;
     private Rigidbody heldRb;
     private Transform heldHand;
     private Vector3 anchor;

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LevelManager : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
     public List<PlacementIndicator> allIndicators;  // List of all dominoes in the scene
     private bool physicsEnabled = true; // Whether domino physics are enabled
