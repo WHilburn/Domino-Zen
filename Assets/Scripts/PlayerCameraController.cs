@@ -23,6 +23,14 @@ public class PlayerCameraController : MonoBehaviour
     {
         InitializeRotation();
     }
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (hasFocus)
+        {
+            InitializeRotation();
+        }
+    }
+
 
     void Update()
     {
