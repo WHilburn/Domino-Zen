@@ -76,7 +76,7 @@ public class CameraController : MonoBehaviour
             freeLookCamera.enabled = true;
             trackingCamera.enabled = false;
         }
-        freeLookCamera.GetComponent<PlayerCameraController>().SetInitialRotation();
+        freeLookCamera.GetComponent<PlayerCameraController>().InitializeRotation();
     }
 
     private void EnableTrackingCamera()

@@ -1,5 +1,3 @@
-using System.Collections;
-using Cinemachine;
 using UnityEngine;
 
 public class PlayerCameraController : MonoBehaviour
@@ -7,37 +5,52 @@ public class PlayerCameraController : MonoBehaviour
     public float moveSpeed = 75f;
     public float lookSpeed = 3f;
     public float collisionRadius = 0.5f;
-    public float verticalSpeed = 50f;
-    public float damping = 5f; // Controls gradual stopping
+    public float verticalSpeed = 2f;
+    public float damping = 20f; // Controls gradual stopping
 
     private Vector3 moveDirection;
-    private Vector3 velocity = Vector3.zero;
     private float targetVerticalVelocity = 0f; // Tracks vertical movement for smooth transitions
 
     private float currentRotationX = 0f;
     private float currentRotationY = 0f;
-    public CinemachineBrain brain;
 
     void Start()
     {
-        SetInitialRotation();
-        brain = FindObjectOfType<CinemachineBrain>();
+        InitializeRotation();
     }
 
     void OnEnable()
     {
-        SetInitialRotation();
+        InitializeRotation();
     }
-    public void SetInitialRotation()
+
+    void Update()
+    {
+        float currentMoveSpeed = GetCurrentMoveSpeed();
+
+        // Handle movement
+        HandleHorizontalMovement(currentMoveSpeed);
+        HandleVerticalMovement();
+        ApplyMovement(currentMoveSpeed);
+
+        // Handle camera rotation
+        if (Input.GetMouseButton(1)) HandleCameraRotation();
+    }
+
+    public void InitializeRotation()
     {
         Vector3 initialEulerAngles = transform.eulerAngles;
         currentRotationX = initialEulerAngles.x;
         currentRotationY = initialEulerAngles.y;
     }
-    void Update()
-    {
-        float currentMoveSpeed = Input.GetKey(KeyCode.LeftShift) ? moveSpeed * 3f : moveSpeed;
 
+    private float GetCurrentMoveSpeed()
+    {
+        return Input.GetKey(KeyCode.LeftShift) ? moveSpeed * 3f : moveSpeed;
+    }
+
+    private void HandleHorizontalMovement(float currentMoveSpeed)
+    {
         // Get input for horizontal movement
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
@@ -48,17 +61,16 @@ public class PlayerCameraController : MonoBehaviour
         // Keep movement on XZ plane
         forward.y = 0f;
         right.y = 0f;
-        forward.Normalize();
-        right.Normalize();
 
-        Vector3 inputMoveDirection = (forward * vertical + right * horizontal).normalized;
+        // Calculate the input movement direction
+        moveDirection = (forward * vertical + right * horizontal);
+    }
 
-        // Smoothly damp movement over time
-        moveDirection = Vector3.Lerp(moveDirection, inputMoveDirection, Time.deltaTime * damping);
-
+    private void HandleVerticalMovement()
+    {
         // Vertical movement (Q/E keys & mouse scroll wheel)
-        if (Input.GetKey(KeyCode.Q)) targetVerticalVelocity = -verticalSpeed/20f;
-        else if (Input.GetKey(KeyCode.E)) targetVerticalVelocity = verticalSpeed/20f;
+        if (Input.GetKey(KeyCode.Q)) targetVerticalVelocity = -verticalSpeed / 20f;
+        else if (Input.GetKey(KeyCode.E)) targetVerticalVelocity = verticalSpeed / 20f;
         else targetVerticalVelocity = Mathf.Lerp(targetVerticalVelocity, 0f, Time.deltaTime * damping); // Gradual stop
 
         // Apply mouse scroll with smooth interpolation
@@ -68,35 +80,28 @@ public class PlayerCameraController : MonoBehaviour
 
         // Add vertical movement smoothly
         moveDirection += Vector3.up * targetVerticalVelocity;
+    }
 
+    private void ApplyMovement(float currentMoveSpeed)
+    {
         // Compute new position with collision handling
         Vector3 desiredPosition = transform.position + moveDirection * currentMoveSpeed * Time.deltaTime;
         transform.position = HandleCollisions(transform.position, desiredPosition);
-
-        // Camera Rotation (RMB to look around)
-        if (Input.GetMouseButton(1))
-        {
-            float mouseX = Input.GetAxis("Mouse X");
-            float mouseY = Input.GetAxis("Mouse Y");
-
-            currentRotationX -= mouseY * lookSpeed;
-            currentRotationY += mouseX * lookSpeed;
-            currentRotationX = Mathf.Clamp(currentRotationX, -80f, 80f);
-
-            transform.rotation = Quaternion.Euler(currentRotationX, currentRotationY, 0);
-        }
     }
-    private IEnumerator WaitForCameraBlend()
+
+    private void HandleCameraRotation()
     {
-        // Wait while a transition is active
-        while (brain.ActiveBlend != null)
-        {
-            yield return null; // Wait for the next frame
-        }
-        SetInitialRotation();
+        float mouseX = Input.GetAxis("Mouse X");
+        float mouseY = Input.GetAxis("Mouse Y");
+
+        currentRotationX -= mouseY * lookSpeed;
+        currentRotationY += mouseX * lookSpeed;
+        currentRotationX = Mathf.Clamp(currentRotationX, -80f, 80f);
+
+        transform.rotation = Quaternion.Euler(currentRotationX, currentRotationY, 0);
     }
 
-    Vector3 HandleCollisions(Vector3 currentPos, Vector3 targetPos)
+    private Vector3 HandleCollisions(Vector3 currentPos, Vector3 targetPos)
     {
         Vector3 movementVector = targetPos - currentPos;
         float distance = movementVector.magnitude;
