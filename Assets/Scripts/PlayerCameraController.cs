@@ -1,3 +1,5 @@
+using System.Collections;
+using Cinemachine;
 using UnityEngine;
 
 public class PlayerCameraController : MonoBehaviour
@@ -14,16 +16,19 @@ public class PlayerCameraController : MonoBehaviour
 
     private float currentRotationX = 0f;
     private float currentRotationY = 0f;
+    public CinemachineBrain brain;
 
     void Start()
     {
-        // Initialize rotation values from the camera's current rotation
-        Vector3 initialEulerAngles = transform.eulerAngles;
-        currentRotationX = initialEulerAngles.x;
-        currentRotationY = initialEulerAngles.y;
+        SetInitialRotation();
+        brain = FindObjectOfType<CinemachineBrain>();
     }
 
     void OnEnable()
+    {
+        SetInitialRotation();
+    }
+    public void SetInitialRotation()
     {
         Vector3 initialEulerAngles = transform.eulerAngles;
         currentRotationX = initialEulerAngles.x;
@@ -80,6 +85,15 @@ public class PlayerCameraController : MonoBehaviour
 
             transform.rotation = Quaternion.Euler(currentRotationX, currentRotationY, 0);
         }
+    }
+    private IEnumerator WaitForCameraBlend()
+    {
+        // Wait while a transition is active
+        while (brain.ActiveBlend != null)
+        {
+            yield return null; // Wait for the next frame
+        }
+        SetInitialRotation();
     }
 
     Vector3 HandleCollisions(Vector3 currentPos, Vector3 targetPos)
