@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
+[SelectionBase]
 public class Domino : MonoBehaviour
 {
     private Rigidbody rb;
@@ -12,7 +13,6 @@ public class Domino : MonoBehaviour
     public bool isHeld = false;
     public float velocityMagnitude;
     // public DominoMaterialList materialList; // Reference to the shared material list
-
     void Start()
     {
         rb = GetComponent<Rigidbody>();
