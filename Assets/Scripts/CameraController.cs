@@ -5,7 +5,7 @@ using Cinemachine;
 
 public class CameraController : MonoBehaviour
 {
-    public PlayerCameraController freeLookCamera; // Player-controlled camera
+    public CinemachineVirtualCamera freeLookCamera; // Player-controlled camera
     public CinemachineVirtualCamera trackingCamera; // Auto-framing camera
     public CinemachineTargetGroup targetGroup; // Group of falling dominoes
 
@@ -15,6 +15,7 @@ public class CameraController : MonoBehaviour
     public float heightOffset = 2f; // Extra height to prevent low shots
     public float cameraHeightBoost = 10f; // Extra height for tracking camera
     public float smoothTime = 0.5f; // Smoothing time for camera adjustments
+    public bool prioritySystem = true; // Use Cinemachine priority system
 
     void Start()
     {
@@ -65,20 +66,29 @@ public class CameraController : MonoBehaviour
     }
     private void EnableFreeLook()
     {
-        // freeLookCamera.Priority = 10;
-        // trackingCamera.Priority = 5;
-        trackingCamera.enabled = false;
-        freeLookCamera.enabled = true;
+        if (prioritySystem)
+        {
+            freeLookCamera.Priority = 20;
+            trackingCamera.Priority = 10;
+        }
+        else
+        {
+            freeLookCamera.enabled = true;
+            trackingCamera.enabled = false;
+        }
     }
 
     private void EnableTrackingCamera()
     {
-        trackingCamera.enabled = true;
-        freeLookCamera.enabled = false;
-        // freeLookCamera.Priority = 5;
-        // trackingCamera.Priority = 20; // Higher priority takes over
-
-        // Make sure tracking camera looks at the adjusted target
-        // trackingCamera.LookAt = lookAtTarget;
+        if (prioritySystem)
+        {
+            freeLookCamera.Priority = 10;
+            trackingCamera.Priority = 20;
+        }
+        else
+        {
+            freeLookCamera.enabled = false;
+            trackingCamera.enabled = true;
+        }
     }
 }
