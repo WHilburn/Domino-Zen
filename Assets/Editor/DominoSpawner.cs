@@ -191,12 +191,9 @@ public class DominoSpawner : EditorWindow
 
     private List<GameObject> SpawnCurveFormation(GameObject selected)
     {
-        if(curveDirection == Direction.Both) spawnCount *= 2; // Double the count for both directions
-
         List<GameObject> dominoes = new List<GameObject>();
         Vector3 startPos = selected.transform.position;
         Quaternion startRotation = selected.transform.rotation;
-        startRotation *= Quaternion.Euler(0, -curveAngle / 2, 0); // Adjust rotation for curve direction
 
         float arcLength = spawnCount * forwardSpacing; // Total arc length
         float radius = arcLength / Mathf.Abs(curveAngle * Mathf.Deg2Rad); // Adjust radius based on desired curve angle
@@ -204,29 +201,27 @@ public class DominoSpawner : EditorWindow
 
         void SpawnArc(float directionMultiplier)
         {
-            Vector3 center = startPos + selected.transform.right * directionMultiplier * radius;
-            
-            for (int i = 0; i < spawnCount; i++)
-            {
-                float angle = angleStep * i * directionMultiplier;
-                Quaternion newRotation = Quaternion.Euler(0, angle, 0) * startRotation;
-                
-                Vector3 offset = newRotation * Vector3.up * radius;
-                Vector3 spawnPos = center - offset;
+            Vector3 center = startPos - selected.transform.right * directionMultiplier * radius; // Shift center to the side
 
-                GameObject newDomino = spawnDominoPrefab(spawnPos, newRotation);
+            for (int i = 1; i < spawnCount + 1; i++)
+            {
+                float angle = angleStep * i * directionMultiplier; // Angle relative to the starting position
+                Quaternion newRotation = Quaternion.AngleAxis(angle, Vector3.up) * startRotation; // Rotate domino around Y-axis
+
+                Vector3 offset = newRotation * Vector3.up * radius; // Correct offset direction
+                Vector3 spawnPos = center + offset; // Final position
+
+                GameObject newDomino = spawnDominoPrefab(spawnPos, newRotation  * Quaternion.Euler(0, 0, 90));
                 dominoes.Add(newDomino);
             }
         }
 
-        if (curveDirection == Direction.Left || curveDirection == Direction.Both)
-            SpawnArc(1);
-        if (curveDirection == Direction.Right || curveDirection == Direction.Both)
-            SpawnArc(-1);
-        if(curveDirection == Direction.Both) spawnCount /= 2; // Reset to original count
+        if (curveDirection == Direction.Left || curveDirection == Direction.Both) SpawnArc(1);
+        if (curveDirection == Direction.Right || curveDirection == Direction.Both) SpawnArc(-1);
 
         return dominoes;
     }
+
 
 
     private List<GameObject> SpawnSpiralFormation(GameObject selected)
