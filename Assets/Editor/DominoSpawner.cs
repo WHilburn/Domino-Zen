@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
-// using System.Numerics;
 
 public class DominoSpawner : EditorWindow
 {
@@ -124,6 +123,7 @@ public class DominoSpawner : EditorWindow
 
         // Create an empty GameObject as the parent
         GameObject parent = new GameObject(groupName);
+        parent.transform.position = selected.transform.position;
         Undo.RegisterCreatedObjectUndo(parent, "Spawn Domino");
 
         // Move all objects under the new parent
@@ -138,7 +138,7 @@ public class DominoSpawner : EditorWindow
         }
     }
 
-    private GameObject spawnDominoPrefab(Vector3 spawnPos, Quaternion rotation)
+    private GameObject SpawnDominoPrefab(Vector3 spawnPos, Quaternion rotation)
     {
         GameObject newDomino = (GameObject)PrefabUtility.InstantiatePrefab(dominoPrefab);
         newDomino.transform.position = spawnPos;
@@ -156,7 +156,7 @@ public class DominoSpawner : EditorWindow
         for (int i = 1; i <= spawnCount; i++)
         {
             Vector3 spawnPos = startPos + selected.transform.up * (forwardSpacing * i);
-            GameObject newDomino = spawnDominoPrefab(spawnPos, rotation);
+            GameObject newDomino = SpawnDominoPrefab(spawnPos, rotation);
             dominoes.Add(newDomino);
         }
 
@@ -179,7 +179,7 @@ public class DominoSpawner : EditorWindow
                 float offsetZ = currentRow * forwardSpacing;
                 Vector3 spawnPos = startPos + selected.transform.right * offsetX + selected.transform.up * offsetZ;
 
-                GameObject newDomino = spawnDominoPrefab(spawnPos, rotation);
+                GameObject newDomino = SpawnDominoPrefab(spawnPos, rotation);
                 dominoes.Add(newDomino);
             }
 
@@ -211,7 +211,7 @@ public class DominoSpawner : EditorWindow
                 Vector3 offset = newRotation * Vector3.up * radius; // Correct offset direction
                 Vector3 spawnPos = center + offset; // Final position
 
-                GameObject newDomino = spawnDominoPrefab(spawnPos, newRotation  * Quaternion.Euler(0, 0, 90f));
+                GameObject newDomino = SpawnDominoPrefab(spawnPos, newRotation  * Quaternion.Euler(0, 0, 90f));
                 dominoes.Add(newDomino);
             }
         }
@@ -244,7 +244,7 @@ public class DominoSpawner : EditorWindow
                 Vector3 spawnPos = startPos + selected.transform.right * offset.x + selected.transform.up * offset.z;
                 Quaternion newRotation = Quaternion.Euler(0, -angle * Mathf.Rad2Deg, 0) * rotation;
 
-                GameObject newDomino = spawnDominoPrefab(spawnPos, newRotation);
+                GameObject newDomino = SpawnDominoPrefab(spawnPos, newRotation);
                 dominoes.Add(newDomino);
             }
         }
