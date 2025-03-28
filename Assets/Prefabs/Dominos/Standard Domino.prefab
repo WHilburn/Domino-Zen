@@ -299,7 +299,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce000b794d65e4bfd860856709aa7f9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soundList: {fileID: 11400000, guid: ea7b78dcee7b70141a4ed3e24a359220, type: 2}
+  soundList: {fileID: 11400000, guid: b75dc4c91cf6ef244897d08b0a63e357, type: 2}
   minimumImpactForce: 2
   dominoClickSounds: {fileID: 11400000, guid: b75dc4c91cf6ef244897d08b0a63e357, type: 2}
   soundCooldown: 0.05
