@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5885427649572946988}
   - component: {fileID: 494532300526250514}
   - component: {fileID: 6860525181692580436}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0320e3de5cd2e46aab1c19c6dcedbbfa, type: 2}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -363,6 +363,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   materialList: {fileID: 11400000, guid: 1c1c03eb8896b474abdc27ed5b386e2e, type: 2}
+  colorOverride: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &4033301335061731980
 GameObject:
   m_ObjectHideFlags: 0
@@ -374,7 +375,7 @@ GameObject:
   - component: {fileID: 3606127214438968777}
   - component: {fileID: 58990973213564783}
   - component: {fileID: 4393015718317914254}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -424,7 +425,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0320e3de5cd2e46aab1c19c6dcedbbfa, type: 2}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
