@@ -22,6 +22,7 @@ public class DominoSpawner : EditorWindow
     private Color endColor = Color.blue;
     private int colorCycles = 1;
     private bool colorBounce = false;
+    private string groupName = "Domino Group";
 
     [MenuItem("Tools/Domino Spawner")]
     public static void ShowWindow()
@@ -39,23 +40,27 @@ public class DominoSpawner : EditorWindow
         if (selectedFormation == FormationType.Line)
         {
             spawnCount = EditorGUILayout.IntField("Domino Count", spawnCount);
+            groupName = "Domino Line Length " + spawnCount;
         }
         else if (selectedFormation == FormationType.Triangle)
         {
             rowSpacing = EditorGUILayout.FloatField("Row Spacing", rowSpacing);
             spawnCount = EditorGUILayout.IntField("Row Count", spawnCount);
+            groupName = "Domino Triangle " + spawnCount + " Rows";
         }
         else if (selectedFormation == FormationType.Curve)
         {
             spawnCount = EditorGUILayout.IntField("Domino Count", spawnCount);
             curveAngle = EditorGUILayout.Slider("Curve Angle", curveAngle, 5f, 360f);
             curveDirection = (Direction)EditorGUILayout.EnumPopup("Direction", curveDirection);
+            groupName = "Domino Curve " + curveAngle + "° " + curveDirection;
         }
         else if (selectedFormation == FormationType.Spiral)
         {
             spawnCount = EditorGUILayout.IntField("Domino Count", spawnCount);
             spiralSpacing = EditorGUILayout.FloatField("Spiral Spacing", spiralSpacing);
             spiralDirection = (Direction)EditorGUILayout.EnumPopup("Direction", spiralDirection);
+            groupName = "Domino Spiral " + spawnCount + " Dominoes, " + spiralDirection;
         }
 
         gradientMode = EditorGUILayout.Toggle("Color Gradient Mode", gradientMode);
@@ -105,6 +110,17 @@ public class DominoSpawner : EditorWindow
             default:
                 Debug.LogWarning("Unsupported formation type.");
                 return;
+        }
+        if (newDominoes == null || newDominoes.Count == 0) return;
+
+        // Create an empty GameObject as the parent
+        GameObject parent = new GameObject(groupName);
+        Undo.RegisterCreatedObjectUndo(parent, "Spawn Domino");
+
+        // Move all objects under the new parent
+        foreach (GameObject domino in newDominoes)
+        {
+            domino.transform.SetParent(parent.transform);
         }
 
         if (gradientMode)
