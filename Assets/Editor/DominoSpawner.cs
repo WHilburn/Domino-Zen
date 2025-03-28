@@ -23,6 +23,7 @@ public class DominoSpawner : EditorWindow
     private int colorCycles = 1;
     private bool colorBounce = false;
     private string groupName = "Domino Group";
+    private GameObject dominoPrefab;
 
     [MenuItem("Tools/Domino Spawner")]
     public static void ShowWindow()
@@ -33,9 +34,11 @@ public class DominoSpawner : EditorWindow
     void OnGUI()
     {
         GUILayout.Label("Domino Spawner", EditorStyles.boldLabel);
+        // Allow the user to assign a domino prefab
+        dominoPrefab = (GameObject)EditorGUILayout.ObjectField("Domino Prefab", dominoPrefab, typeof(GameObject), false);
 
         selectedFormation = (FormationType)EditorGUILayout.EnumPopup("Formation Type", selectedFormation);
-        forwardSpacing = EditorGUILayout.FloatField("Spacing", forwardSpacing);
+        forwardSpacing = EditorGUILayout.Slider("Forward Spacing", forwardSpacing, .2f, .6f);
 
         if (selectedFormation == FormationType.Line)
         {
@@ -44,7 +47,7 @@ public class DominoSpawner : EditorWindow
         }
         else if (selectedFormation == FormationType.Triangle)
         {
-            rowSpacing = EditorGUILayout.FloatField("Row Spacing", rowSpacing);
+            rowSpacing = EditorGUILayout.Slider("In-Row Spacing", rowSpacing, .5f, .8f);
             spawnCount = EditorGUILayout.IntField("Row Count", spawnCount);
             groupName = "Domino Triangle " + spawnCount + " Rows";
         }
@@ -53,7 +56,7 @@ public class DominoSpawner : EditorWindow
             spawnCount = EditorGUILayout.IntField("Domino Count", spawnCount);
             curveAngle = EditorGUILayout.Slider("Curve Angle", curveAngle, 5f, 360f);
             curveDirection = (Direction)EditorGUILayout.EnumPopup("Direction", curveDirection);
-            groupName = "Domino Curve " + curveAngle + "° " + curveDirection;
+            groupName = "Domino Curve Length " + spawnCount  + " " + curveAngle + "° " + curveDirection;
         }
         else if (selectedFormation == FormationType.Spiral)
         {
@@ -84,6 +87,11 @@ public class DominoSpawner : EditorWindow
 
     private void SpawnDominoes()
     {
+        if (dominoPrefab == null)
+        {
+            Debug.LogWarning("Please assign a domino prefab in the Domino Spawner window.");
+            return;
+        }
         GameObject selected = Selection.activeGameObject;
         if (selected == null || !selected.CompareTag("DominoTag"))
         {
@@ -129,7 +137,7 @@ public class DominoSpawner : EditorWindow
         }
     }
 
-        private List<GameObject> SpawnLineFormation(GameObject selected)
+    private List<GameObject> SpawnLineFormation(GameObject selected)
     {
         List<GameObject> dominoes = new List<GameObject>();
         Vector3 startPos = selected.transform.position;
@@ -138,7 +146,7 @@ public class DominoSpawner : EditorWindow
         for (int i = 1; i <= spawnCount; i++)
         {
             Vector3 spawnPos = startPos + selected.transform.up * (forwardSpacing * i);
-            GameObject newDomino = Instantiate(selected, spawnPos, rotation);
+            GameObject newDomino = Instantiate(dominoPrefab, spawnPos, rotation);
             Undo.RegisterCreatedObjectUndo(newDomino, "Spawn Domino");
             dominoes.Add(newDomino);
         }
@@ -149,7 +157,7 @@ public class DominoSpawner : EditorWindow
     private List<GameObject> SpawnTriangleFormation(GameObject selected)
     {
         List<GameObject> dominoes = new List<GameObject>();
-        Vector3 startPos = selected.transform.position + selected.transform.up * (forwardSpacing);
+        Vector3 startPos = selected.transform.position + selected.transform.up * forwardSpacing;
         Quaternion rotation = selected.transform.rotation;
 
         int dominoesInRow = 2; // First row starts with 2 dominoes
@@ -162,7 +170,7 @@ public class DominoSpawner : EditorWindow
                 float offsetZ = currentRow * forwardSpacing;
                 Vector3 spawnPos = startPos + selected.transform.right * offsetX + selected.transform.up * offsetZ;
 
-                GameObject newDomino = Instantiate(selected, spawnPos, rotation);
+                GameObject newDomino = Instantiate(dominoPrefab, spawnPos, rotation);
                 Undo.RegisterCreatedObjectUndo(newDomino, "Spawn Domino");
                 dominoes.Add(newDomino);
             }
@@ -175,22 +183,29 @@ public class DominoSpawner : EditorWindow
 
     private List<GameObject> SpawnCurveFormation(GameObject selected)
     {
+        if(curveDirection == Direction.Both) spawnCount *= 2; // Double the count for both directions
+
         List<GameObject> dominoes = new List<GameObject>();
         Vector3 startPos = selected.transform.position;
-        Quaternion rotation = selected.transform.rotation;
-        float angleStep = curveAngle / (spawnCount - 1);
-        float radius = spawnCount * forwardSpacing / Mathf.PI;
+        Quaternion startRotation = selected.transform.rotation;
+
+        float arcLength = spawnCount * forwardSpacing; // Total arc length
+        float radius = arcLength / Mathf.Abs(curveAngle * Mathf.Deg2Rad); // Adjust radius based on desired curve angle
+        float angleStep = curveAngle / (spawnCount - 1); // Angle change per domino
 
         void SpawnArc(float directionMultiplier)
         {
+            Vector3 center = startPos + selected.transform.right * directionMultiplier * radius;
+            
             for (int i = 0; i < spawnCount; i++)
             {
-                float angle = angleStep * i * Mathf.Deg2Rad * directionMultiplier;
-                Vector3 offset = new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle)) * radius;
-                Vector3 spawnPos = startPos + selected.transform.right * offset.x + selected.transform.up * offset.z;
-                Quaternion newRotation = Quaternion.Euler(0, -angle * Mathf.Rad2Deg, 0) * rotation;
+                float angle = angleStep * i * directionMultiplier;
+                Quaternion newRotation = Quaternion.Euler(angle, 0, 0) * startRotation;
+                
+                Vector3 offset = newRotation * Vector3.up * radius;
+                Vector3 spawnPos = center - offset;
 
-                GameObject newDomino = Instantiate(selected, spawnPos, newRotation);
+                GameObject newDomino = Instantiate(dominoPrefab, spawnPos, newRotation);
                 Undo.RegisterCreatedObjectUndo(newDomino, "Spawn Domino");
                 dominoes.Add(newDomino);
             }
@@ -204,8 +219,11 @@ public class DominoSpawner : EditorWindow
         return dominoes;
     }
 
+
     private List<GameObject> SpawnSpiralFormation(GameObject selected)
     {
+        if(spiralDirection == Direction.Both) spawnCount *= 2; // Double the count for both directions
+
         List<GameObject> dominoes = new List<GameObject>();
         Vector3 startPos = selected.transform.position;
         Quaternion rotation = selected.transform.rotation;
@@ -222,7 +240,7 @@ public class DominoSpawner : EditorWindow
                 Vector3 spawnPos = startPos + selected.transform.right * offset.x + selected.transform.up * offset.z;
                 Quaternion newRotation = Quaternion.Euler(0, -angle * Mathf.Rad2Deg, 0) * rotation;
 
-                GameObject newDomino = Instantiate(selected, spawnPos, newRotation);
+                GameObject newDomino = Instantiate(dominoPrefab, spawnPos, newRotation);
                 Undo.RegisterCreatedObjectUndo(newDomino, "Spawn Domino");
                 dominoes.Add(newDomino);
             }
