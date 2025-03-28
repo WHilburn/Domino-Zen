@@ -197,13 +197,13 @@ public class DominoSpawner : EditorWindow
 
         float arcLength = spawnCount * forwardSpacing; // Total arc length
         float radius = arcLength / Mathf.Abs(curveAngle * Mathf.Deg2Rad); // Adjust radius based on desired curve angle
-        float angleStep = curveAngle / (spawnCount - 1); // Angle change per domino
+        float angleStep = curveAngle / spawnCount; // Angle change per domino
 
         void SpawnArc(float directionMultiplier)
         {
             Vector3 center = startPos - selected.transform.right * directionMultiplier * radius; // Shift center to the side
 
-            for (int i = 1; i < spawnCount + 1; i++)
+            for (int i = 0; i < spawnCount; i++)
             {
                 float angle = angleStep * i * directionMultiplier; // Angle relative to the starting position
                 Quaternion newRotation = Quaternion.AngleAxis(angle, Vector3.up) * startRotation; // Rotate domino around Y-axis
@@ -211,7 +211,7 @@ public class DominoSpawner : EditorWindow
                 Vector3 offset = newRotation * Vector3.up * radius; // Correct offset direction
                 Vector3 spawnPos = center + offset; // Final position
 
-                GameObject newDomino = spawnDominoPrefab(spawnPos, newRotation  * Quaternion.Euler(0, 0, 90));
+                GameObject newDomino = spawnDominoPrefab(spawnPos, newRotation  * Quaternion.Euler(0, 0, 90f));
                 dominoes.Add(newDomino);
             }
         }
