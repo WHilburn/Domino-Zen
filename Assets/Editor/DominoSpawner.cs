@@ -23,7 +23,7 @@ public class DominoSpawner : EditorWindow
     private bool colorBounce = false;
     private string groupName = "Domino Group";
     private GameObject dominoPrefab;
-    private List<GameObject> previewCubes = new List<GameObject>(); // To store preview cubes
+    private List<GameObject> previewShapes = new List<GameObject>(); // To store preview cubes
 
     [MenuItem("Tools/Domino Spawner")]
     public static void ShowWindow()
@@ -209,7 +209,7 @@ public class DominoSpawner : EditorWindow
             cube.transform.localScale = new Vector3(.48f, .13f, .98f); // Match approximate domino shape
             cube.name = "PreviewCube";
             cube.hideFlags = HideFlags.HideAndDontSave; // Hide from hierarchy
-            previewCubes.Add(cube);
+            previewShapes.Add(cube);
         }
     }
 
@@ -217,11 +217,11 @@ public class DominoSpawner : EditorWindow
     // Remove all preview cubes from the scene
     private void RemovePreviewCubes()
     {
-        foreach (GameObject cube in previewCubes)
+        foreach (GameObject cube in previewShapes)
         {
             DestroyImmediate(cube);
         }
-        previewCubes.Clear();
+        previewShapes.Clear();
     }
 
     private List<(Vector3 position, Quaternion rotation)> GetLineFormationPositions(GameObject selected)
@@ -277,10 +277,22 @@ public class DominoSpawner : EditorWindow
         void CalculateArc(Vector3 arcStartPos, float directionMultiplier)
         {
             Vector3 center = arcStartPos - selected.transform.right * directionMultiplier * radius; // Shift center to the side
+            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            sphere.transform.position = center;
+            sphere.transform.localScale = new Vector3(.5f, .5f, .5f); // Adjust size for visibility
+            previewShapes.Add(sphere);
+            //clear console
+            Debug.ClearDeveloperConsole();
+            Debug.Log("Attemping Curve Calculation");
+            Debug.Log($"Center: {center}");
+            Debug.Log($"Start Position: {arcStartPos}");
+            Debug.Log($"Radius: {radius}");
+            Debug.Log($"Angle Step: {angleStep}");
 
             for (int i = 0; i < spawnCount; i++)
             {
                 float angle = angleStep * i * directionMultiplier; // Angle relative to the starting position
+                Debug.Log($"Angle: {angle}");
                 Quaternion newRotation = Quaternion.AngleAxis(angle, Vector3.up) * startRotation; // Rotate around Y-axis
 
                 Vector3 offset = newRotation * Vector3.up * radius; // Correct offset direction
