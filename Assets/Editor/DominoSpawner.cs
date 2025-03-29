@@ -275,7 +275,7 @@ public class DominoSpawner : EditorWindow
         // Compute arc length and radius
         float arcLength = spawnCount * forwardSpacing; 
         float radius = arcLength / Mathf.Abs(curveAngle * Mathf.Deg2Rad); 
-        float angleStep = curveAngle / (spawnCount - 1); // Ensure even spacing
+        float angleStep = curveAngle / (spawnCount); // Ensure even spacing
 
         void CalculateArc(Vector3 arcStartPos, float directionMultiplier)
         {
@@ -292,7 +292,7 @@ public class DominoSpawner : EditorWindow
             // Angle between the selected domino and the center
             float startAngleOffset = Mathf.Atan2(arcStartPos.z - center.z, arcStartPos.x - center.x) * Mathf.Rad2Deg;
 
-            for (int i = 0; i < spawnCount; i++)
+            for (int i = 1; i < spawnCount + 1; i++)
             {
                 // Compute angle for this domino
                 float angle = startAngleOffset + (angleStep * i * directionMultiplier);
