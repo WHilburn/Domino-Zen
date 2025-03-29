@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using System.Reflection;
+using System;
 
 public class DominoSpawner : EditorWindow
 {
@@ -270,37 +272,43 @@ public class DominoSpawner : EditorWindow
         Vector3 startPos = selected.transform.position;
         Quaternion startRotation = selected.transform.rotation;
 
-        float arcLength = spawnCount * forwardSpacing; // Total arc length
-        float radius = arcLength / Mathf.Abs(curveAngle * Mathf.Deg2Rad); // Adjust radius based on desired curve angle
-        float angleStep = curveAngle / spawnCount; // Angle change per domino
+        // Compute arc length and radius
+        float arcLength = spawnCount * forwardSpacing; 
+        float radius = arcLength / Mathf.Abs(curveAngle * Mathf.Deg2Rad); 
+        float angleStep = curveAngle / (spawnCount - 1); // Ensure even spacing
 
         void CalculateArc(Vector3 arcStartPos, float directionMultiplier)
         {
-            Vector3 center = arcStartPos - selected.transform.right * directionMultiplier * radius; // Shift center to the side
+            // Compute the center of the arc
+            Vector3 center = arcStartPos - selected.transform.right * directionMultiplier * radius;
+
+            // Debug sphere to visualize the center
             GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             sphere.transform.position = center;
-            sphere.transform.localScale = new Vector3(.5f, .5f, .5f); // Adjust size for visibility
+            sphere.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+            sphere.hideFlags = HideFlags.HideAndDontSave;
             previewShapes.Add(sphere);
-            //clear console
-            Debug.ClearDeveloperConsole();
-            Debug.Log("Attemping Curve Calculation");
-            Debug.Log($"Center: {center}");
-            Debug.Log($"Start Position: {arcStartPos}");
-            Debug.Log($"Radius: {radius}");
-            Debug.Log($"Angle Step: {angleStep}");
+
+            // Angle between the selected domino and the center
+            float startAngleOffset = Mathf.Atan2(arcStartPos.z - center.z, arcStartPos.x - center.x) * Mathf.Rad2Deg;
 
             for (int i = 0; i < spawnCount; i++)
             {
-                float angle = angleStep * i * directionMultiplier; // Angle relative to the starting position
-                Debug.Log($"Angle: {angle}");
-                Quaternion newRotation = Quaternion.AngleAxis(angle, Vector3.up) * startRotation; // Rotate around Y-axis
+                // Compute angle for this domino
+                float angle = startAngleOffset + (angleStep * i * directionMultiplier);
+                float radian = angle * Mathf.Deg2Rad;
 
-                Vector3 offset = newRotation * Vector3.up * radius; // Correct offset direction
-                Vector3 spawnPos = center + offset; // Final position
+                // Compute position of the domino along the arc
+                Vector3 spawnPos = center + new Vector3(Mathf.Cos(radian), 0, Mathf.Sin(radian)) * radius;
 
-                spawnTransforms.Add((spawnPos, newRotation * Quaternion.Euler(0, 0, 90f * directionMultiplier)));
+                // Compute the rotation to progressively curve along the arc
+                Quaternion newRotation = Quaternion.Euler(0, angleStep * i * -directionMultiplier, 0) * startRotation;
+
+                // Adjust rotation so the domino is upright and follows the curve
+                spawnTransforms.Add((spawnPos, newRotation * Quaternion.Euler(0, 0, 0f * directionMultiplier)));
             }
         }
+
         // Calculate arc positions based on the selected direction
         switch (curveDirection)
         {
@@ -316,9 +324,10 @@ public class DominoSpawner : EditorWindow
                 break;
         }
 
-        // PreviewDominoPositions(spawnTransforms);
         return spawnTransforms;
     }
+
+
 
     private List<(Vector3 position, Quaternion rotation)> GetSpiralFormationPositions(GameObject selected)
     {
