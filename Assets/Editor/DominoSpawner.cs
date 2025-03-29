@@ -10,7 +10,7 @@ public class DominoSpawner : EditorWindow
     private FormationType selectedFormation = FormationType.Line;
     private Direction curveDirection = Direction.Right;
 
-    private int spawnCount = 5; // Total dominoes or rows in triangle
+    private int spawnCount = 5; // Total dominoes, or number of rows in triangle
     private float forwardSpacing = 0.4f;
     private float rowSpacing = 0.6f;
     private float curveAngle = 90f; // Angle of curve (5° - 360°)
@@ -33,7 +33,7 @@ public class DominoSpawner : EditorWindow
 
     void OnGUI()
     {
-        Debug.Log("OnGUI called");
+        // Debug.Log("OnGUI called");
         GUILayout.Label("Domino Spawner", EditorStyles.boldLabel);
         // Allow the user to assign a domino prefab
         dominoPrefab = (GameObject)EditorGUILayout.ObjectField("Domino Prefab", dominoPrefab, typeof(GameObject), false);
@@ -173,7 +173,7 @@ public class DominoSpawner : EditorWindow
     // Method to display preview cubes at spawn positions
     private void GeneratePreviewCubes(GameObject selected)
     {
-        Debug.Log("Generating Preview Cubes...");
+        // Debug.Log("Generating Preview Cubes...");
         // Remove any existing preview cubes
         RemovePreviewCubes();
 
@@ -286,7 +286,7 @@ public class DominoSpawner : EditorWindow
                 Vector3 offset = newRotation * Vector3.up * radius; // Correct offset direction
                 Vector3 spawnPos = center + offset; // Final position
 
-                spawnTransforms.Add((spawnPos, newRotation * Quaternion.Euler(0, 0, 90f)));
+                spawnTransforms.Add((spawnPos, newRotation * Quaternion.Euler(0, 0, 90f * directionMultiplier)));
             }
         }
         // Calculate arc positions based on the selected direction
