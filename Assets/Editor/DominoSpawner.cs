@@ -3,6 +3,7 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.Reflection;
 using System;
+using System.Runtime.CompilerServices;
 
 public class DominoSpawner : EditorWindow
 {
@@ -25,6 +26,8 @@ public class DominoSpawner : EditorWindow
     private bool colorBounce = false;
     private string groupName = "Domino Group";
     private GameObject dominoPrefab;
+    private DominoMaterialList dominoMaterialList;
+    private DominoSoundList dominoSoundList;
     private List<GameObject> previewShapes = new List<GameObject>(); // To store preview cubes
 
     [MenuItem("Tools/Domino Spawner")]
@@ -37,8 +40,10 @@ public class DominoSpawner : EditorWindow
     {
         // Debug.Log("OnGUI called");
         GUILayout.Label("Domino Spawner", EditorStyles.boldLabel);
-        // Allow the user to assign a domino prefab
+        // Allow the user to assign a domino prefab and material list
         dominoPrefab = (GameObject)EditorGUILayout.ObjectField("Domino Prefab", dominoPrefab, typeof(GameObject), false);
+        dominoMaterialList = (DominoMaterialList)EditorGUILayout.ObjectField("Domino Material", dominoMaterialList, typeof(DominoMaterialList), false);
+        dominoSoundList = (DominoSoundList)EditorGUILayout.ObjectField("Domino Sound", dominoSoundList, typeof(DominoSoundList), false);
 
         selectedFormation = (FormationType)EditorGUILayout.EnumPopup("Formation Type", selectedFormation);
         forwardSpacing = EditorGUILayout.Slider("Forward Spacing", forwardSpacing, .2f, .6f);
@@ -81,6 +86,10 @@ public class DominoSpawner : EditorWindow
             {
                 colorBounce = EditorGUILayout.Toggle("Color Bounce", colorBounce);
             }
+        }
+        else
+        {
+            startColor = EditorGUILayout.ColorField("Color", startColor);
         }
 
         if (GUILayout.Button("Spawn Dominoes"))
@@ -156,10 +165,7 @@ public class DominoSpawner : EditorWindow
             newDominoes.Add(newDomino);
         }
 
-        if (gradientMode)
-        {
-            ApplyColorGradient(newDominoes);
-        }
+        ApplyColor(newDominoes);
     }
 
 
@@ -327,8 +333,6 @@ public class DominoSpawner : EditorWindow
         return spawnTransforms;
     }
 
-
-
     private List<(Vector3 position, Quaternion rotation)> GetSpiralFormationPositions(GameObject selected)
     {
         if (curveDirection == Direction.Both) spawnCount *= 2; // Double the count for both directions
@@ -363,23 +367,44 @@ public class DominoSpawner : EditorWindow
         return spawnTransforms;
     }
 
-    private void ApplyColorGradient(List<GameObject> dominoes)
+    private void ApplyColor(List<GameObject> dominoes)
     {
         DominoSkin selectedSkin = Selection.activeGameObject.GetComponent<DominoSkin>();
+
+        int halfCount = dominoes.Count / 2; // Halfway point for Both-direction handling
+        Color effectiveEndColor = endColor;
+
+        if (!gradientMode) effectiveEndColor = startColor;
+
         for (int i = 0; i < dominoes.Count; i++)
         {
-            float cycleIndex = (i / (dominoes.Count / (float)colorCycles)) % 1f;
+            float cycleIndex;
             bool reversed = false;
-            if (colorBounce && ((i / (dominoes.Count / colorCycles)) % 2 == 1))
+
+            if (curveDirection == Direction.Both && (selectedFormation == FormationType.Curve || selectedFormation == FormationType.Spiral))
             {
-                reversed = true;
+                // Split into two halves for color calculation
+                int localIndex = (i < halfCount) ? i : i - halfCount;
+                int localCount = halfCount; // Each side should have its own independent gradient range
+
+                cycleIndex = (localIndex / (float)localCount) % 1f;
+
+                // Reverse coloring if needed for color bouncing
+                if (colorBounce && ((localIndex / (localCount / colorCycles)) % 2 == 1))
+                    reversed = true;
+            }
+            else
+            {
+                // Default case for single-direction coloring
+                cycleIndex = (i / (dominoes.Count / (float)colorCycles)) % 1f;
+
+                if (colorBounce && ((i / (dominoes.Count / colorCycles)) % 2 == 1))
+                    reversed = true;
             }
 
-            Color newColor;
-            if (reversed)
-                newColor = Color.Lerp(endColor, startColor, cycleIndex);
-            else
-                newColor = Color.Lerp(startColor, endColor, cycleIndex);
+            Color newColor = reversed ? Color.Lerp(effectiveEndColor, startColor, cycleIndex) 
+                                    : Color.Lerp(startColor, effectiveEndColor, cycleIndex);
+
             DominoSkin dominoSkin = dominoes[i].GetComponent<DominoSkin>();
             if (dominoSkin != null)
             {
@@ -390,4 +415,5 @@ public class DominoSpawner : EditorWindow
             }
         }
     }
+
 }
