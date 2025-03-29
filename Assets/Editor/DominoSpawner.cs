@@ -105,6 +105,11 @@ public class DominoSpawner : EditorWindow
         RemovePreviewCubes();
         GeneratePreviewCubes(Selection.activeGameObject);
     }
+    // When the game starts, remove all preview cubes
+    private void OnEnable()
+    {
+        RemovePreviewCubes();
+    }
     private void OnDestroy()
     {
         RemovePreviewCubes(); // Clean up preview cubes when the window is closed
@@ -370,6 +375,7 @@ public class DominoSpawner : EditorWindow
     private void ApplyColor(List<GameObject> dominoes)
     {
         DominoSkin selectedSkin = Selection.activeGameObject.GetComponent<DominoSkin>();
+        DominoSound selectedSound = Selection.activeGameObject.GetComponent<DominoSound>();
 
         int halfCount = dominoes.Count / 2; // Halfway point for Both-direction handling
         Color effectiveEndColor = endColor;
@@ -406,9 +412,19 @@ public class DominoSpawner : EditorWindow
                                     : Color.Lerp(startColor, effectiveEndColor, cycleIndex);
 
             DominoSkin dominoSkin = dominoes[i].GetComponent<DominoSkin>();
+            DominoSound dominoSound = dominoes[i].GetComponent<DominoSound>();
             if (dominoSkin != null)
             {
-                dominoSkin.materialList = selectedSkin.materialList;
+                if (dominoMaterialList == null)
+                {
+                    dominoSkin.materialList = selectedSkin.materialList; //Default to selected skin's material list
+                }
+                else dominoSkin.materialList = dominoMaterialList;
+                if (dominoSoundList == null)
+                {
+                    dominoSound.soundList = selectedSound.soundList; //Default to selected skin's sound list
+                }
+                else dominoSound.soundList = dominoSoundList;
                 dominoSkin.colorOverride = newColor;
                 dominoSkin.ApplyRandomMaterial();
                 EditorUtility.SetDirty(dominoSkin);

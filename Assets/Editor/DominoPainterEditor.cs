@@ -7,10 +7,6 @@ public class DominoPainter : EditorWindow
     private DominoMaterialList selectedMaterialList;
     private Color selectedColor = Color.white; // Default color is white
     private string[] predefinedColors = new string[] { "Red", "Green", "Blue", "Yellow", "Black", "White" };
-    private Color[] colorOptions = new Color[]
-    {
-        Color.red, Color.green, Color.blue, Color.yellow, Color.black, Color.white
-    };
 
     [MenuItem("Tools/Domino Painter")]
     public static void ShowWindow()
@@ -24,11 +20,7 @@ public class DominoPainter : EditorWindow
 
         // Select a material list
         selectedMaterialList = (DominoMaterialList)EditorGUILayout.ObjectField("Material List", selectedMaterialList, typeof(DominoMaterialList), false);
-
-        // Add a dropdown to choose predefined color
-        int selectedIndex = Mathf.Max(0, System.Array.FindIndex(colorOptions, color => color == selectedColor));
-        selectedIndex = EditorGUILayout.Popup("Select Color", selectedIndex, predefinedColors);
-        selectedColor = colorOptions[selectedIndex];
+        selectedColor = EditorGUILayout.ColorField("Start Color", selectedColor);
 
         // Button to apply material to selected dominoes
         if (GUILayout.Button("Apply to Selected"))
