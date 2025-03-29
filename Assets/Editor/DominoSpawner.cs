@@ -29,6 +29,7 @@ public class DominoSpawner : EditorWindow
     private DominoMaterialList dominoMaterialList;
     private DominoSoundList dominoSoundList;
     private List<GameObject> previewShapes = new List<GameObject>(); // To store preview cubes
+    private bool previewMode  = true;
 
     [MenuItem("Tools/Domino Spawner")]
     public static void ShowWindow()
@@ -41,6 +42,7 @@ public class DominoSpawner : EditorWindow
         // Debug.Log("OnGUI called");
         GUILayout.Label("Domino Spawner", EditorStyles.boldLabel);
         // Allow the user to assign a domino prefab and material list
+        previewMode = EditorGUILayout.Toggle("Preview Mode", previewMode);
         dominoPrefab = (GameObject)EditorGUILayout.ObjectField("Domino Prefab", dominoPrefab, typeof(GameObject), false);
         dominoMaterialList = (DominoMaterialList)EditorGUILayout.ObjectField("Domino Material", dominoMaterialList, typeof(DominoMaterialList), false);
         dominoSoundList = (DominoSoundList)EditorGUILayout.ObjectField("Domino Sound", dominoSoundList, typeof(DominoSoundList), false);
@@ -190,7 +192,7 @@ public class DominoSpawner : EditorWindow
         // Remove any existing preview cubes
         RemovePreviewCubes();
 
-        if (selected == null || !selected.CompareTag("DominoTag") || spawnCount <= 0)
+        if (!previewMode || selected == null || !selected.CompareTag("DominoTag") || spawnCount <= 0)
             return;
 
         List<(Vector3 position, Quaternion rotation)> previewPositions = new();
