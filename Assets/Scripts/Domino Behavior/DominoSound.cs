@@ -8,12 +8,19 @@ public class DominoSound : MonoBehaviour
     public float minimumImpactForce = 1f;
     public DominoSoundList dominoClickSounds;
     private bool musicMode = false;
-    // private static int lastPlayedNoteIndex = 0;
     public float soundCooldown = 0.2f; // Minimum time between sounds
     private static float lastSoundTime = 0f;  // Tracks the last time a sound was played
     private static int songIndex = 0;
-    private static string currentSong = "OdeToJoy"; // Set the song you want
+    private static SongTitle currentSong = SongTitle.OdeToJoy; // Set the default song
     public int octaveOffset = 1; // Octave offset for the notes
+
+    public enum SongTitle
+    { 
+        Twinkle, Entertainer, MapleLeafRag,
+        MaryHadALittleLamb, HappyBirthday,
+        OdeToJoy, JingleBells, FurElise, 
+        CanonInD, Beethoven5th, Greensleeves
+    }
     private static readonly Dictionary<char, int> noteMap = new Dictionary<char, int>
     {
         { 'C', 0 }, { 'D', 2 }, { 'E', 4 }, { 'F', 5 }, { 'G', 7 }, { 'A', 9 }, { 'B', 11 },
@@ -21,17 +28,19 @@ public class DominoSound : MonoBehaviour
         { '-', -1} //Rest note
     };
 
-    private static readonly Dictionary<string, string> songLibrary = new Dictionary<string, string>
+    private static readonly Dictionary<SongTitle, string> songLibrary = new Dictionary<SongTitle, string>
     {
-        { "Twinkle", "CCGGAAG-FFEEDDC-GGFED-GGFED-CCGGAAG-FFEEDDC-" },
-        { "Entertainer", "EGCAG-CDE-GAC-EAG-" },
-        { "MapleLeafRag", "EC EGA GEC EGA CEGC EDCA FA CA DFA DBDG BDBD EC EGA GEC EGA" },
-        { "MaryHadALittleLamb", "E D C D E E E D D D E G G-" },
-        { "HappyBirthday", "G G A G C B" },
-        { "OdeToJoy", "EEFGGFE DCCDEEDD-EEFGGFE DCCDEDCC-DECDEFECDEFEDCDG-EEFGGFEDCCDEDCC-" },
-        { "JingleBells", "E E E E E E E G C D E" },
-        { "FurElise", "E D# E D# E B D C A" },
-        { "CanonInD", "D A B F# G D G A B F# G A B C# D" }
+        { SongTitle.Twinkle, "CCGGAAG-FFEEDDC-GGFED-GGFED-CCGGAAG-FFEEDDC-" },
+        { SongTitle.Entertainer, "EGCAG-CDE-GAC-EAG-" },
+        { SongTitle.MapleLeafRag, "EC EGA GEC EGA CEGC EDCA FA CA DFA DBDG BDBD EC EGA GEC EGA" },
+        { SongTitle.MaryHadALittleLamb, "E D C D E E E D D D E G G-" },
+        { SongTitle.HappyBirthday, "G G A G C B G G A G D C-" },
+        { SongTitle.OdeToJoy, "EEFGGFE DCCDEEDD-EEFGGFE DCCDEDCC-DECDEFECDEFEDCDG-EEFGGFEDCCDED-CC-" },
+        { SongTitle.JingleBells, "E E E E E E E G C D E F F F F F E E E E D D E D G-" },
+        { SongTitle.FurElise, "E D# E D# E B D C A C E A B E G# B C-" },
+        { SongTitle.CanonInD, "D A B F# G D G A B F# G A B C# D-" },
+        { SongTitle.Beethoven5th, "G G G Eb F F F D G G G Eb F F F D-" },
+        { SongTitle.Greensleeves, "E G A B C B A G A B C D E-" },
     };
 
     void Start()
@@ -67,25 +76,47 @@ public class DominoSound : MonoBehaviour
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
     }
 
-    private bool PlayMusicNote(float impactForce)
+    private void PlayMusicNote(float impactForce)
     {
-        // Get current song as a note sequence
+        // Get the current song as a note sequence
         string songNotes = songLibrary[currentSong].Replace(" ", ""); // Remove spaces
-        char noteChar = songNotes[songIndex % songNotes.Length]; // Get current note
-        songIndex++; // Move to next note
-                     // If the note is a rest, skip to the next note
+        char noteChar = songNotes[songIndex % songNotes.Length]; // Get the current note
+        songIndex++; // Move to the next note
+
+        // If the song has completed, switch to the next song
+        if (songIndex >= songNotes.Length)
+        {
+            songIndex = 0; // Reset the index for the next song
+            SwitchToNextSong();
+        }
+
+        // If the note is a rest, skip to the next note
         if (noteChar == '-')
         {
-            return false;
+            return;
         }
 
         if (noteMap.TryGetValue(noteChar, out int noteIndex) && noteIndex < soundList.sounds.Length)
         {
+            noteIndex += octaveOffset * 12; // Adjust for octave offset
             AudioClip clip = soundList.sounds[noteIndex];
             float volume = Mathf.Clamp(impactForce / 20f, 0.1f, 1.0f);
             audioSource.PlayOneShot(clip, volume);
         }
+    }
 
-        return true;
+    private void SwitchToNextSong()
+    {
+        // Get the list of song keys
+        SongTitle[] songKeys = (SongTitle[])System.Enum.GetValues(typeof(SongTitle));
+
+        // Find the index of the current song
+        int currentIndex = System.Array.IndexOf(songKeys, currentSong);
+
+        // Move to the next song, or loop back to the first song
+        int nextIndex = (currentIndex + 1) % songKeys.Length;
+        currentSong = songKeys[nextIndex];
+
+        Debug.Log($"Switched to next song: {currentSong}");
     }
 }
