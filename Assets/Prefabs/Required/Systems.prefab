@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 7051234789152453}
   serializedVersion: 2
   m_LocalRotation: {x: 0.09098534, y: 0.89253044, z: -0.2088373, w: 0.38922763}
-  m_LocalPosition: {x: 4.597557, y: -3.1053104, z: -4.2684517}
+  m_LocalPosition: {x: 29.64, y: -3.88, z: -4.2684517}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -74,7 +74,7 @@ Transform:
   m_GameObject: {fileID: 802997217981455792}
   serializedVersion: 2
   m_LocalRotation: {x: 0.09098534, y: 0.89253044, z: -0.2088373, w: 0.38922763}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 25.042448, y: -0.7746906, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -190,8 +190,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2505922308584544636}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.09098539, y: 0.89253056, z: -0.20883729, w: 0.3892274}
-  m_LocalPosition: {x: 23.347557, y: -9.67531, z: 6.1415462}
+  m_LocalRotation: {x: -0.29013965, y: -0.37792045, z: 0.12612155, w: -0.87010837}
+  m_LocalPosition: {x: 35.60621, y: -11.883532, z: -26.196861}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -411,8 +411,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4427080609641943509}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.09098539, y: 0.89253056, z: -0.20883729, w: 0.3892274}
-  m_LocalPosition: {x: 23.347557, y: -9.67531, z: 6.1415462}
+  m_LocalRotation: {x: -0.29013965, y: -0.37792045, z: 0.12612155, w: -0.87010837}
+  m_LocalPosition: {x: 35.60621, y: -11.883532, z: -26.196861}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -807,6 +807,11 @@ MonoBehaviour:
   volumeLerpSpeed: 5
   totalVelocityThreshhold: -100
   minimumVelocity: 1
+  minimumImpactForce: 1
+  soundCooldown: 0.05
+  octaveOffset: 1
+  soundList: {fileID: 11400000, guid: ea7b78dcee7b70141a4ed3e24a359220, type: 2}
+  dominoClickSounds: {fileID: 11400000, guid: b75dc4c91cf6ef244897d08b0a63e357, type: 2}
 --- !u!114 &8842277024513562491
 MonoBehaviour:
   m_ObjectHideFlags: 0

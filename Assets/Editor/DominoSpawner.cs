@@ -27,7 +27,7 @@ public class DominoSpawner : EditorWindow
     private string groupName = "Domino Group";
     private GameObject dominoPrefab;
     private DominoMaterialList dominoMaterialList;
-    private DominoSoundList dominoSoundList;
+    private bool musicMode = true;
     private List<GameObject> previewShapes = new List<GameObject>(); // To store preview cubes
     private bool previewMode  = true;
 
@@ -45,8 +45,7 @@ public class DominoSpawner : EditorWindow
         previewMode = EditorGUILayout.Toggle("Preview Mode", previewMode);
         dominoPrefab = (GameObject)EditorGUILayout.ObjectField("Domino Prefab", dominoPrefab, typeof(GameObject), false);
         dominoMaterialList = (DominoMaterialList)EditorGUILayout.ObjectField("Domino Material", dominoMaterialList, typeof(DominoMaterialList), false);
-        dominoSoundList = (DominoSoundList)EditorGUILayout.ObjectField("Domino Sound", dominoSoundList, typeof(DominoSoundList), false);
-
+        musicMode = EditorGUILayout.Toggle("Music Mode", musicMode);
         selectedFormation = (FormationType)EditorGUILayout.EnumPopup("Formation Type", selectedFormation);
         forwardSpacing = EditorGUILayout.Slider("Forward Spacing", forwardSpacing, .2f, .6f);
 
@@ -180,6 +179,7 @@ public class DominoSpawner : EditorWindow
     {
         GameObject newDomino = (GameObject)PrefabUtility.InstantiatePrefab(dominoPrefab);
         newDomino.transform.position = spawnPos;
+        newDomino.GetComponent<DominoSound>().musicMode = musicMode;
         newDomino.transform.rotation = rotation;
         Undo.RegisterCreatedObjectUndo(newDomino, "Spawn Domino");
         return newDomino;
@@ -414,7 +414,6 @@ public class DominoSpawner : EditorWindow
                                     : Color.Lerp(startColor, effectiveEndColor, cycleIndex);
 
             DominoSkin dominoSkin = dominoes[i].GetComponent<DominoSkin>();
-            DominoSound dominoSound = dominoes[i].GetComponent<DominoSound>();
             if (dominoSkin != null)
             {
                 if (dominoMaterialList == null)
@@ -422,11 +421,6 @@ public class DominoSpawner : EditorWindow
                     dominoSkin.materialList = selectedSkin.materialList; //Default to selected skin's material list
                 }
                 else dominoSkin.materialList = dominoMaterialList;
-                if (dominoSoundList == null)
-                {
-                    dominoSound.soundList = selectedSound.soundList; //Default to selected skin's sound list
-                }
-                else dominoSound.soundList = dominoSoundList;
                 dominoSkin.colorOverride = newColor;
                 dominoSkin.ApplyRandomMaterial();
                 EditorUtility.SetDirty(dominoSkin);
