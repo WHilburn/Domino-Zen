@@ -34,20 +34,7 @@ public class DominoResetManager : MonoBehaviour
     {
         foreach (var kvp in dominoes)
         {
-            kvp.Key.ResetDomino();
-            // Domino domino = kvp.Key;
-            // domino.transform.DOKill();
-            // if (!domino.stablePositionSet) {
-            //     Destroy(domino.gameObject);
-            //     continue;
-            // }
-            // Rigidbody rb = domino.GetComponent<Rigidbody>();
-            // (Vector3 startPos, Quaternion startRot) = kvp.Value;
-
-            // rb.isKinematic = true; // Prevent physics interference
-            // //domino.GetComponent<BoxCollider>().enabled = false; // Disable collider for smooth transition
-            // rb.transform.DOMove(startPos, resetDuration);
-            // rb.transform.DORotateQuaternion(startRot, resetDuration).OnComplete(() => domino.TogglePhysics());
+            kvp.Key.ResetDomino(Domino.ResetAnimation.Jump);
         }
 
         dominoes.Clear();
