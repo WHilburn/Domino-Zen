@@ -17,10 +17,10 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        // if (Input.GetKeyDown(KeyCode.R))
-        // {
-        //     UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
-        // }   
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        }   
         if (Input.GetKeyDown(KeyCode.P))
         {
             ToggleDominoPhysics();

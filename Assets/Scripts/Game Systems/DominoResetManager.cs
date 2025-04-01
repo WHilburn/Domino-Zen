@@ -6,23 +6,24 @@ public class DominoResetManager : MonoBehaviour
 {
     public static DominoResetManager Instance { get; private set; }
 
-    private Dictionary<Rigidbody, (Vector3 position, Quaternion rotation)> dominoes = new Dictionary<Rigidbody, (Vector3, Quaternion)>();
-    private float resetDelay = 5f;
-    private float resetDuration = 1f;
+    private Dictionary<Domino, (Vector3 position, Quaternion rotation)> dominoes = new Dictionary<Domino, (Vector3, Quaternion)>();
+    public float resetDelay = 3f;
+    public float resetDuration = 1f;
 
     private void Awake()
     {
+        DOTween.SetTweensCapacity(10000, 100);
         if (Instance == null)
             Instance = this;
         else
             Destroy(gameObject);
     }
 
-    public void RegisterDomino(Rigidbody rb, Vector3 stablePos, Quaternion stableRot)
+    public void RegisterDomino(Domino domino, Vector3 stablePos, Quaternion stableRot)
     {
-        if (!dominoes.ContainsKey(rb))
+        if (!dominoes.ContainsKey(domino))
         {
-            dominoes[rb] = (stablePos, stableRot);
+            dominoes[domino] = (stablePos, stableRot);
         }
 
         CancelInvoke(nameof(ResetAllDominoes));
@@ -33,12 +34,20 @@ public class DominoResetManager : MonoBehaviour
     {
         foreach (var kvp in dominoes)
         {
-            Rigidbody rb = kvp.Key;
-            (Vector3 startPos, Quaternion startRot) = kvp.Value;
+            kvp.Key.ResetDomino();
+            // Domino domino = kvp.Key;
+            // domino.transform.DOKill();
+            // if (!domino.stablePositionSet) {
+            //     Destroy(domino.gameObject);
+            //     continue;
+            // }
+            // Rigidbody rb = domino.GetComponent<Rigidbody>();
+            // (Vector3 startPos, Quaternion startRot) = kvp.Value;
 
-            rb.isKinematic = true; // Prevent physics interference
-            rb.transform.DOMove(startPos, resetDuration);
-            rb.transform.DORotateQuaternion(startRot, resetDuration).OnComplete(() => rb.isKinematic = false);
+            // rb.isKinematic = true; // Prevent physics interference
+            // //domino.GetComponent<BoxCollider>().enabled = false; // Disable collider for smooth transition
+            // rb.transform.DOMove(startPos, resetDuration);
+            // rb.transform.DORotateQuaternion(startRot, resetDuration).OnComplete(() => domino.TogglePhysics());
         }
 
         dominoes.Clear();
