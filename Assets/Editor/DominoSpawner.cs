@@ -179,7 +179,7 @@ public class DominoSpawner : EditorWindow
     {
         GameObject newDomino = (GameObject)PrefabUtility.InstantiatePrefab(dominoPrefab);
         newDomino.transform.position = spawnPos;
-        newDomino.GetComponent<DominoSound>().musicMode = musicMode;
+        newDomino.GetComponent<Domino>().musicMode = musicMode;
         newDomino.transform.rotation = rotation;
         Undo.RegisterCreatedObjectUndo(newDomino, "Spawn Domino");
         return newDomino;
@@ -377,7 +377,7 @@ public class DominoSpawner : EditorWindow
     private void ApplyColor(List<GameObject> dominoes)
     {
         DominoSkin selectedSkin = Selection.activeGameObject.GetComponent<DominoSkin>();
-        DominoSound selectedSound = Selection.activeGameObject.GetComponent<DominoSound>();
+        // DominoSound selectedSound = Selection.activeGameObject.GetComponent<DominoSound>();
 
         int halfCount = dominoes.Count / 2; // Halfway point for Both-direction handling
         Color effectiveEndColor = endColor;

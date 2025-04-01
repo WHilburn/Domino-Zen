@@ -96,7 +96,6 @@ GameObject:
   - component: {fileID: 2198043311522755689}
   - component: {fileID: 6523229146847408400}
   - component: {fileID: 5095771503209502396}
-  - component: {fileID: -2827611252534224556}
   - component: {fileID: 7340539583291809194}
   - component: {fileID: 6187838271345159952}
   - component: {fileID: 2668708824225100415}
@@ -282,27 +281,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   holdPoint: {x: 0, y: 0, z: -0.025}
-  soundManager: {fileID: 0}
-  cameraController: {fileID: 0}
   isMoving: 0
   isHeld: 0
   velocityMagnitude: 0
---- !u!114 &-2827611252534224556
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3709038208395034117}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce000b794d65e4bfd860856709aa7f9b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  soundList: {fileID: 11400000, guid: b75dc4c91cf6ef244897d08b0a63e357, type: 2}
-  minimumImpactForce: 2
-  dominoClickSounds: {fileID: 11400000, guid: b75dc4c91cf6ef244897d08b0a63e357, type: 2}
-  soundCooldown: 0.05
+  musicMode: 1
 --- !u!114 &7340539583291809194
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: PianoSoundsLong
   m_EditorClassIdentifier: 
   sounds:
+  - {fileID: 8300000, guid: 4e765a015089b8a4b858285be889fbfc, type: 3}
+  - {fileID: 8300000, guid: 3b046af48a337884f9b93a56abd8f5ba, type: 3}
   - {fileID: 8300000, guid: a46ac1bfa23774e4a915b78cd1552dd2, type: 3}
   - {fileID: 8300000, guid: 58dfc02bf47801644b1692008d9708a1, type: 3}
   - {fileID: 8300000, guid: d5d45ec2033b8fd4f88aef3f3253c8c9, type: 3}

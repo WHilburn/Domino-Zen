@@ -30,7 +30,7 @@ public class DominoSoundManager : MonoBehaviour
     { 
         Twinkle, Entertainer, MapleLeafRag,
         MaryHadALittleLamb, HappyBirthday,
-        OdeToJoy, JingleBells, FurElise, 
+        OdeToJoy, TurkishMarch, FlightOfTheBumblebee, JingleBells, FurElise, 
         CanonInD, Beethoven5th, Greensleeves,
         MoonlightSonata, ClairDeLune, MinuteWaltz,
         ToccataAndFugue, WilliamTellOverture, SwanLake, BachPrelude
@@ -39,37 +39,46 @@ public class DominoSoundManager : MonoBehaviour
 
     private static readonly Dictionary<string, int> noteMap = new Dictionary<string, int>
     {
-        { "C", 0 }, { "C#", 1 }, { "Db", 1 },
-        { "D", 2 }, { "D#", 3 }, { "Eb", 3 },
-        { "E", 4 },
-        { "F", 5 }, { "F#", 6 }, { "Gb", 6 },
-        { "G", 7 }, { "G#", 8 }, { "Ab", 8 },
-        { "A", 9 }, { "A#", 10 }, { "Bb", 10 },
-        { "B", 11 },
+        { "C3", 0 }, { "C#3", 1 }, { "Db3", 1 }, { "D3", 2 }, { "D#3", 3 }, { "Eb3", 3 }, { "E3", 4 },
+        { "F3", 5 }, { "F#3", 6 }, { "Gb3", 6 }, { "G3", 7 }, { "G#3", 8 }, { "Ab3", 8 }, { "A3", 9 }, 
+        { "A#3", 10 }, { "Bb3", 10 }, { "B3", 11 },
+
+        { "C4", 12 }, { "C#4", 13 }, { "Db4", 13 }, { "D4", 14 }, { "D#4", 15 }, { "Eb4", 15 }, { "E4", 16 },
+        { "F4", 17 }, { "F#4", 18 }, { "Gb4", 18 }, { "G4", 19 }, { "G#4", 20 }, { "Ab4", 20 }, { "A4", 21 }, 
+        { "A#4", 22 }, { "Bb4", 22 }, { "B4", 23 },
+
+        { "C5", 24 }, { "C#5", 25 }, { "Db5", 25 }, { "D5", 26 }, { "D#5", 27 }, { "Eb5", 27 }, { "E5", 28 },
+        { "F5", 29 }, { "F#5", 30 }, { "Gb5", 30 }, { "G5", 31 }, { "G#5", 32 }, { "Ab5", 32 }, { "A5", 33 }, 
+        { "A#5", 34 }, { "Bb5", 34 }, { "B5", 35 },
+
         { "-", -1 } // Rest note
     };
 
-private static readonly Dictionary<SongTitle, string> songLibrary = new Dictionary<SongTitle, string>
-{
-    {SongTitle.Twinkle,"CCGGAAG-FFEEDDC-GGFED-GGFED-CCGGAAG-FFEEDDC-"},
-    {SongTitle.Entertainer,"EGCAG-CDE-GAC-EAG-"},
-    {SongTitle.MapleLeafRag,"ECEGGECEGCEGCEDCFCDFDBDGBDBDECEGGECEGA"},
-    {SongTitle.MaryHadALittleLamb,"EDCDEEEDDDEGG-"},
-    {SongTitle.HappyBirthday,"GGGCBGGGDC-"},
-    {SongTitle.OdeToJoy,"EEFGGFEDCCDEEDD-EEFGGFEDCCDEDCC-DECDEFECDEFEDCDG-EEFGGFEDCCDED-CC-"},
-    {SongTitle.JingleBells,"EEEEEEEGCDEFFFFFEEEEDDEDG-"},
-    {SongTitle.FurElise,"ED#ED#EBDCCEBEG#BC-"},
-    {SongTitle.CanonInD,"DFAF#GAGBF#GBC#D-"},
-    {SongTitle.Beethoven5th,"GGGEbFFFDGGGEbFFFD-"},
-    {SongTitle.Greensleeves,"EGBCBGBCDE-"},
-    {SongTitle.MoonlightSonata, "G#G#G#G#G#G#G#G#-A#A#A#A#A#A#A#A#-BFBF#GF#G-BFBF#GF#G-"}, 
-    {SongTitle.ClairDeLune, "DFA#DFA#A#GFG#A#B-"},
-    {SongTitle.MinuteWaltz, "EGBDGBEGBEGBDF#GBEGBEGBDGBEGBDGBD-"},
-    {SongTitle.ToccataAndFugue, "DADbAC#D-DAAAGF#G#A-GF#G#A-BAGF#G#A-"},
-    {SongTitle.WilliamTellOverture, "EDDDEEEDDDEEGFGFEEDDDEEEDDDEEGFGFE-"},
-    {SongTitle.SwanLake, "BGAGABGBGAGABG-"},
-    {SongTitle.BachPrelude, "CCGGCDEEFFG-"}
-};
+
+    private static readonly Dictionary<SongTitle, string> songLibrary = new Dictionary<SongTitle, string>
+    {
+        {SongTitle.FlightOfTheBumblebee, "B4C5D5C5B4A4G#4A4B4C5D5C5B4A4G#4A4B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4B4C5D5E5F5G5A5G5F5E5D5C5B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4B4C5D5E5F5G5A5G5F5E5D5C5B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4B4C5D5E5F5G5A5G5F5E5D5C5B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4"},
+        {SongTitle.Twinkle,"C4C4G4G4A4A4G4-F4F4E4E4D4D4C4-G4G4F4F4E4E4D4-G4G4F4F4E4E4D4-C4C4G4G4A4A4G4-F4F4E4E4D4D4C4-"},
+        {SongTitle.Entertainer,"E4G4C5A4G4-C4D4E4-G4A4C5-E4A4G4-"},
+        {SongTitle.MapleLeafRag,"E4C4E4G4G4E4C4E4G4C5E4G4C4E4G4C5E4G4C5E4D4C4F4C4D4F4D4B3D4G4B3D4B3D4B3D4E4C4E4G4G4E4C4E4G4A4"},
+        {SongTitle.MaryHadALittleLamb,"E4D4C4D4E4E4E4-D4D4D4-E4G4G4-"},
+        {SongTitle.HappyBirthday,"G4G4A4G4C5B4-G4G4A4G4D5C5-"},
+        {SongTitle.OdeToJoy,"E4E4F4G4G4F4E4D4-C4D4E4E4D4D4-E4E4F4G4G4F4E4D4-C4D4E4D4C4C4-D4E4F4C4D4E4F4E4D4C4G4-E4E4F4G4G4F4E4D4-C4D4E4D4C4C4-"},
+        {SongTitle.JingleBells,"E4E4E4-G4C4D4E4-F4F4F4-E4E4E4-E4D4D4E4D4G4-"},
+        {SongTitle.FurElise,"E5D#5E5D#5E5B4D4C4A4-C4E4A4B4-E4G#4B4C5-"},
+        {SongTitle.CanonInD,"D4F#4A4F#4G4D4G4A4B4F#4G4B4C5#D5-"},
+        {SongTitle.Beethoven5th,"G4G4G4Eb4-F4F4F4D4-G4G4G4Eb4-F4F4F4D4-"},
+        {SongTitle.Greensleeves,"E4G4B4C5B4G4B4C5D5E4-"},
+        {SongTitle.MoonlightSonata, "G#3G#3G#3G#3G#3G#3G#3G#3-A#3A#3A#3A#3A#3A#3A#3A#3-B3F3B3F3#G3F#3G3-B3F3B3F3#G3F#3G3-"}, 
+        {SongTitle.ClairDeLune, "D4F4A#4D4F4A#4A#4G4F4G#4A#4B4-"},
+        {SongTitle.MinuteWaltz, "E5G5B5D5G5B5E5G5B5E5G5B5D5F#5G5B5E5G5B5E5G5B5D5G5B5E5G5B5D5-"},
+        {SongTitle.ToccataAndFugue, "D4A4D5Db4A4C#5D5-D4A4A4A4G4F#4G#4A4-G4F#4G#4A4-B4A4G4F#4G#4A4-"},
+        {SongTitle.WilliamTellOverture, "E4D4D4D4E4E4E4E4D4D4D4E4E4E4E4-G4F4G4F4E4D4D4D4E4E4E4E4D4D4D4E4E4E4E4-G4F4G4F4E4-"},
+        {SongTitle.SwanLake, "B4G4A4G4A4B4G4B4G4A4G4A4B4G4-"},
+        {SongTitle.BachPrelude, "C4C4G4G4C4D4E4E4F4G4A4A4B4C5D5E5F5G5-"},
+        {SongTitle.TurkishMarch, "E5B4C5D5E5A4B4C5D5E5B4C5D5E5A4B4C5D5E5D5C5B4A4G#4A4B4C5D5E5B4C5D5E5A4B4C5D5E5B4C5D5E5A4B4C5D5E5D5C5B4A4G#4A4B4C5D5E5C5A4E5C5A4E5C5A4B4D5G4B4D5G4B4D5G4F#4A4E4A4C5E4A4C5E4A4C5F4A4D5F4A4D5F4A4D5G4B4E5G4B4E5G4B4E5F#4A4E4A4C5E4A4C5E4A4C5F4A4D5F4A4D5F4A4D5G4B4E5G4B4E5G4B4E5C5A4E5C5A4E5C5A4B4D5G4B4D5G4B4D5G4F#4A4E4A4C5E4A4C5E4A4C5F4A4D5F4A4D5F4A4D5G4B4E5G4B4E5G4B4E5"}
+    };
+
 
     void Start()
     {
@@ -154,24 +163,58 @@ private static readonly Dictionary<SongTitle, string> songLibrary = new Dictiona
             source.PlayOneShot(clip, volume);
         }
     }
-    private string[] ParseNotes(string songNotes)
+private string[] ParseNotes(string songNotes)
+{
+    List<string> parsedNotes = new List<string>();
+    int i = 0;
+
+    while (i < songNotes.Length)
     {
-        List<string> parsedNotes = new List<string>();
-        for (int i = 0; i < songNotes.Length; i++)
+        char note = songNotes[i];
+        
+        // Handle rests
+        if (note == '-')
         {
-            // Check for sharps (#) or flats (b) after a note
-            if (i + 1 < songNotes.Length && (songNotes[i + 1] == '#' || songNotes[i + 1] == 'b'))
-            {
-                parsedNotes.Add(songNotes[i].ToString() + songNotes[i + 1]); // Combine note and sharp/flat
-                i++; // Skip the next character
-            }
-            else
-            {
-                parsedNotes.Add(songNotes[i].ToString());
-            }
+            parsedNotes.Add("-");
+            i++;
+            continue;
         }
-        return parsedNotes.ToArray();
+
+        // Ensure it's a valid note letter (A-G)
+        if (note < 'A' || note > 'G')
+        {
+            i++;
+            continue;
+        }
+
+        string parsedNote = note.ToString();
+        i++;
+
+        // Check for sharp (#) or flat (b)
+        if (i < songNotes.Length && (songNotes[i] == '#' || songNotes[i] == 'b'))
+        {
+            parsedNote += songNotes[i];
+            i++;
+        }
+
+        // Check for octave number (3-5)
+        if (i < songNotes.Length && char.IsDigit(songNotes[i]))
+        {
+            parsedNote += songNotes[i];
+            i++;
+        }
+        else
+        {
+            // Default to octave 4 if not specified
+            parsedNote += "4";
+        }
+
+        parsedNotes.Add(parsedNote);
     }
+
+    return parsedNotes.ToArray();
+}
+
 
     private void SwitchToNextSong()
     {

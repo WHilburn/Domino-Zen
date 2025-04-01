@@ -74,7 +74,7 @@ Transform:
   m_GameObject: {fileID: 802997217981455792}
   serializedVersion: 2
   m_LocalRotation: {x: 0.09098534, y: 0.89253044, z: -0.2088373, w: 0.38922763}
-  m_LocalPosition: {x: 25.042448, y: -0.7746906, z: 0}
+  m_LocalPosition: {x: 26.356033, y: -1.6619215, z: -1.2195549}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -266,7 +266,7 @@ GameObject:
   - component: {fileID: 3693833012910678459}
   - component: {fileID: 2385932528478624764}
   - component: {fileID: 8674380902124456694}
-  - component: {fileID: 8651906095540605252}
+  - component: {fileID: 2470800693172524710}
   m_Layer: 0
   m_Name: cm
   m_TagString: Untagged
@@ -317,8 +317,8 @@ MonoBehaviour:
   m_LookaheadTime: 0
   m_LookaheadSmoothing: 0
   m_LookaheadIgnoreY: 0
-  m_HorizontalDamping: 5
-  m_VerticalDamping: 5
+  m_HorizontalDamping: 2
+  m_VerticalDamping: 2
   m_ScreenX: 0.5
   m_ScreenY: 0.5
   m_DeadZoneWidth: 0
@@ -330,7 +330,7 @@ MonoBehaviour:
   m_CenterOnActivate: 1
   m_GroupFramingSize: 0.8
   m_FramingMode: 2
-  m_FrameDamping: 2
+  m_FrameDamping: 5
   m_AdjustmentMode: 0
   m_MaxDollyIn: 5000
   m_MaxDollyOut: 5000
@@ -340,7 +340,7 @@ MonoBehaviour:
   m_MaximumFOV: 60
   m_MinimumOrthoSize: 1
   m_MaximumOrthoSize: 5000
---- !u!114 &8651906095540605252
+--- !u!114 &2470800693172524710
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -356,18 +356,18 @@ MonoBehaviour:
   m_LookaheadTime: 0
   m_LookaheadSmoothing: 0
   m_LookaheadIgnoreY: 0
-  m_XDamping: 3
-  m_YDamping: 3
-  m_ZDamping: 3
+  m_XDamping: 1
+  m_YDamping: 1
+  m_ZDamping: 1
   m_TargetMovementOnly: 0
   m_ScreenX: 0.5
   m_ScreenY: 0.5
-  m_CameraDistance: 7
-  m_DeadZoneWidth: 0.5
-  m_DeadZoneHeight: 0.2
+  m_CameraDistance: 5
+  m_DeadZoneWidth: 0
+  m_DeadZoneHeight: 0
   m_DeadZoneDepth: 0
-  m_UnlimitedSoftZone: 1
-  m_SoftZoneWidth: 2
+  m_UnlimitedSoftZone: 0
+  m_SoftZoneWidth: 0.8
   m_SoftZoneHeight: 0.8
   m_BiasX: 0
   m_BiasY: 0
@@ -377,10 +377,10 @@ MonoBehaviour:
   m_GroupFramingSize: 0.8
   m_MaxDollyIn: 5000
   m_MaxDollyOut: 5000
-  m_MinimumDistance: 3
-  m_MaximumDistance: 20
-  m_MinimumFOV: 10
-  m_MaximumFOV: 100
+  m_MinimumDistance: 5
+  m_MaximumDistance: 15
+  m_MinimumFOV: 30
+  m_MaximumFOV: 90
   m_MinimumOrthoSize: 1
   m_MaximumOrthoSize: 5000
 --- !u!1 &4427080609641943509
@@ -607,6 +607,7 @@ GameObject:
   - component: {fileID: 3351162346467075200}
   - component: {fileID: 8842277024513562491}
   - component: {fileID: 6366756040542395597}
+  - component: {fileID: 4299241003555251527}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: Untagged
@@ -809,7 +810,7 @@ MonoBehaviour:
   minimumVelocity: 1
   minimumImpactForce: 1
   soundCooldown: 0.05
-  octaveOffset: 1
+  octaveOffset: 0
   soundList: {fileID: 11400000, guid: ea7b78dcee7b70141a4ed3e24a359220, type: 2}
   dominoClickSounds: {fileID: 11400000, guid: b75dc4c91cf6ef244897d08b0a63e357, type: 2}
 --- !u!114 &8842277024513562491
@@ -835,5 +836,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 29977e2bb21498048945c6be6a30a425, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4299241003555251527
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5524845532295669555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2be93d9b9ff6a4f6aa377926a6975c0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
