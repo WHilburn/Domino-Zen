@@ -26,6 +26,10 @@ public class DominoSoundManager : MonoBehaviour
     public DominoSoundList soundList;
     public DominoSoundList dominoClickSounds;
 
+    [Header("AudioSource Pool Settings")]
+    public int audioSourcePoolSize = 128; // Number of AudioSources in the pool
+    private Queue<AudioSource> audioSourcePool;
+
     public enum SongTitle
     { 
         Twinkle, Entertainer, MapleLeafRag,
@@ -79,8 +83,7 @@ public class DominoSoundManager : MonoBehaviour
         {SongTitle.TurkishMarch, "E5B4C5D5E5A4B4C5D5E5B4C5D5E5A4B4C5D5E5D5C5B4A4G#4A4B4C5D5E5B4C5D5E5A4B4C5D5E5B4C5D5E5A4B4C5D5E5D5C5B4A4G#4A4B4C5D5E5C5A4E5C5A4E5C5A4B4D5G4B4D5G4B4D5G4F#4A4E4A4C5E4A4C5E4A4C5F4A4D5F4A4D5F4A4D5G4B4E5G4B4E5G4B4E5F#4A4E4A4C5E4A4C5E4A4C5F4A4D5F4A4D5F4A4D5G4B4E5G4B4E5G4B4E5C5A4E5C5A4E5C5A4B4D5G4B4D5G4B4D5G4F#4A4E4A4C5E4A4C5E4A4C5F4A4D5F4A4D5F4A4D5G4B4E5G4B4E5G4B4E5"}
     };
 
-
-    void Start()
+    private void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -88,7 +91,12 @@ public class DominoSoundManager : MonoBehaviour
             return;
         }
         Instance = this;
-        // DontDestroyOnLoad(gameObject);
+
+        InitializeAudioSourcePool();
+    }
+
+    void Start()
+    {
         // Setup cascade audio
         cascadeSource.clip = cascadeClip;
         cascadeSource.loop = true;
@@ -114,13 +122,51 @@ public class DominoSoundManager : MonoBehaviour
         }
     }
 
-    //////////////// Manage Domino Sounds ////////////////
-    public void PlayDominoSound(float impactForce, bool isMusicMode, AudioSource source)
+    // Initialize the AudioSource pool
+    private void InitializeAudioSourcePool()
+    {
+        audioSourcePool = new Queue<AudioSource>();
+
+        for (int i = 0; i < audioSourcePoolSize; i++)
+        {
+            GameObject audioSourceObject = new GameObject($"PooledAudioSource_{i}");
+            audioSourceObject.transform.SetParent(transform);
+            AudioSource audioSource = audioSourceObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+            audioSourcePool.Enqueue(audioSource);
+        }
+    }
+
+    // Get an available AudioSource from the pool
+    private AudioSource GetPooledAudioSource()
+    {
+        if (audioSourcePool.Count > 0)
+        {
+            return audioSourcePool.Dequeue();
+        }
+
+        Debug.LogWarning("AudioSource pool exhausted! Consider increasing the pool size.");
+        return null;
+    }
+
+    // Return an AudioSource to the pool
+    private void ReturnAudioSourceToPool(AudioSource audioSource)
+    {
+        audioSource.Stop();
+        audioSource.clip = null;
+        audioSourcePool.Enqueue(audioSource);
+    }
+
+    // Play a sound using the pooled AudioSources
+    public void PlayDominoSound(float impactForce, bool isMusicMode)
     {
         if (impactForce < minimumImpactForce || Time.time < lastSoundTime + soundCooldown)
             return;
 
         lastSoundTime = Time.time;
+
+        AudioSource source = GetPooledAudioSource();
+        if (source == null) return;
 
         if (isMusicMode)
         {
@@ -128,12 +174,22 @@ public class DominoSoundManager : MonoBehaviour
         }
         else
         {
-            AudioClip clip = soundList.sounds[Random.Range(0, soundList.sounds.Length)];
+            AudioClip clip = dominoClickSounds.sounds[Random.Range(0, dominoClickSounds.sounds.Length)];
             float volume = Mathf.Clamp(impactForce / 20f, 0.1f, 1.0f);
             source.PlayOneShot(clip, volume);
             source.pitch = 2; // Set pitch to 2 for domino click sounds
         }
+
+        // Return the AudioSource to the pool after the clip finishes playing
+        StartCoroutine(ReturnAudioSourceAfterPlayback(source));
     }
+
+    private IEnumerator ReturnAudioSourceAfterPlayback(AudioSource source)
+    {
+        yield return new WaitWhile(() => source.isPlaying);
+        ReturnAudioSourceToPool(source);
+    }
+
     private void PlayMusicNote(float impactForce, AudioSource source)
     {
         // Get the current song as a note sequence

@@ -17,14 +17,6 @@ public class DominoSkin : MonoBehaviour
         // Do not apply material in editor mode, just refresh the Scene view marker
         UnityEditor.SceneView.RepaintAll();
     }
-
-    // void OnDrawGizmos()
-    // {
-    //     // Draw a small floating marker above the domino to indicate its selected color
-    //     Vector3 markerPosition = transform.position + Vector3.up * 0.2f; // Slightly above the object
-    //     Gizmos.color = colorOverride;
-    //     Gizmos.DrawSphere(markerPosition, 0.05f);
-    // }
 #endif
 
     public void ApplyRandomMaterial()

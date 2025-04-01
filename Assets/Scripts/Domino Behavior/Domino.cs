@@ -1,24 +1,16 @@
 using UnityEngine;
 using System.Collections;
 using DG.Tweening;
-using System;
 
 [SelectionBase]
 public class Domino : MonoBehaviour
 {
     private Rigidbody rb;
-    public enum DominoState
-    {
-        Stable,
-        Falling,
-        Resetting
-    }
-
     public enum ResetAnimation
     {
         Rotate,
         Jump,
-        Reverse
+        Teleport
     }
     private static float stillnessThreshold = 5f;  // Velocity threshold to consider "stationary"
     public Vector3 holdPoint; // Offset from center to hold the domino
@@ -28,27 +20,27 @@ public class Domino : MonoBehaviour
     public bool isHeld = false;
     public float velocityMagnitude;
     public bool musicMode = true;
-    private AudioSource audioSource;
     [HideInInspector]
     public bool stablePositionSet = false;
     private Vector3 lastStablePosition;
     private Quaternion lastStableRotation;
     private static float uprightThreshold = -0.99f; // How upright the domino must be (1 = perfectly upright)
+    static float stabilityCheckDelay = 0.5f; // Delay between stability checks
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        audioSource = GetComponent<AudioSource>();
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // Start with high accuracy
         if (soundManager == null) soundManager = FindObjectOfType<DominoSoundManager>(); // Get references
         if (cameraController == null) cameraController = FindObjectOfType<CameraController>();
         CheckStability();
-        // InvokeRepeating(nameof(CheckStability), stabilityCheckDelay, stabilityCheckDelay);
+        InvokeRepeating(nameof(CheckStability), stabilityCheckDelay + UnityEngine.Random.Range(0f, .1f), stabilityCheckDelay);
     }
 
     void OnDestroy()
     {
         cameraController?.fallingDominoes.Remove(transform);
+        DominoResetManager.Instance.RemoveDomino(this); // Remove from reset manager
     }
 
     void Update()
@@ -67,20 +59,26 @@ public class Domino : MonoBehaviour
         bool currentlyMoving = rb.velocity.sqrMagnitude >= stillnessThreshold * stillnessThreshold || 
         rb.angularVelocity.sqrMagnitude >= stillnessThreshold * stillnessThreshold;
 
-        if (currentlyMoving && !isMoving)
+        if (currentlyMoving && !isMoving) // When we start moving
         {
             isMoving = true;
+            
             if (!cameraController.fallingDominoes.Contains(transform))
             {
                 cameraController.fallingDominoes.Add(transform);
+            }
+            if (!rb.isKinematic)
+            {
+                // Debug.Log($"Registering domino {gameObject.name} at {transform.position} and {transform.rotation} through Update");
+                DominoResetManager.Instance.RegisterDomino(this, lastStablePosition, lastStableRotation);
             }
             StartCoroutine(RemoveFromFallingDominoes(0.25f));
             // rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
         }
-        else if (!currentlyMoving && isMoving)
+        else if (!currentlyMoving && isMoving) //When we stop moving
         {
-            // CheckStability();
+            CheckStability();
             isMoving = false;
             // rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         }
@@ -89,10 +87,11 @@ public class Domino : MonoBehaviour
 
     private void CheckStability()
     {
-        if (rb.angularVelocity.magnitude > stillnessThreshold || rb.velocity.magnitude > stillnessThreshold)
+        if (rb.isKinematic  || 
+        lastStablePosition == transform.position || 
+        rb.angularVelocity.magnitude > stillnessThreshold || 
+        rb.velocity.magnitude > stillnessThreshold)
         {
-            // Check again after a short delay
-            Invoke(nameof(CheckStability), .1f);
             return;
         }
         //Debug.Log("Difference between up and forward: " + Vector3.Dot(transform.forward, Vector3.up));
@@ -102,46 +101,74 @@ public class Domino : MonoBehaviour
         }
     }
 
+    public void DespawnDomino()
+    {
+        // Disable collisions with other dominoes
+        TogglePhysics(false);
+
+        // Scale the domino down to zero
+        float scaleDuration = 0.5f; // Duration of the scaling animation
+        transform.DOScale(Vector3.zero, scaleDuration)
+            .SetEase(Ease.OutSine) // Smooth scaling effect
+            .OnComplete(() =>
+            {
+                // Destroy the domino after scaling down
+                Destroy(gameObject);
+            });
+    }
+
     private void SaveStablePosition()
     {
-        Debug.Log($"Saving stable position for {gameObject.name} at {transform.position} and {transform.rotation}");
+        // Debug.Log($"Saving stable position for {gameObject.name} at {transform.position} and {transform.rotation}");
         stablePositionSet = true;
         lastStablePosition = transform.position;
-        lastStableRotation = transform.rotation;
         //Make sure stable rotation is perfectly upright
         lastStableRotation = Quaternion.Euler(90f, transform.eulerAngles.y, transform.eulerAngles.z);
     }
     private void OnCollisionEnter(Collision collision)
     {
         float impactForce = collision.relativeVelocity.magnitude;
-        if (impactForce < 2f) return; // Ignore small impacts
+        if (impactForce < .5f || rb.isKinematic) return; // Ignore small impacts
 
-        DominoSoundManager.Instance.PlayDominoSound(impactForce, musicMode, audioSource);
+        DominoSoundManager.Instance.PlayDominoSound(impactForce, musicMode);
+        // Debug.Log($"Registering domino {gameObject.name} at {transform.position} and {transform.rotation} through Colision");
         DominoResetManager.Instance.RegisterDomino(this, lastStablePosition, lastStableRotation);
     }
 
     public void ResetDomino(ResetAnimation animation)
     {
-        transform.DOKill(); // Ensure any previous animations are cleared
         if (isHeld) return; // Don't reset if the domino is being held
-        TogglePhysics(false);
-
         if (!stablePositionSet) {
-            Destroy(gameObject);
+            DespawnDomino();
             return;
         }
-        //If animation is set to rotate or the distance from the stable position is really small...
-        if (animation == ResetAnimation.Rotate || Vector3.Distance(transform.position, lastStablePosition) < 0.3f)
+        if (animation == ResetAnimation.Teleport)
         {
+            // Debug.Log($"Teleporting domino {gameObject.name} to stable position at {lastStablePosition} and {lastStableRotation}");
+            rb.transform.position = lastStablePosition;
+            rb.transform.rotation = lastStableRotation;
+            TogglePhysics(true);
+            return;
+        }
+        TogglePhysics(false);
+
+        //If animation is set to rotate or the distance from the stable position is really small...
+        if (animation == ResetAnimation.Rotate || Vector3.Distance(transform.position, lastStablePosition) < 0.5f)
+        {
+            // Debug.Log($"Resetting domino {gameObject.name} to stable position at {lastStablePosition} and {lastStableRotation}");
             float resetDuration = 1f;
             rb.transform.DOMove(lastStablePosition, resetDuration);
-            rb.transform.DORotateQuaternion(lastStableRotation, resetDuration).OnComplete(() => TogglePhysics(true));
+            rb.transform.DORotateQuaternion(lastStableRotation, resetDuration).OnComplete(() => 
+            {
+                TogglePhysics(true);
+                StartCoroutine(RemoveFromFallingDominoes(0.25f));
+            });
         }
         else if (animation == ResetAnimation.Jump)
         {
             float jumpHeight = 1.5f;  // Height of the pop-up
             float jumpDuration = 0.3f;  // Faster upward motion
-            float fallDuration = 0.2f; // Faster downward motion
+            float fallDuration = 0.15f; // Faster downward motion
             float rotationDuration = 0.4f; // Smooth rotation time
 
             // Create a sequence for the reset animation
@@ -151,9 +178,19 @@ public class Domino : MonoBehaviour
             jumpSequence.Append(transform.DOMoveY(lastStablePosition.y + jumpHeight, jumpDuration)
                 .SetEase(Ease.OutQuad)); // Smooth ascent
 
-            // Rotate back to upright during ascent
-            jumpSequence.Join(transform.DORotateQuaternion(lastStableRotation, rotationDuration)
-                .SetEase(Ease.OutQuad)); // Smooth rotation
+            // Add a random flipping rotation during the ascent
+            Vector3 randomFlip = new Vector3(
+                Random.Range(0f, 720f), // Random X-axis rotation (up to 2 full flips)
+                Random.Range(0f, 720f), // Random Y-axis rotation
+                Random.Range(0f, 720f)  // Random Z-axis rotation
+            );
+            // Debug.Log($"Random flip rotation: {randomFlip}");
+            jumpSequence.Join(transform.DORotate(randomFlip, jumpDuration, RotateMode.FastBeyond360)
+                .SetEase(Ease.OutQuad)); // Smooth flipping rotation
+
+            // Ensure the upright rotation happens after the flip
+            jumpSequence.Append(transform.DORotateQuaternion(lastStableRotation, rotationDuration)
+                .SetEase(Ease.OutQuad)); // Smooth rotation back to upright
 
             // Tween the full position (X, Y, Z) back to the stable position during the fall
             jumpSequence.Append(transform.DOMove(lastStablePosition, fallDuration)
@@ -165,6 +202,7 @@ public class Domino : MonoBehaviour
                 transform.position = lastStablePosition;
                 transform.rotation = lastStableRotation;
                 TogglePhysics(true);
+                StartCoroutine(RemoveFromFallingDominoes(0.1f));
             });
 
             // Play the sequence
@@ -178,6 +216,7 @@ public class Domino : MonoBehaviour
         rb.isKinematic = !value;
         // rb.useGravity = value;
         GetComponent<BoxCollider>().enabled = value;
+        transform.DOKill();
     }
     public IEnumerator RemoveFromFallingDominoes(float delay)
     {

@@ -31,8 +31,19 @@ public class DominoResetManager : MonoBehaviour
         Invoke(nameof(ResetAllDominoes), resetDelay);
     }
 
+    public void RemoveDomino(Domino domino)
+    {
+        if (dominoes.ContainsKey(domino))
+        {
+            dominoes.Remove(domino);
+        }
+    }
+
     private void ResetAllDominoes()
     {
+        if (dominoes.Count < 1000) resetAnimation = Domino.ResetAnimation.Jump;
+        else if (dominoes.Count < 2000) resetAnimation = Domino.ResetAnimation.Rotate;
+        else resetAnimation = Domino.ResetAnimation.Teleport;
         foreach (var kvp in dominoes)
         {
             kvp.Key.ResetDomino(resetAnimation);
