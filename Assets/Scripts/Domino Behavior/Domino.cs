@@ -7,7 +7,7 @@ using System;
 public class Domino : MonoBehaviour
 {
     private Rigidbody rb;
-    enum DominoState
+    public enum DominoState
     {
         Stable,
         Falling,
@@ -42,7 +42,7 @@ public class Domino : MonoBehaviour
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // Start with high accuracy
         if (soundManager == null) soundManager = FindObjectOfType<DominoSoundManager>(); // Get references
         if (cameraController == null) cameraController = FindObjectOfType<CameraController>();
-        // SaveStablePosition();
+        CheckStability();
         // InvokeRepeating(nameof(CheckStability), stabilityCheckDelay, stabilityCheckDelay);
     }
 
@@ -75,12 +75,12 @@ public class Domino : MonoBehaviour
                 cameraController.fallingDominoes.Add(transform);
             }
             StartCoroutine(RemoveFromFallingDominoes(0.25f));
-            CheckStability();
             // rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
         }
         else if (!currentlyMoving && isMoving)
         {
+            CheckStability();
             isMoving = false;
             // rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         }
@@ -89,7 +89,13 @@ public class Domino : MonoBehaviour
 
     private void CheckStability()
     {
-        // Debug.Log("Difference between up and forward: " + Vector3.Dot(transform.forward, Vector3.up));
+        if (rb.angularVelocity.magnitude > stillnessThreshold || rb.velocity.magnitude > stillnessThreshold)
+        {
+            // Check again after a short delay
+            Invoke(nameof(CheckStability), .1f);
+            return;
+        }
+        //Debug.Log("Difference between up and forward: " + Vector3.Dot(transform.forward, Vector3.up));
         if (!isHeld && Vector3.Dot(transform.forward, Vector3.up) < uprightThreshold)
         {
             SaveStablePosition();
@@ -98,7 +104,7 @@ public class Domino : MonoBehaviour
 
     private void SaveStablePosition()
     {
-        // if (!stablePositionSet) Debug.Log($"Saving stable position for {gameObject.name} at {transform.position} and {transform.rotation}");
+        Debug.Log($"Saving stable position for {gameObject.name} at {transform.position} and {transform.rotation}");
         stablePositionSet = true;
         lastStablePosition = transform.position;
         lastStableRotation = transform.rotation;
@@ -107,9 +113,7 @@ public class Domino : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
-        // Debug.Log($"Collision with {collision.gameObject.name}");
         float impactForce = collision.relativeVelocity.magnitude;
-        CheckStability();
         if (impactForce < 1f) return; // Ignore small impacts
 
         DominoSoundManager.Instance.PlayDominoSound(impactForce, musicMode, audioSource);
@@ -119,7 +123,9 @@ public class Domino : MonoBehaviour
     public void ResetDomino(ResetAnimation animation)
     {
         transform.DOKill(); // Ensure any previous animations are cleared
+        if (isHeld) return; // Don't reset if the domino is being held
         TogglePhysics(false);
+
         if (!stablePositionSet) {
             Destroy(gameObject);
             return;
@@ -131,9 +137,9 @@ public class Domino : MonoBehaviour
             rb.transform.DOMove(lastStablePosition, resetDuration);
             rb.transform.DORotateQuaternion(lastStableRotation, resetDuration).OnComplete(() => TogglePhysics(true));
         }
-        else if (animation == ResetAnimation.Jump){
-
-            float jumpHeight = 0.5f;  // Height of the pop-up
+        else if (animation == ResetAnimation.Jump)
+        {
+            float jumpHeight = 1.5f;  // Height of the pop-up
             float jumpDuration = 0.3f;  // Faster upward motion
             float fallDuration = 0.15f; // Faster downward motion
             float rotationDuration = 0.4f; // Smooth rotation time
@@ -141,7 +147,7 @@ public class Domino : MonoBehaviour
             // Create a sequence for the reset animation
             Sequence resetSequence = DOTween.Sequence();
 
-            // Move the domino upwards quickly
+            // Move the domino upwards quickly (Y-axis only)
             resetSequence.Append(transform.DOMoveY(lastStablePosition.y + jumpHeight, jumpDuration)
                 .SetEase(Ease.OutQuad)); // Quick ascent
 
@@ -149,8 +155,8 @@ public class Domino : MonoBehaviour
             resetSequence.Join(transform.DORotateQuaternion(lastStableRotation, rotationDuration)
                 .SetEase(Ease.OutExpo));
 
-            // Make the fall snappier with a sharper ease
-            resetSequence.Append(transform.DOMoveY(lastStablePosition.y, fallDuration)
+            // Tween the full position (X, Y, Z) back to the stable position during the fall
+            resetSequence.Append(transform.DOMove(lastStablePosition, fallDuration)
                 .SetEase(Ease.InQuad)); // Snappy fall
 
             // Optional tiny bounce effect at the end
@@ -166,6 +172,7 @@ public class Domino : MonoBehaviour
     public void TogglePhysics(bool value)
     {
         rb.isKinematic = !value;
+        rb.useGravity = value;
         GetComponent<BoxCollider>().enabled = value;
     }
     public IEnumerator RemoveFromFallingDominoes(float delay)

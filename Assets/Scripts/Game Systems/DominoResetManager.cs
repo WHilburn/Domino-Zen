@@ -9,10 +9,11 @@ public class DominoResetManager : MonoBehaviour
     private Dictionary<Domino, (Vector3 position, Quaternion rotation)> dominoes = new Dictionary<Domino, (Vector3, Quaternion)>();
     public float resetDelay = 3f;
     public float resetDuration = 1f;
+    public Domino.ResetAnimation resetAnimation = Domino.ResetAnimation.Rotate;
 
     private void Awake()
     {
-        DOTween.SetTweensCapacity(10000, 100);
+        DOTween.SetTweensCapacity(10000, 10000);
         if (Instance == null)
             Instance = this;
         else
@@ -34,7 +35,7 @@ public class DominoResetManager : MonoBehaviour
     {
         foreach (var kvp in dominoes)
         {
-            kvp.Key.ResetDomino(Domino.ResetAnimation.Jump);
+            kvp.Key.ResetDomino(resetAnimation);
         }
 
         dominoes.Clear();
