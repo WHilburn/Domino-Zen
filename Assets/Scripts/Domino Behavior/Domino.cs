@@ -130,7 +130,7 @@ public class Domino : MonoBehaviour
         float impactForce = collision.relativeVelocity.magnitude;
         if (impactForce < .5f || rb.isKinematic) return; // Ignore small impacts
 
-        DominoSoundManager.Instance.PlayDominoSound(impactForce, musicMode);
+        DominoSoundManager.Instance.PlayDominoSound(impactForce, musicMode, transform.position);
         // Debug.Log($"Registering domino {gameObject.name} at {transform.position} and {transform.rotation} through Colision");
         DominoResetManager.Instance.RegisterDomino(this, lastStablePosition, lastStableRotation);
     }

@@ -158,7 +158,7 @@ public class DominoSoundManager : MonoBehaviour
     }
 
     // Play a sound using the pooled AudioSources
-    public void PlayDominoSound(float impactForce, bool isMusicMode)
+    public void PlayDominoSound(float impactForce, bool isMusicMode, Vector3 dominoPosition)
     {
         if (impactForce < minimumImpactForce || Time.time < lastSoundTime + soundCooldown)
             return;
@@ -167,9 +167,11 @@ public class DominoSoundManager : MonoBehaviour
 
         AudioSource source = GetPooledAudioSource();
         if (source == null) return;
+        if (dominoPosition != null) source.transform.position = dominoPosition;
 
         if (isMusicMode)
         {
+            source.pitch = 1; // Set pitch to 1 for music notes
             PlayMusicNote(impactForce, source);
         }
         else
