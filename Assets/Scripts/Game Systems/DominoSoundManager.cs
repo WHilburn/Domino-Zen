@@ -178,10 +178,8 @@ public class DominoSoundManager : MonoBehaviour
     // Play a sound using the pooled AudioSources
     public void PlayDominoSound(float impactForce, bool isMusicMode, Vector3 dominoPosition)
     {
-        if (impactForce < minimumImpactForce || Time.time < lastSoundTime + soundCooldown)
+        if (impactForce < minimumImpactForce)
             return;
-
-        lastSoundTime = Time.time;
 
         AudioSource source = GetPooledAudioSource();
         if (source == null) return;
@@ -212,6 +210,12 @@ public class DominoSoundManager : MonoBehaviour
 
     private void PlayMusicNote(float impactForce, AudioSource source)
     {
+        //Rate limit the music notes
+        if (Time.time < lastSoundTime + soundCooldown)
+            return;
+
+        lastSoundTime = Time.time;
+
         // Get the current song as a note sequence
         string songNotes = songLibrary[currentSong].Replace(" ", ""); // Remove spaces
         string[] notes = ParseNotes(songNotes); // Parse notes into an array
