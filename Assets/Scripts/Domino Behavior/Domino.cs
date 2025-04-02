@@ -5,6 +5,7 @@ using DG.Tweening;
 [SelectionBase]
 public class Domino : MonoBehaviour
 {
+    [Header("Domino Settings")]
     private Rigidbody rb;
     public enum ResetAnimation
     {
@@ -117,13 +118,19 @@ public class Domino : MonoBehaviour
             });
     }
 
-    private void SaveStablePosition()
+    public void SaveStablePosition()
     {
         // Debug.Log($"Saving stable position for {gameObject.name} at {transform.position} and {transform.rotation}");
         stablePositionSet = true;
         lastStablePosition = transform.position;
         //Make sure stable rotation is perfectly upright
         lastStableRotation = Quaternion.Euler(90f, transform.eulerAngles.y, transform.eulerAngles.z);
+    }
+    public void SetStablePosition(Transform inputTransform)
+    {
+        stablePositionSet = true;
+        lastStablePosition = inputTransform.position;
+        lastStableRotation = inputTransform.rotation;
     }
     private void OnCollisionEnter(Collision collision)
     {

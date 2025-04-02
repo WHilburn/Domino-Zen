@@ -26,6 +26,8 @@ public class DominoSoundManager : MonoBehaviour
     public DominoSoundList soundList;
     public DominoSoundList dominoClickSounds;
 
+    public AudioClip indicatorConfirmSound;
+
     [Header("AudioSource Pool Settings")]
     public int audioSourcePoolSize = 128; // Number of AudioSources in the pool
     private Queue<AudioSource> audioSourcePool;
@@ -155,6 +157,22 @@ public class DominoSoundManager : MonoBehaviour
         audioSource.Stop();
         audioSource.clip = null;
         audioSourcePool.Enqueue(audioSource);
+    }
+
+    public void PlayPlacementSound(float pitch = 1f)
+    {
+        if (Time.time < lastSoundTime + soundCooldown) return;
+        lastSoundTime = Time.time;
+
+        AudioSource source = GetPooledAudioSource();
+        if (source == null) return;
+
+        source.PlayOneShot(indicatorConfirmSound, 0.5f);
+        source.pitch = pitch; // Reverse the sound
+        source.transform.position = transform.position; // Set position to the current object
+
+        // Return the AudioSource to the pool after the clip finishes playing
+        StartCoroutine(ReturnAudioSourceAfterPlayback(source));
     }
 
     // Play a sound using the pooled AudioSources
