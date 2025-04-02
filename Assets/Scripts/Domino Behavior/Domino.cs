@@ -28,7 +28,7 @@ public class Domino : MonoBehaviour
     private Quaternion lastStableRotation;
     private static float uprightThreshold = -0.99f; // How upright the domino must be (1 = perfectly upright)
     static float stabilityCheckDelay = 0.5f; // Delay between stability checks
-    static bool canSetNewStablePosition = true; // Flag to prevent multiple stability checks
+    public bool canSetNewStablePosition = true; // Flag to prevent multiple stability checks
 
     void Start()
     {

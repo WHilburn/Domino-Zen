@@ -3,9 +3,8 @@ using System.Collections;
 
 public class DominoThrobber : MonoBehaviour
 {
-    public int dominoCount = 12; // Number of dominoes in the circle
-    public float radius = 2f; // Circle radius
-    public float delayBetweenFalls = 0.2f; // Time between each fall
+    private int dominoCount = 12; // Number of dominoes in the circle
+    public float delayBetweenFalls = 0.02f; // Time between each fall
     public Domino[] dominoes; // Array of dominoes in the circle
     private int index = 0; // Current domino index
 
@@ -18,11 +17,11 @@ public class DominoThrobber : MonoBehaviour
         foreach (var domino in dominoes)
         {
             domino.SetStablePosition(domino.transform);
+            domino.canSetNewStablePosition = false;
         }
 
         // Start the throbber loop
         StartCoroutine(ThrobberLoop());
-        MakeDominoFall(dominoes[dominoCount/2]);
     }
 
     private IEnumerator ThrobberLoop()
@@ -30,12 +29,11 @@ public class DominoThrobber : MonoBehaviour
         while (true)
         {
             // Make the current domino fall
-            // MakeDominoFall(dominoes[index]);
+            MakeDominoFall(dominoes[index]);
 
             // Reset the opposite domino
             int oppositeIndex = (index + dominoCount / 2) % dominoCount;
-            dominoes[oppositeIndex].ResetDomino(Domino.ResetAnimation.Rotate, 0.2f);
-            // dominoes[oppositeIndex].ResetDomino(Domino.ResetAnimation.Teleport, 0.2f);
+            dominoes[oppositeIndex].ResetDomino(Domino.ResetAnimation.Rotate, 0.3f);
 
             // Move to the next domino
             index = (index + 1) % dominoCount;
@@ -50,7 +48,6 @@ public class DominoThrobber : MonoBehaviour
         Rigidbody rb = domino.GetComponent<Rigidbody>();
         if (rb)
         {
-            Debug.Log("Making domino fall: " + domino.name);
             // Ensure the Rigidbody is not kinematic so physics can affect it
             rb.isKinematic = false;
 
