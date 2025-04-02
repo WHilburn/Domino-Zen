@@ -32,7 +32,6 @@ public class PlacementIndicator : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Enter Triggered");
         if (other.CompareTag("DominoTag") && trackedDomino == null)
         {
             trackedDomino = other.gameObject.GetComponent<Domino>();
@@ -43,7 +42,6 @@ public class PlacementIndicator : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        Debug.Log("Exit Triggered");
         if (other.gameObject == trackedDomino?.gameObject)
         {
             trackedDomino = null;
@@ -119,7 +117,6 @@ public class PlacementIndicator : MonoBehaviour
 
     private void FadeOut()
     {
-        Debug.Log("FadeOut called");
         soundManager.PlayPlacementSound(1);
 
         indicatorRenderer.material.DOKill();
@@ -132,7 +129,6 @@ public class PlacementIndicator : MonoBehaviour
 
     private void FadeIn()
     {
-        Debug.Log("FadeIn called");
         soundManager.PlayPlacementSound(-1);
         indicatorRenderer.enabled = true;
         indicatorRenderer.material.DOKill();
