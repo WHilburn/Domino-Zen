@@ -803,7 +803,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cascadeSource: {fileID: 3181276708176334235}
   cascadeClip: {fileID: 8300000, guid: 58ba9a0944de44e65a72c178ddcbff3a, type: 3}
-  maxVolume: 0.7
+  maxVolume: 0.4
   velocityScale: 0.001
   volumeLerpSpeed: 5
   totalVelocityThreshhold: -100
