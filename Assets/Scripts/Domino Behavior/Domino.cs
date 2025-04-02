@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using DG.Tweening;
+using UnityEditor;
 
 [SelectionBase]
 public class Domino : MonoBehaviour
@@ -27,6 +28,7 @@ public class Domino : MonoBehaviour
     private Quaternion lastStableRotation;
     private static float uprightThreshold = -0.99f; // How upright the domino must be (1 = perfectly upright)
     static float stabilityCheckDelay = 0.5f; // Delay between stability checks
+    static bool canSetNewStablePosition = true; // Flag to prevent multiple stability checks
 
     void Start()
     {
@@ -35,7 +37,12 @@ public class Domino : MonoBehaviour
         if (soundManager == null) soundManager = FindObjectOfType<DominoSoundManager>(); // Get references
         if (cameraController == null) cameraController = FindObjectOfType<CameraController>();
         CheckStability();
-        InvokeRepeating(nameof(CheckStability), stabilityCheckDelay + UnityEngine.Random.Range(0f, .1f), stabilityCheckDelay);
+        InvokeRepeating(nameof(CheckStability), stabilityCheckDelay + Random.Range(0f, .1f), stabilityCheckDelay);
+    }
+
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
     }
 
     void OnDestroy()
@@ -64,7 +71,7 @@ public class Domino : MonoBehaviour
         {
             isMoving = true;
             
-            if (!cameraController.fallingDominoes.Contains(transform))
+            if (cameraController!= null && !cameraController.fallingDominoes.Contains(transform))
             {
                 cameraController.fallingDominoes.Add(transform);
             }
@@ -91,7 +98,8 @@ public class Domino : MonoBehaviour
         if (rb.isKinematic  || 
         lastStablePosition == transform.position || 
         rb.angularVelocity.magnitude > stillnessThreshold || 
-        rb.velocity.magnitude > stillnessThreshold)
+        rb.velocity.magnitude > stillnessThreshold ||
+        !canSetNewStablePosition)
         {
             return;
         }
@@ -142,7 +150,7 @@ public class Domino : MonoBehaviour
         DominoResetManager.Instance.RegisterDomino(this, lastStablePosition, lastStableRotation);
     }
 
-    public void ResetDomino(ResetAnimation animation)
+    public void ResetDomino(ResetAnimation animation, float resetDuration = 1f)
     {
         if (isHeld) return; // Don't reset if the domino is being held
         if (!stablePositionSet) {
@@ -163,7 +171,6 @@ public class Domino : MonoBehaviour
         if (animation == ResetAnimation.Rotate || Vector3.Distance(transform.position, lastStablePosition) < 0.5f)
         {
             // Debug.Log($"Resetting domino {gameObject.name} to stable position at {lastStablePosition} and {lastStableRotation}");
-            float resetDuration = 1f;
             rb.transform.DOMove(lastStablePosition, resetDuration);
             rb.transform.DORotateQuaternion(lastStableRotation, resetDuration).OnComplete(() => 
             {
@@ -217,12 +224,26 @@ public class Domino : MonoBehaviour
         }
     }
 
-
     public void TogglePhysics(bool value)
     {
+        if (rb == null)
+        {
+            Debug.LogError($"Rigidbody is missing on {gameObject.name}. Ensure the prefab has a Rigidbody component.");
+            return;
+        }
+
         rb.isKinematic = !value;
-        // rb.useGravity = value;
-        GetComponent<BoxCollider>().enabled = value;
+
+        BoxCollider boxCollider = GetComponent<BoxCollider>();
+        if (boxCollider == null)
+        {
+            Debug.LogError($"BoxCollider is missing on {gameObject.name}. Ensure the prefab has a BoxCollider component.");
+            return;
+        }
+
+        boxCollider.enabled = value;
+
+        // Stop any active DOTween animations
         transform.DOKill();
     }
     public IEnumerator RemoveFromFallingDominoes(float delay)
