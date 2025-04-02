@@ -1,4 +1,5 @@
 using System.Collections;
+using Cinemachine;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,28 +11,39 @@ public class MainMenuManager : MonoBehaviour
     public GameObject optionsPanel;
     public GameObject loadingScreenPanel;
     public TextMeshProUGUI loadingText;
+
+    // Reference to the main camera and virtual cameras
+    public Camera mainCamera;
+    public CinemachineVirtualCamera mainMenuCamera;
+    public CinemachineVirtualCamera optionsMenuCamera;
+    public CinemachineVirtualCamera levelSelectCamera;
+    public CinemachineVirtualCamera loadingScreenCamera;
     
-    // Called when "Select Level" is clicked
-    public void OpenLevelSelect()
+    // Store current active camera
+    private CinemachineVirtualCamera activeCamera;
+    
+    private void Start()
     {
-        levelSelectPanel.SetActive(true);
+        // Set the main menu camera as the default
+        SetActiveCamera(mainMenuCamera);
     }
 
-    // Called when "Options" is clicked
-    public void OpenOptions()
+    public void SetActiveCamera(CinemachineVirtualCamera newCamera)
     {
-        optionsPanel.SetActive(true);
-    }
+        Debug.Log("Switching to camera: " + newCamera.name);
+        if (activeCamera != null)
+        {
+            activeCamera.Priority = 0; // Lower priority so it is not active
+        }
 
-    // Called when the back button on the Options panel is clicked
-    public void CloseOptions()
-    {
-        optionsPanel.SetActive(false);
+        activeCamera = newCamera;
+        activeCamera.Priority = 10; // Higher priority to make it active
     }
 
     // Called when a level button is clicked
     public void LoadLevel(string levelName)
     {
+        Debug.Log("Loading level: " + levelName);
         // Show the loading screen
         // loadingScreenPanel.SetActive(true);
         loadingText.enabled = true; // Enable the loading text
