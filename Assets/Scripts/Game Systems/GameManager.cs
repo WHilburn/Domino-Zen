@@ -4,11 +4,16 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance { get; private set; }
     public List<PlacementIndicator> allIndicators;  // List of all dominoes in the scene
     private bool physicsEnabled = true; // Whether domino physics are enabled
 
     void Start()
     {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
         foreach (var indicator in FindObjectsOfType<PlacementIndicator>())
         {
             allIndicators.Add(indicator);
@@ -30,18 +35,18 @@ public class GameManager : MonoBehaviour
     public void CheckCompletion()
     {
         // check if every indicator is satisfied
-        bool allFadedOut = true;
+        bool allIndicatorsFilled = true;
         foreach (var indicator in allIndicators)
         {
-            if (!indicator.isFadingOut)
+            if (indicator.currentState != PlacementIndicator.IndicatorState.Placed)
             {
-                allFadedOut = false;
+                allIndicatorsFilled = false;
                 break;
             }
         }
-        if (allFadedOut)
+        if (allIndicatorsFilled)
         {
-            Debug.Log("All indicators faded out!");
+            Debug.Log("***********All indicators have been filled!*************");
         }
     }
 

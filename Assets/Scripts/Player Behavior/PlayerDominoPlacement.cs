@@ -145,9 +145,9 @@ public class PlayerDominoPlacement : MonoBehaviour
     Vector3 GetMouseWorldPosition()
     {
         Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit))
+        int environmentLayerMask = LayerMask.GetMask("EnvironmentLayer");
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, environmentLayerMask))
             return hit.point + Vector3.up * hoverOffset;
-
         return ray.origin + ray.direction * 5f;
     }
 

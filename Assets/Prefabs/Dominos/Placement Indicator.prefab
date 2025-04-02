@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8938158811970107191}
   - component: {fileID: 394292742988151520}
   - component: {fileID: 770507577754096161}
+  - component: {fileID: 899477053804671318}
   m_Layer: 2
   m_Name: Placement Indicator
   m_TagString: IndicatorTag
@@ -29,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 6552790223727392609}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 16.457, y: 0, z: -2.202}
+  m_LocalPosition: {x: 16.457062, y: 0.44949114, z: -2.2020025}
   m_LocalScale: {x: 20, y: 20, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -104,8 +105,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.0032234192, y: 0.00208075, z: 0.050000012}
-  m_Center: {x: -0.00008277893, y: 0.00045715037, z: 2.5695075e-18}
+  m_Size: {x: 0.0032234192, y: 0.00208075, z: 0.0026522854}
+  m_Center: {x: -0.00008277893, y: 0.00045715043, z: -0.02367392}
 --- !u!114 &770507577754096161
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -118,6 +119,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bcc6da4c7e7948eba7e672c56ff6422, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fadeSpeed: 1
-  isFadingOut: 0
-  maxDistance: 0.15
+  placementCollider: {fileID: 394292742988151520}
+  snapCollider: {fileID: 899477053804671318}
+  indicatorColor: {r: 1, g: 1, b: 1, a: 1}
+  currentState: 0
+--- !u!65 &899477053804671318
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6552790223727392609}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.02533851, y: 0.0068145185, z: 0.049829897}
+  m_Center: {x: 0, y: -0.000022003083, z: 0}

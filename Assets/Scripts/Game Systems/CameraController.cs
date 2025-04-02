@@ -5,6 +5,7 @@ using Cinemachine;
 
 public class CameraController : MonoBehaviour
 {
+    public static CameraController Instance { get; private set; }
     public CinemachineVirtualCamera freeLookCamera; // Player-controlled camera
     public CinemachineVirtualCamera trackingCamera; // Auto-framing camera
     public CinemachineTargetGroup targetGroup; // Group of falling dominoes
@@ -19,6 +20,10 @@ public class CameraController : MonoBehaviour
 
     void Start()
     {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
         EnableFreeLook(); // Start with player control
     }
 
