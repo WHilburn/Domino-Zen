@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class GameManager : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        DOTween.defaultRecyclable = true; // Enable DOTween recycling
         if (Instance == null)
             Instance = this;
         else
