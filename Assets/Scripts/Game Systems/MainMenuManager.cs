@@ -12,6 +12,9 @@ public class MainMenuManager : MonoBehaviour
     public GameObject loadingScreenPanel;
     public TextMeshProUGUI loadingText;
 
+    public GameObject throbber;
+    public float minimumLoadingTime = 3f; // Minimum loading time in seconds
+
     // Reference to the main camera and virtual cameras
     public Camera mainCamera;
     public CinemachineVirtualCamera mainMenuCamera;
@@ -30,7 +33,7 @@ public class MainMenuManager : MonoBehaviour
 
     public void SetActiveCamera(CinemachineVirtualCamera newCamera)
     {
-        Debug.Log("Switching to camera: " + newCamera.name);
+        // Debug.Log("Switching to camera: " + newCamera.name);
         if (activeCamera != null)
         {
             activeCamera.Priority = 0; // Lower priority so it is not active
@@ -38,38 +41,71 @@ public class MainMenuManager : MonoBehaviour
 
         activeCamera = newCamera;
         activeCamera.Priority = 10; // Higher priority to make it active
+        if (activeCamera == loadingScreenCamera){
+            throbber.SetActive(true);
+            LoadLevel("Progress Scene");
+        } 
     }
 
     // Called when a level button is clicked
     public void LoadLevel(string levelName)
     {
         Debug.Log("Loading level: " + levelName);
-        // Show the loading screen
-        // loadingScreenPanel.SetActive(true);
-        loadingText.enabled = true; // Enable the loading text
-        loadingText.text = "Loading...";
-
         // Start loading the level asynchronously
-        // StartCoroutine(LoadLevelAsync(levelName));
+        StartCoroutine(LoadLevelAsync(levelName));
     }
 
     private IEnumerator LoadLevelAsync(string levelName)
     {
+        // Wait for 0.1 seconds to allow the camera to blend
+        yield return new WaitForSeconds(0.1f);
+
+        // Wait for the camera to finish blending
+        CinemachineBrain brain = mainCamera.GetComponent<CinemachineBrain>();
+        if (brain != null)
+        {
+            while (brain.IsBlending)
+            {
+                yield return null; // Wait for the next frame while blending is in progress
+            }
+        }
+
         // Begin loading the scene asynchronously
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelName);
         asyncLoad.allowSceneActivation = false; // Prevent automatic scene activation
+        DominoThrobber throbberComponent = throbber.GetComponent<DominoThrobber>();
+        throbberComponent.BeginLoop(); // Start the throbber loop
 
+        float elapsedTime = 0f; // Track elapsed time
+        float fakeProgress = 0f; // Simulated progress value
+
+        // Display the loading screen and update progress
         while (!asyncLoad.isDone)
         {
-            // Optionally, update progress bar or display a loading message here
-            if (asyncLoad.progress >= 0.9f)
+            // Simulate gradual progress with noise
+            if (fakeProgress < 0.9f)
             {
-                // Fade out loading screen (if using canvas group)
-                // FadeIn logic or a slight delay before activating scene
+                fakeProgress += Time.deltaTime / minimumLoadingTime + Random.Range(0.01f, 0.03f) * Time.deltaTime;
+                fakeProgress = Mathf.Clamp(fakeProgress, 0f, 0.9f);
+            }
+
+            // Use the higher of the fake progress or the actual progress
+            float displayedProgress = Mathf.Max(fakeProgress, asyncLoad.progress / 0.9f);
+
+            // Update loading text
+            if (loadingText != null)
+            {
+                loadingText.text = $"Loading... {Mathf.RoundToInt(displayedProgress * 100)}%";
+            }
+
+            // Allow scene activation after progress reaches 90% and at least the minimum loading time has passed
+            if (asyncLoad.progress >= 0.9f && elapsedTime >= minimumLoadingTime)
+            {
                 asyncLoad.allowSceneActivation = true;
             }
 
-            yield return null;
+            elapsedTime += Time.deltaTime; // Increment elapsed time
+            yield return null; // Wait for the next frame
         }
     }
 }

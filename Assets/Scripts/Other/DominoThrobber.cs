@@ -21,10 +21,16 @@ public class DominoThrobber : MonoBehaviour
         }
 
         // Start the throbber loop
+        // StartCoroutine(ThrobberLoop());
+    }
+
+    public void BeginLoop()
+    {
+        // Start the throbber loop
         StartCoroutine(ThrobberLoop());
     }
 
-    private IEnumerator ThrobberLoop()
+    public IEnumerator ThrobberLoop()
     {
         while (true)
         {
