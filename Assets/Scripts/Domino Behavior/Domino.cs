@@ -235,7 +235,6 @@ public class Domino : MonoBehaviour
 
     private void PerformJiggle()
     {
-        Debug.Log($"Jiggling domino {gameObject.name} at {transform.position} and {transform.rotation}");
         soundManager?.playArbitrarySound(soundManager.dominoLockedSound, 1, 1, transform.position);
 
         float jiggleDuration = 0.2f;
