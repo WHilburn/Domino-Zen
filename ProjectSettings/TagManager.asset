@@ -41,6 +41,9 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: UIOverlay
+    uniqueID: 3144526441
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0

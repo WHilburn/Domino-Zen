@@ -31,6 +31,7 @@ public class DominoSoundManager : MonoBehaviour
     public DominoSoundList dominoPianoSounds;
     public DominoSoundList dominoClickSounds;
 
+    public AudioClip dominoLockedSound;
     public AudioClip indicatorConfirmSound;
 
     [Header("AudioSource Pool Settings")]
@@ -194,6 +195,18 @@ public class DominoSoundManager : MonoBehaviour
         audioSource.Stop();
         audioSource.clip = null;
         audioSourcePool.Enqueue(audioSource);
+    }
+
+    public void playArbitrarySound(AudioClip clip, float volume = 1f, float pitch = 1f, Vector3? position = null)
+    {
+        AudioSource source = GetPooledAudioSource();
+        if (source == null) return;
+
+        source.PlayOneShot(clip, volume * globalVolumeScale); // Apply global volume scale
+        source.pitch = pitch;
+        source.transform.position = position ?? transform.position; // Use provided position or default to transform position
+
+        StartCoroutine(ReturnAudioSourceAfterPlayback(source));
     }
 
     public void PlayPlacementSound(float pitch = 1f)

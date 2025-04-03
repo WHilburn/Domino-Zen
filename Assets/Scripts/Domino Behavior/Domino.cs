@@ -8,11 +8,12 @@ public class Domino : MonoBehaviour
 {
     [Header("Domino Settings")]
     private Rigidbody rb;
-    public enum ResetAnimation
+    public enum DominoAnimation
     {
         Rotate,
         Jump,
-        Teleport
+        Teleport,
+        Jiggle
     }
     private static float stillnessThreshold = 5f;  // Velocity threshold to consider "stationary"
     public Vector3 holdPoint; // Offset from center to hold the domino
@@ -24,6 +25,7 @@ public class Domino : MonoBehaviour
     public bool musicMode = true;
     [HideInInspector]
     public bool stablePositionSet = false;
+    public bool locked = false; // Flag to prevent movement when locked
     private Vector3 lastStablePosition;
     private Quaternion lastStableRotation;
     private static float uprightThreshold = -0.99f; // How upright the domino must be (1 = perfectly upright)
@@ -158,78 +160,110 @@ public class Domino : MonoBehaviour
         DominoResetManager.Instance.RegisterDomino(this, lastStablePosition, lastStableRotation);
     }
 
-    public void ResetDomino(ResetAnimation animation, float resetDuration = 1f)
+    public void AnimateDomino(DominoAnimation animation, float resetDuration = 1f)
     {
         if (isHeld) return; // Don't reset if the domino is being held
-        if (!stablePositionSet) {
+        if (!stablePositionSet)
+        {
             DespawnDomino();
             return;
         }
-        if (animation == ResetAnimation.Teleport)
+        if (DOTween.IsTweening(transform)) return; // Prevent additional animations if a tween is active
+
+        bool savedSetting = canSetNewStablePosition;
+        canSetNewStablePosition = false; // Prevent multiple stability checks during animation
+        switch (animation)
         {
-            // Debug.Log($"Teleporting domino {gameObject.name} to stable position at {lastStablePosition} and {lastStableRotation}");
-            rb.transform.position = lastStablePosition;
-            rb.transform.rotation = lastStableRotation;
-            TogglePhysics(true);
-            return;
+            case DominoAnimation.Teleport:
+                PerformTeleport();
+                break;
+            case DominoAnimation.Rotate:
+                PerformRotate(resetDuration);
+                break;
+            case DominoAnimation.Jump:
+                PerformJump();
+                break;
+            case DominoAnimation.Jiggle:
+                PerformJiggle();
+                break;
         }
+        canSetNewStablePosition = savedSetting; // Restore the ability to set new stable positions
+    }
+
+    // Abstracted methods for each animation type
+    private void PerformTeleport()
+    {
+        rb.transform.position = lastStablePosition;
+        rb.transform.rotation = lastStableRotation;
+        TogglePhysics(true);
+    }
+
+    private void PerformRotate(float resetDuration)
+    {
+        TogglePhysics(false);
+        rb.transform.DOMove(lastStablePosition, resetDuration);
+        rb.transform.DORotateQuaternion(lastStableRotation, resetDuration).OnComplete(() =>
+        {
+            TogglePhysics(true);
+            StartCoroutine(RemoveFromFallingDominoes(0.25f));
+        });
+    }
+
+    private void PerformJump()
+    {
+        float jumpHeight = 1.5f;  // Height of the pop-up
+        float jumpDuration = 0.3f;  // Faster upward motion
+        float fallDuration = 0.15f; // Faster downward motion
+        float rotationDuration = 0.4f; // Smooth rotation time
+
+        TogglePhysics(false);
+        Sequence jumpSequence = DOTween.Sequence();
+        jumpSequence.Append(transform.DOMoveY(lastStablePosition.y + jumpHeight, jumpDuration).SetEase(Ease.OutQuad));
+        Vector3 randomFlip = new Vector3(Random.Range(0f, 720f), Random.Range(0f, 720f), Random.Range(0f, 720f));
+        jumpSequence.Join(transform.DORotate(randomFlip, jumpDuration, RotateMode.FastBeyond360).SetEase(Ease.OutQuad));
+        jumpSequence.Append(transform.DORotateQuaternion(lastStableRotation, rotationDuration).SetEase(Ease.OutQuad));
+        jumpSequence.Append(transform.DOMove(lastStablePosition, fallDuration).SetEase(Ease.InQuad));
+        jumpSequence.OnComplete(() =>
+        {
+            transform.position = lastStablePosition;
+            transform.rotation = lastStableRotation;
+            TogglePhysics(true);
+            StartCoroutine(RemoveFromFallingDominoes(0.1f));
+        });
+        jumpSequence.Play();
+    }
+
+    private void PerformJiggle()
+    {
+        Debug.Log($"Jiggling domino {gameObject.name} at {transform.position} and {transform.rotation}");
+        soundManager?.playArbitrarySound(soundManager.dominoLockedSound, 1, 1, transform.position);
+
+        float jiggleDuration = 0.2f;
+        float noiseIntensity = 0.1f; // Intensity of the jiggle movement
+        Vector3 originalPosition = lastStablePosition;
+
         TogglePhysics(false);
 
-        //If animation is set to rotate or the distance from the stable position is really small...
-        if (animation == ResetAnimation.Rotate || Vector3.Distance(transform.position, lastStablePosition) < 0.5f)
+        // Create a sequence for the jiggle animation
+        Sequence jiggleSequence = DOTween.Sequence();
+
+        // Add jiggle movement in a direction relative to the domino's current facing
+        Vector3 rightDirection = transform.right * noiseIntensity; // Right relative to the domino's facing
+        jiggleSequence.Append(transform.DOMove(originalPosition + rightDirection, jiggleDuration / 4).SetEase(Ease.InOutSine));
+        jiggleSequence.Append(transform.DOMove(originalPosition - rightDirection, jiggleDuration / 2).SetEase(Ease.InOutSine));
+        jiggleSequence.Append(transform.DOMove(originalPosition, jiggleDuration / 4).SetEase(Ease.InOutSine));
+        // jiggleSequence.Append(transform.DOMove(originalPosition + new Vector3(noiseIntensity, 0, 0), jiggleDuration / 4).SetEase(Ease.InOutSine));
+        // jiggleSequence.Append(transform.DOMove(originalPosition + new Vector3(-noiseIntensity, 0, 0), jiggleDuration / 2).SetEase(Ease.InOutSine));
+        // jiggleSequence.Append(transform.DOMove(originalPosition, jiggleDuration / 4).SetEase(Ease.InOutSine));
+
+        // Ensure the position is reset to the original position at the end
+        jiggleSequence.OnComplete(() =>
         {
-            // Debug.Log($"Resetting domino {gameObject.name} to stable position at {lastStablePosition} and {lastStableRotation}");
-            rb.transform.DOMove(lastStablePosition, resetDuration);
-            rb.transform.DORotateQuaternion(lastStableRotation, resetDuration).OnComplete(() => 
-            {
-                TogglePhysics(true);
-                StartCoroutine(RemoveFromFallingDominoes(0.25f));
-            });
-        }
-        else if (animation == ResetAnimation.Jump)
-        {
-            float jumpHeight = 1.5f;  // Height of the pop-up
-            float jumpDuration = 0.3f;  // Faster upward motion
-            float fallDuration = 0.15f; // Faster downward motion
-            float rotationDuration = 0.4f; // Smooth rotation time
+            transform.position = originalPosition;
+            TogglePhysics(true);
+        });
 
-            // Create a sequence for the reset animation
-            Sequence jumpSequence = DOTween.Sequence();
-
-            // Move the domino upwards quickly (Y-axis only)
-            jumpSequence.Append(transform.DOMoveY(lastStablePosition.y + jumpHeight, jumpDuration)
-                .SetEase(Ease.OutQuad)); // Smooth ascent
-
-            // Add a random flipping rotation during the ascent
-            Vector3 randomFlip = new Vector3(
-                Random.Range(0f, 720f), // Random X-axis rotation (up to 2 full flips)
-                Random.Range(0f, 720f), // Random Y-axis rotation
-                Random.Range(0f, 720f)  // Random Z-axis rotation
-            );
-            // Debug.Log($"Random flip rotation: {randomFlip}");
-            jumpSequence.Join(transform.DORotate(randomFlip, jumpDuration, RotateMode.FastBeyond360)
-                .SetEase(Ease.OutQuad)); // Smooth flipping rotation
-
-            // Ensure the upright rotation happens after the flip
-            jumpSequence.Append(transform.DORotateQuaternion(lastStableRotation, rotationDuration)
-                .SetEase(Ease.OutQuad)); // Smooth rotation back to upright
-
-            // Tween the full position (X, Y, Z) back to the stable position during the fall
-            jumpSequence.Append(transform.DOMove(lastStablePosition, fallDuration)
-                .SetEase(Ease.InQuad)); // Smooth fall
-
-            // Explicitly set the final position and rotation to ensure accuracy
-            jumpSequence.OnComplete(() =>
-            {
-                transform.position = lastStablePosition;
-                transform.rotation = lastStableRotation;
-                TogglePhysics(true);
-                StartCoroutine(RemoveFromFallingDominoes(0.1f));
-            });
-
-            // Play the sequence
-            jumpSequence.Play();
-        }
+        jiggleSequence.Play();
     }
 
     public void TogglePhysics(bool value)

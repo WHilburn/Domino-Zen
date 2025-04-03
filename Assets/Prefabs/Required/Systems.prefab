@@ -769,6 +769,7 @@ MonoBehaviour:
   hoverOffset: 1.2
   rotationSpeed: 100
   activeCamera: {fileID: 0}
+  lockSpritePrefab: {fileID: 1875759400002221251, guid: 681988c32009298479f9de281f0f31ba, type: 3}
 --- !u!114 &2844040308650717494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -814,6 +815,7 @@ MonoBehaviour:
   octaveOffset: 0
   dominoPianoSounds: {fileID: 11400000, guid: ea7b78dcee7b70141a4ed3e24a359220, type: 2}
   dominoClickSounds: {fileID: 11400000, guid: b75dc4c91cf6ef244897d08b0a63e357, type: 2}
+  dominoLockedSound: {fileID: 8300000, guid: 6dca3b665291354479723de89309750a, type: 3}
   indicatorConfirmSound: {fileID: 8300000, guid: cd5b9526b998a46deaa89641b063ef9f, type: 3}
   audioSourcePoolSize: 128
 --- !u!114 &8842277024513562491

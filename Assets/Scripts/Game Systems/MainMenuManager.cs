@@ -13,14 +13,13 @@ public class MainMenuManager : MonoBehaviour
     public TextMeshProUGUI loadingText;
     public Button beginLevelButton;
     public GameObject throbber;
-    public float minimumLoadingTime = 2f; // Minimum loading time in seconds
+    public float minimumLoadingTime = 1f; // Minimum loading time in seconds
 
     // Reference to the main camera and virtual cameras
     public Camera mainCamera;
-    public CinemachineVirtualCamera mainMenuCamera;
     public CinemachineVirtualCamera optionsMenuCamera;
     public CinemachineVirtualCamera levelSelectCamera;
-    public CinemachineVirtualCamera loadingScreenCamera;
+    public CinemachineVirtualCamera mainMenuCamera;
 
     public Image circularProgressBar; // Reference to the circular progress bar image
     
@@ -31,7 +30,7 @@ public class MainMenuManager : MonoBehaviour
     public GameObject levelSelectButtonPrefab; // Prefab for level select buttons
     public Transform levelSelectScrollViewContent; // Content transform of the scroll view
 
-    public enum Level
+    public enum Level // Add new level titles here and in the dictionary below
     {
         Tutorial,
         Beginner,
@@ -57,7 +56,7 @@ public class MainMenuManager : MonoBehaviour
     private void Start()
     {
         // Set the main menu camera as the default
-        SetActiveCamera(loadingScreenCamera);
+        SetActiveCamera(mainMenuCamera);
         DOTween.defaultRecyclable = true;
 
         PopulateLevelSelectButtons(); // Create level select buttons
@@ -99,7 +98,7 @@ public class MainMenuManager : MonoBehaviour
         // Debug.Log($"Loading selected level: {selectedLevel}");
         if (levelNameMap.TryGetValue(selectedLevel, out string levelName))
         {
-            SetActiveCamera(loadingScreenCamera); // Set the loading screen camera as active
+            SetActiveCamera(mainMenuCamera); // Set the loading screen camera as active
             List<Button> buttons = new List<Button>(FindObjectsOfType<Button>());
             foreach (Button button in buttons)
             {

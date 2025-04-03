@@ -105,7 +105,7 @@ public class PlacementIndicator : MonoBehaviour
         trackedDomino.GetComponent<Domino>().SetStablePosition(transform);
 
         // Reset the domino's position using the rotate reset animation
-        trackedDomino.GetComponent<Domino>().ResetDomino(Domino.ResetAnimation.Rotate);
+        trackedDomino.GetComponent<Domino>().AnimateDomino(Domino.DominoAnimation.Rotate);
 
         trackedDominoRb.GetComponent<DominoSkin>().TweenColor(indicatorColor, 1f); // Tween the color of the domino
 

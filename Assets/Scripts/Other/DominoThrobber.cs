@@ -45,7 +45,7 @@ public class DominoThrobber : MonoBehaviour
 
             // Reset the opposite domino
             int oppositeIndex = (index + dominoCount / 2) % dominoCount;
-            dominoes[oppositeIndex].ResetDomino(Domino.ResetAnimation.Rotate, 0.3f);
+            dominoes[oppositeIndex].AnimateDomino(Domino.DominoAnimation.Rotate, 0.3f);
 
             // Move to the next domino
             index = (index + 1) % dominoCount;

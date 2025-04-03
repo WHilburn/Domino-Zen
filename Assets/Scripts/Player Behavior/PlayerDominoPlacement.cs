@@ -18,6 +18,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     public float hoverOffset = 1.6f;
     public float rotationSpeed = 100f;
     public Camera activeCamera;
+    public GameObject lockSpritePrefab; // Reference to the lock sprite prefab
 
     private Vector3 handMouseOffset; // Offset between hand and mouse cursor
 
@@ -84,8 +85,18 @@ public class PlayerDominoPlacement : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             Domino domino = hit.collider.GetComponent<Domino>();
-            if (domino != null)
+            if (domino != null && !domino.isHeld)
+            {
+                if (domino.locked)
+                {
+                    Debug.Log("This domino is locked and cannot be picked up.");
+                    domino.AnimateDomino(Domino.DominoAnimation.Jiggle);
+                    ShowLockSprite(hit.point); // Show the lock sprite at the hit point
+                    return;
+                }
                 PickUpDomino(domino.gameObject);
+            }
+                
         }
     }
 
@@ -249,5 +260,33 @@ public class PlayerDominoPlacement : MonoBehaviour
     {
         if (heldHand != null)
             Destroy(heldHand.gameObject);
+    }
+
+    void ShowLockSprite(Vector3 position)
+    {
+        if (lockSpritePrefab == null) return;
+
+        GameObject lockSprite = Instantiate(lockSpritePrefab, position + Vector3.up * 0.5f, Quaternion.identity);
+        SpriteRenderer spriteRenderer = lockSprite.GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            StartCoroutine(FadeOutAndDestroy(spriteRenderer, 1f)); // Fade out over 1 second
+        }
+    }
+
+    System.Collections.IEnumerator FadeOutAndDestroy(SpriteRenderer spriteRenderer, float duration)
+    {
+        float elapsed = 0f;
+        Color originalColor = spriteRenderer.color;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(1f, 0f, elapsed / duration);
+            spriteRenderer.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
+            yield return null;
+        }
+
+        Destroy(spriteRenderer.gameObject);
     }
 }
