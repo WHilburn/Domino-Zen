@@ -24,6 +24,8 @@ public class MainMenuManager : MonoBehaviour
     
     // Store current active camera
     private CinemachineVirtualCamera activeCamera;
+    public AsyncOperation asyncLoad = null; // Store the async load operation
+    public DominoRain dominoRain; // Reference to the DominoRain script for scene transitions
     
     private void Start()
     {
@@ -55,7 +57,7 @@ public class MainMenuManager : MonoBehaviour
         StartCoroutine(LoadLevelAsync(levelName));
     }
 
-    private IEnumerator LoadLevelAsync(string levelName)
+    public IEnumerator LoadLevelAsync(string levelName)
     {
         // Wait for 0.1 seconds to allow the camera to blend
         yield return new WaitForSeconds(0.1f);
@@ -71,7 +73,7 @@ public class MainMenuManager : MonoBehaviour
         }
 
         // Begin loading the scene asynchronously
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelName, LoadSceneMode.Additive);
+        asyncLoad = SceneManager.LoadSceneAsync(levelName, LoadSceneMode.Additive);
         asyncLoad.allowSceneActivation = false; // Prevent automatic scene activation
 
         DominoThrobber[] throbberComponents = throbber.GetComponentsInChildren<DominoThrobber>();
@@ -111,13 +113,27 @@ public class MainMenuManager : MonoBehaviour
             // Allow scene activation after progress reaches 90% and at least the minimum loading time has passed
             if (asyncLoad.progress >= 0.9f && elapsedTime >= minimumLoadingTime)
             {
-                //Kill all tween animations
-                DOTween.KillAll();
-                asyncLoad.allowSceneActivation = true;
+                // asyncLoad.allowSceneActivation = true;
+                dominoRain.gameObject.SetActive(true); // Activate the domino rain, which will send back a message to allow the scene activation
             }
 
             elapsedTime += Time.deltaTime; // Increment elapsed time
             yield return null; // Wait for the next frame
         }
+    }
+
+    public void CompleteSceneTransitions()
+    {
+        // Kill all tween animations
+        DOTween.KillAll();
+        // Disable main camera's audio listener
+        mainCamera.GetComponent<AudioListener>().enabled = false;
+        // Activate the new scene and deactivate the loading screen
+        if (asyncLoad != null)
+        {
+            asyncLoad.allowSceneActivation = true; // Allow scene activation
+            asyncLoad = null; // Reset the async load operation
+        }
+        SceneManager.UnloadSceneAsync("Main Menu", UnloadSceneOptions.None);
     }
 }

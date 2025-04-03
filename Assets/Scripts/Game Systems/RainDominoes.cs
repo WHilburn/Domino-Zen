@@ -2,6 +2,8 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic; // Needed for List
+using DG.Tweening;
+using UnityEngine.SceneManagement;
 
 public class DominoRain : MonoBehaviour {
     public List<Sprite> sprites; // List of sprites assigned in the Inspector
@@ -9,17 +11,38 @@ public class DominoRain : MonoBehaviour {
     public Transform canvasTransform; // Reference to the Canvas
     public float rainDuration = 5f; // How long the effect lasts
     public float spawnRate = 0.1f; // Time between spawns
-    public float fallSpeed = 200f; // Speed of falling dominos
-    public Vector2 spawnRangeX = new Vector2(-500, 500); // X spawn limits
+    public float minFallSpeed = 200f; // Speed of falling dominos
+    private Vector2 spawnRangeX = new Vector2(-500, 500); // X spawn limits
     public float randomForce = 100f;
     public float randomTorque = 100f;
+    public GameObject bigDominoPrefab; // Prefab for the big domino
+    public float bigDominoSlideDuration = 1f; // Duration for the big domino to slide in/out
+    public Transform bigDominoParent; // Parent for the big domino (should be behind the raining dominoes)
+
+    public MainMenuManager mainMenuManager; // Reference to the MainMenuManager script
 
     private float elapsedTime = 0f;
 
     void Start() {
         StartCoroutine(RainDominoes());
         RectTransform canvasRect = canvasTransform.GetComponent<RectTransform>();
-        spawnRangeX = new Vector2(-canvasRect.rect.width / 2, canvasRect.rect.width / 2);
+        spawnRangeX = new Vector2(-canvasRect.rect.width / 2 - 100, canvasRect.rect.width / 2 + 100);
+
+        // Fade in the AudioSource using DOTween
+        AudioSource audioSource = GetComponent<AudioSource>();
+        if (audioSource != null) {
+            audioSource.volume = 0f; // Start with volume at 0
+            audioSource.Play(); // Start playing the audio
+            DG.Tweening.DOTween.To(() => audioSource.volume, x => audioSource.volume = x, .7f, 3f); // Fade to full volume over 2 seconds
+        }
+
+        // Start the big domino transition
+        StartCoroutine(BigDominoTransition());
+    }
+
+    void Awake()
+    {
+        DontDestroyOnLoad(this.gameObject);
     }
 
     IEnumerator RainDominoes() {
@@ -42,7 +65,7 @@ public class DominoRain : MonoBehaviour {
         RectTransform rectTransform = domino.GetComponent<RectTransform>();
         rectTransform.anchoredPosition = new Vector2(
             Random.Range(spawnRangeX.x, spawnRangeX.y),
-            Screen.height / 2 + 200 // Spawn slightly above the screen
+            Screen.height / 2 + 400 // Spawn slightly above the screen
         );
 
         // Apply random rotation and color
@@ -68,9 +91,34 @@ public class DominoRain : MonoBehaviour {
 
     IEnumerator DestroyWhenOffScreen(GameObject domino) {
         RectTransform rectTransform = domino.GetComponent<RectTransform>();
-        while (rectTransform.anchoredPosition.y > -Screen.height / 1.5) {
+        while (rectTransform.anchoredPosition.y > -Screen.height) {
             yield return null; // Wait for the next frame
         }
         Destroy(domino);
+    }
+
+    IEnumerator BigDominoTransition() {
+        // Instantiate the big domino
+        GameObject bigDomino = Instantiate(bigDominoPrefab, bigDominoParent);
+        RectTransform rectTransform = bigDomino.GetComponent<RectTransform>();
+
+        // Set initial position off-screen to the left
+        rectTransform.anchoredPosition = new Vector2(-Screen.width, 0);
+
+        // Slide in to the center of the screen
+        yield return rectTransform.DOAnchorPos(Vector2.zero, bigDominoSlideDuration).SetEase(Ease.InOutQuad).WaitForCompletion();
+
+        // Trigger the scene transition
+        mainMenuManager.CompleteSceneTransitions(); // Call the method to complete scene transitions
+
+        // Wait for a short delay (optional)
+        yield return new WaitForSeconds(0.5f);
+
+        // Slide out to the right
+        yield return rectTransform.DOAnchorPos(new Vector2(Screen.width, 0), bigDominoSlideDuration).SetEase(Ease.InOutQuad).WaitForCompletion();
+
+        // Destroy the big domino
+        Destroy(bigDomino);
+        StopAllCoroutines(); // Stop all coroutines to prevent further domino spawning
     }
 }
