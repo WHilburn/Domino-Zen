@@ -3,6 +3,7 @@ using UnityEngine.Rendering.Universal;
 
 public class PlayerDominoPlacement : MonoBehaviour
 {
+    public static PlayerDominoPlacement Instance { get; private set; }
     public GameObject dominoPrefab;
     public GameObject handPrefab;
     public static GameObject heldDomino;
@@ -22,6 +23,11 @@ public class PlayerDominoPlacement : MonoBehaviour
 
     void Start()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(Instance.gameObject); // Destroy the previous instance if it exists
+        }
+        Instance = this;
         activeCamera = FindFirstObjectByType<Camera>();
     }
 

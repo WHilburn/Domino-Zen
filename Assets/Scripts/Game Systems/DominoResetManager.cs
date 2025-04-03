@@ -14,14 +14,16 @@ public class DominoResetManager : MonoBehaviour
     private void Awake()
     {
         DOTween.SetTweensCapacity(10000, 10000);
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(gameObject);
+        if (Instance != null && Instance != this)
+        {
+            Destroy(Instance.gameObject); // Destroy the previous instance if it exists
+        }
+        Instance = this;
     }
 
     public void RegisterDomino(Domino domino, Vector3 stablePos, Quaternion stableRot)
     {
+        if (Instance == null) return; // Ensure the instance is not null
         if (!dominoes.ContainsKey(domino))
         {
             dominoes[domino] = (stablePos, stableRot);

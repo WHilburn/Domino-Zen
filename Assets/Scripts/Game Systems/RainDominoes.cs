@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic; // Needed for List
 using DG.Tweening;
-using UnityEngine.SceneManagement;
 
 public class DominoRain : MonoBehaviour {
     public List<Sprite> sprites; // List of sprites assigned in the Inspector
@@ -21,6 +20,8 @@ public class DominoRain : MonoBehaviour {
 
     public MainMenuManager mainMenuManager; // Reference to the MainMenuManager script
 
+    private DominoThrobber[] dominoThrobber; // Reference to the DominoThrobber script
+
     private float elapsedTime = 0f;
 
     void Start() {
@@ -33,11 +34,14 @@ public class DominoRain : MonoBehaviour {
         if (audioSource != null) {
             audioSource.volume = 0f; // Start with volume at 0
             audioSource.Play(); // Start playing the audio
-            DG.Tweening.DOTween.To(() => audioSource.volume, x => audioSource.volume = x, .7f, 3f); // Fade to full volume over 2 seconds
+            DOTween.To(() => audioSource.volume, x => audioSource.volume = x, .7f, 3f); // Fade to full volume over 2 seconds
         }
 
         // Start the big domino transition
         StartCoroutine(BigDominoTransition());
+
+        // Find all DominoThrobber components in the scene
+        dominoThrobber = FindObjectsOfType<DominoThrobber>();
     }
 
     void Awake()
@@ -107,18 +111,38 @@ public class DominoRain : MonoBehaviour {
 
         // Slide in to the center of the screen
         yield return rectTransform.DOAnchorPos(Vector2.zero, bigDominoSlideDuration).SetEase(Ease.InOutQuad).WaitForCompletion();
-
+        
+        StopCoroutine(RainDominoes());
+        foreach (DominoThrobber throbber in dominoThrobber) {
+            throbber.StopLoop(); // Allow the throbber to set a new stable position
+        }
+        elapsedTime = Mathf.Infinity; // Stop the rain effect
+        AudioSource audioSource = GetComponent<AudioSource>();
+        if (audioSource != null) {
+            // Fade out the AudioSource without using DOTween
+            StartCoroutine(FadeOutAudio(audioSource, 2f));
+        }
         // Trigger the scene transition
         mainMenuManager.CompleteSceneTransitions(); // Call the method to complete scene transitions
 
         // Wait for a short delay (optional)
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.125f);
+        
 
         // Slide out to the right
         yield return rectTransform.DOAnchorPos(new Vector2(Screen.width, 0), bigDominoSlideDuration).SetEase(Ease.InOutQuad).WaitForCompletion();
 
         // Destroy the big domino
         Destroy(bigDomino);
-        StopAllCoroutines(); // Stop all coroutines to prevent further domino spawning
+        Debug.Log("Big domino destroyed.");
+    }
+
+    IEnumerator FadeOutAudio(AudioSource audioSource, float duration) {
+        float startVolume = audioSource.volume;
+        for (float t = 0; t < duration; t += Time.deltaTime) {
+            audioSource.volume = Mathf.Lerp(startVolume, 0f, t / duration);
+            yield return null;
+        }
+        audioSource.Stop(); // Stop the audio after fading out
     }
 }

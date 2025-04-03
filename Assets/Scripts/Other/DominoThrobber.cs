@@ -30,6 +30,12 @@ public class DominoThrobber : MonoBehaviour
         StartCoroutine(ThrobberLoop());
     }
 
+    public void StopLoop()
+    {
+        // Stop the throbber loop
+        StopAllCoroutines();
+    }
+
     public IEnumerator ThrobberLoop()
     {
         while (true)

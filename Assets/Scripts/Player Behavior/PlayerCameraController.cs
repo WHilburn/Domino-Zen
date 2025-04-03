@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class PlayerCameraController : MonoBehaviour
 {
+    public static PlayerCameraController Instance { get; private set; }
     public float moveSpeed = 75f;
     public float lookSpeed = 3f;
     public float collisionRadius = 0.5f;
@@ -16,6 +17,11 @@ public class PlayerCameraController : MonoBehaviour
 
     void Start()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(Instance.gameObject); // Destroy the previous instance if it exists
+        }
+        Instance = this;
         InitializeRotation();
         brain = FindObjectOfType<CinemachineBrain>();
     }

@@ -89,8 +89,7 @@ public class DominoSoundManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
-            return;
+            Destroy(Instance.gameObject); // Destroy the previous instance if it exists
         }
         Instance = this;
 
@@ -147,7 +146,7 @@ public class DominoSoundManager : MonoBehaviour
             return audioSourcePool.Dequeue();
         }
 
-        Debug.LogWarning("AudioSource pool exhausted! Consider increasing the pool size.");
+        // Debug.LogWarning("AudioSource pool exhausted! Consider increasing the pool size.");
         return null;
     }
 

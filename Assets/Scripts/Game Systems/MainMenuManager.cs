@@ -31,6 +31,7 @@ public class MainMenuManager : MonoBehaviour
     {
         // Set the main menu camera as the default
         SetActiveCamera(mainMenuCamera);
+        DOTween.defaultRecyclable = true;
     }
 
     public void SetActiveCamera(CinemachineVirtualCamera newCamera)
@@ -124,16 +125,34 @@ public class MainMenuManager : MonoBehaviour
 
     public void CompleteSceneTransitions()
     {
+        StartCoroutine(CompleteSceneTransitionCoroutine());
+    }
+
+    private IEnumerator CompleteSceneTransitionCoroutine()
+    {
         // Kill all tween animations
         DOTween.KillAll();
-        // Disable main camera's audio listener
-        mainCamera.GetComponent<AudioListener>().enabled = false;
-        // Activate the new scene and deactivate the loading screen
+
+        // Wait for the new scene to activate
         if (asyncLoad != null)
         {
+            mainCamera.GetComponent<AudioListener>().enabled = false;
             asyncLoad.allowSceneActivation = true; // Allow scene activation
+            while (!asyncLoad.isDone)
+            {
+                yield return null; // Wait until the scene is fully loaded
+            }
             asyncLoad = null; // Reset the async load operation
         }
-        SceneManager.UnloadSceneAsync("Main Menu", UnloadSceneOptions.None);
+
+        // Unload the previous scene
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        if (currentSceneName == "Main Menu")
+        {
+            yield return SceneManager.UnloadSceneAsync("Main Menu");
+        }
+
+        // Disable the main camera's audio listener
+        
     }
 }

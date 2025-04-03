@@ -12,10 +12,11 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         DOTween.defaultRecyclable = true; // Enable DOTween recycling
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(gameObject);
+        if (Instance != null && Instance != this)
+        {
+            Destroy(Instance.gameObject); // Destroy the previous instance if it exists
+        }
+        Instance = this;
         foreach (var indicator in FindObjectsOfType<PlacementIndicator>())
         {
             allIndicators.Add(indicator);
