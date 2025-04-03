@@ -6,11 +6,12 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using DG.Tweening;
 using System.Collections.Generic;
+using UnityEngine.Events;
 
 public class MainMenuManager : MonoBehaviour
 {
     public TextMeshProUGUI loadingText;
-
+    public Button beginLevelButton;
     public GameObject throbber;
     public float minimumLoadingTime = 2f; // Minimum loading time in seconds
 
@@ -27,6 +28,8 @@ public class MainMenuManager : MonoBehaviour
     private CinemachineVirtualCamera activeCamera;
     public AsyncOperation asyncLoad = null; // Store the async load operation
     public DominoRain dominoRain; // Reference to the DominoRain script for scene transitions
+    public GameObject levelSelectButtonPrefab; // Prefab for level select buttons
+    public Transform levelSelectScrollViewContent; // Content transform of the scroll view
 
     public enum Level
     {
@@ -47,7 +50,8 @@ public class MainMenuManager : MonoBehaviour
     public void SetSelectedLevel(Level level)
     {
         selectedLevel = level;
-        Debug.Log($"Selected level set to: {level}");
+        // Debug.Log($"Selected level set to: {level}");
+        beginLevelButton.interactable = true; // Enable the button when a level is selected
     }
     
     private void Start()
@@ -55,7 +59,26 @@ public class MainMenuManager : MonoBehaviour
         // Set the main menu camera as the default
         SetActiveCamera(loadingScreenCamera);
         DOTween.defaultRecyclable = true;
+
+        PopulateLevelSelectButtons(); // Create level select buttons
         // StartThrobberLoop();
+    }
+
+    private void PopulateLevelSelectButtons()
+    {
+        foreach (var level in levelNameMap.Keys)
+        {
+            GameObject buttonObject = Instantiate(levelSelectButtonPrefab, levelSelectScrollViewContent);
+            Button button = buttonObject.GetComponent<Button>();
+            TextMeshProUGUI buttonText = buttonObject.GetComponentInChildren<TextMeshProUGUI>();
+
+            if (buttonText != null)
+            {
+                buttonText.text = level.ToString(); // Set button text to the level name
+            }
+
+            button.onClick.AddListener(() => SetSelectedLevel(level)); // Assign the level selection action
+        }
     }
 
     public void SetActiveCamera(CinemachineVirtualCamera newCamera)
@@ -73,7 +96,7 @@ public class MainMenuManager : MonoBehaviour
     // Modified LoadLevel to use the selected level
     public void LoadLevel()
     {
-        Debug.Log($"Loading selected level: {selectedLevel}");
+        // Debug.Log($"Loading selected level: {selectedLevel}");
         if (levelNameMap.TryGetValue(selectedLevel, out string levelName))
         {
             SetActiveCamera(loadingScreenCamera); // Set the loading screen camera as active
