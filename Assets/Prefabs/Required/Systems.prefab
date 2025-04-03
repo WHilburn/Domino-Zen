@@ -801,9 +801,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b707f2b4b0e44ee59980f6ded6d2686, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  userSelectedSoundType: 0
   cascadeSource: {fileID: 3181276708176334235}
   cascadeClip: {fileID: 8300000, guid: 58ba9a0944de44e65a72c178ddcbff3a, type: 3}
-  maxVolume: 0.4
+  maxVolume: 0.7
   velocityScale: 0.001
   volumeLerpSpeed: 5
   totalVelocityThreshhold: -100
@@ -811,7 +812,7 @@ MonoBehaviour:
   minimumImpactForce: 1
   soundCooldown: 0.05
   octaveOffset: 0
-  soundList: {fileID: 11400000, guid: ea7b78dcee7b70141a4ed3e24a359220, type: 2}
+  dominoPianoSounds: {fileID: 11400000, guid: ea7b78dcee7b70141a4ed3e24a359220, type: 2}
   dominoClickSounds: {fileID: 11400000, guid: b75dc4c91cf6ef244897d08b0a63e357, type: 2}
   indicatorConfirmSound: {fileID: 8300000, guid: cd5b9526b998a46deaa89641b063ef9f, type: 3}
   audioSourcePoolSize: 128

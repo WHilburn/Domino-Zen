@@ -27,6 +27,28 @@ public class MainMenuManager : MonoBehaviour
     private CinemachineVirtualCamera activeCamera;
     public AsyncOperation asyncLoad = null; // Store the async load operation
     public DominoRain dominoRain; // Reference to the DominoRain script for scene transitions
+
+    public enum Level
+    {
+        Tutorial,
+        Beginner,
+        Progress
+    }
+
+    private Dictionary<Level, string> levelNameMap = new Dictionary<Level, string>
+    {
+        { Level.Tutorial, "Tutorial Level" },
+        { Level.Beginner, "Beginner Level" },
+        { Level.Progress, "Progress Level" }
+    };
+
+    private Level selectedLevel = Level.Tutorial; // Default selected level
+
+    public void SetSelectedLevel(Level level)
+    {
+        selectedLevel = level;
+        Debug.Log($"Selected level set to: {level}");
+    }
     
     private void Start()
     {
@@ -46,29 +68,33 @@ public class MainMenuManager : MonoBehaviour
 
         activeCamera = newCamera;
         activeCamera.Priority = 10; // Higher priority to make it active
-        // if (activeCamera == loadingScreenCamera){
-        //     throbber.SetActive(true);
-        //     LoadLevel("Progress Scene");
-        // } 
     }
 
-    // Called when a level button is clicked
-    public void LoadLevel(string levelName)
+    // Modified LoadLevel to use the selected level
+    public void LoadLevel()
     {
-        Debug.Log("Loading level: " + levelName);
-        List<Button> buttons = new List<Button>(FindObjectsOfType<Button>());
-        foreach (Button button in buttons)
+        Debug.Log($"Loading selected level: {selectedLevel}");
+        if (levelNameMap.TryGetValue(selectedLevel, out string levelName))
         {
-            button.interactable = false; // Disable all buttons
+            SetActiveCamera(loadingScreenCamera); // Set the loading screen camera as active
+            List<Button> buttons = new List<Button>(FindObjectsOfType<Button>());
+            foreach (Button button in buttons)
+            {
+                button.interactable = false; // Disable all buttons
+            }
+            // Start loading the level asynchronously
+            StartCoroutine(LoadLevelAsync(levelName));
         }
-        // Start loading the level asynchronously
-        StartCoroutine(LoadLevelAsync(levelName));
+        else
+        {
+            Debug.LogError($"Level name not found for selected level: {selectedLevel}");
+        }
     }
 
     public IEnumerator LoadLevelAsync(string levelName)
     {
-        // Wait for 0.1 seconds to allow the camera to blend
-        yield return new WaitForSeconds(0.1f);
+        // Wait for 0.05 seconds to allow the camera to blend
+        yield return new WaitForSeconds(0.05f);
 
         // Wait for the camera to finish blending
         CinemachineBrain brain = mainCamera.GetComponent<CinemachineBrain>();
