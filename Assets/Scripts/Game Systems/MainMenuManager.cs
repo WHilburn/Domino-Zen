@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using DG.Tweening;
+using System.Collections.Generic;
 
 public class MainMenuManager : MonoBehaviour
 {
@@ -30,8 +31,9 @@ public class MainMenuManager : MonoBehaviour
     private void Start()
     {
         // Set the main menu camera as the default
-        SetActiveCamera(mainMenuCamera);
+        SetActiveCamera(loadingScreenCamera);
         DOTween.defaultRecyclable = true;
+        // StartThrobberLoop();
     }
 
     public void SetActiveCamera(CinemachineVirtualCamera newCamera)
@@ -44,16 +46,21 @@ public class MainMenuManager : MonoBehaviour
 
         activeCamera = newCamera;
         activeCamera.Priority = 10; // Higher priority to make it active
-        if (activeCamera == loadingScreenCamera){
-            throbber.SetActive(true);
-            LoadLevel("Progress Scene");
-        } 
+        // if (activeCamera == loadingScreenCamera){
+        //     throbber.SetActive(true);
+        //     LoadLevel("Progress Scene");
+        // } 
     }
 
     // Called when a level button is clicked
     public void LoadLevel(string levelName)
     {
         Debug.Log("Loading level: " + levelName);
+        List<Button> buttons = new List<Button>(FindObjectsOfType<Button>());
+        foreach (Button button in buttons)
+        {
+            button.interactable = false; // Disable all buttons
+        }
         // Start loading the level asynchronously
         StartCoroutine(LoadLevelAsync(levelName));
     }
@@ -77,11 +84,7 @@ public class MainMenuManager : MonoBehaviour
         asyncLoad = SceneManager.LoadSceneAsync(levelName, LoadSceneMode.Additive);
         asyncLoad.allowSceneActivation = false; // Prevent automatic scene activation
 
-        DominoThrobber[] throbberComponents = throbber.GetComponentsInChildren<DominoThrobber>();
-        foreach (var throbberComponent in throbberComponents)
-        {
-            throbberComponent.BeginLoop(); // Start the throbber loop for each throbber
-        }
+        StartThrobberLoop();
 
         float elapsedTime = 0f; // Track elapsed time
         float fakeProgress = 0f; // Simulated progress value
@@ -120,6 +123,15 @@ public class MainMenuManager : MonoBehaviour
 
             elapsedTime += Time.deltaTime; // Increment elapsed time
             yield return null; // Wait for the next frame
+        }
+    }
+
+    private void StartThrobberLoop()
+    {
+        DominoThrobber[] throbberComponents = throbber.GetComponentsInChildren<DominoThrobber>();
+        foreach (var throbberComponent in throbberComponents)
+        {
+            throbberComponent.BeginLoop(); // Start the throbber loop for each throbber
         }
     }
 

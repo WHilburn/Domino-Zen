@@ -21,7 +21,7 @@ public class DominoThrobber : MonoBehaviour
         }
 
         // Start the throbber loop
-        // StartCoroutine(ThrobberLoop());
+        StartCoroutine(ThrobberLoop());
     }
 
     public void BeginLoop()

@@ -17,11 +17,8 @@ public class DominoRain : MonoBehaviour {
     public GameObject bigDominoPrefab; // Prefab for the big domino
     public float bigDominoSlideDuration = 1f; // Duration for the big domino to slide in/out
     public Transform bigDominoParent; // Parent for the big domino (should be behind the raining dominoes)
-
     public MainMenuManager mainMenuManager; // Reference to the MainMenuManager script
-
     private DominoThrobber[] dominoThrobber; // Reference to the DominoThrobber script
-
     private float elapsedTime = 0f;
 
     void Start() {
@@ -127,14 +124,12 @@ public class DominoRain : MonoBehaviour {
 
         // Wait for a short delay (optional)
         yield return new WaitForSeconds(0.125f);
-        
 
         // Slide out to the right
         yield return rectTransform.DOAnchorPos(new Vector2(Screen.width, 0), bigDominoSlideDuration).SetEase(Ease.InOutQuad).WaitForCompletion();
 
         // Destroy the big domino
         Destroy(bigDomino);
-        Debug.Log("Big domino destroyed.");
     }
 
     IEnumerator FadeOutAudio(AudioSource audioSource, float duration) {
