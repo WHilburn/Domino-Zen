@@ -5,10 +5,15 @@ using System.Collections.Generic;
 public class DominoSoundManager : MonoBehaviour
 {
     public static DominoSoundManager Instance { get; private set; }
+    
+    [Header("User Settings")]
+    public static float globalVolumeScale = 1f; // User-defined global volume scale modifier
+    public DominoSoundType userSelectedSoundType = DominoSoundType.Click; // User-selected sound type
+
     [Header("Cascade Audio Settings")] //Create a separator in the inspector
     public AudioSource cascadeSource; // Background cascade sound
     public AudioClip cascadeClip;     // Rolling cascade sound
-    public float maxVolume = .7f;   // Max volume when many dominoes are moving
+    public float maxVolume = .7f;  // Max volume when many dominoes are moving
     public float velocityScale = 0.01f; // Scale factor for volume adjustment
     public float volumeLerpSpeed = 2f; // Speed at which volume adjusts
     private float targetVolume = 0f; // The volume we want to reach
@@ -23,7 +28,7 @@ public class DominoSoundManager : MonoBehaviour
     private int songIndex = 0;
     private SongTitle currentSong = SongTitle.OdeToJoy;
     public int octaveOffset = 1;
-    public DominoSoundList soundList;
+    public DominoSoundList dominoPianoSounds;
     public DominoSoundList dominoClickSounds;
 
     public AudioClip indicatorConfirmSound;
@@ -41,6 +46,12 @@ public class DominoSoundManager : MonoBehaviour
         MoonlightSonata, ClairDeLune, MinuteWaltz,
         ToccataAndFugue, WilliamTellOverture, SwanLake, BachPrelude
     
+    }
+
+    public enum DominoSoundType
+    {
+        Click,
+        Piano
     }
 
     private static readonly Dictionary<string, int> noteMap = new Dictionary<string, int>
@@ -85,6 +96,13 @@ public class DominoSoundManager : MonoBehaviour
         {SongTitle.TurkishMarch, "E5B4C5D5E5A4B4C5D5E5B4C5D5E5A4B4C5D5E5D5C5B4A4G#4A4B4C5D5E5B4C5D5E5A4B4C5D5E5B4C5D5E5A4B4C5D5E5D5C5B4A4G#4A4B4C5D5E5C5A4E5C5A4E5C5A4B4D5G4B4D5G4B4D5G4F#4A4E4A4C5E4A4C5E4A4C5F4A4D5F4A4D5F4A4D5G4B4E5G4B4E5G4B4E5F#4A4E4A4C5E4A4C5E4A4C5F4A4D5F4A4D5F4A4D5G4B4E5G4B4E5G4B4E5C5A4E5C5A4E5C5A4B4D5G4B4D5G4B4D5G4F#4A4E4A4C5E4A4C5E4A4C5F4A4D5F4A4D5F4A4D5G4B4E5G4B4E5G4B4E5"}
     };
 
+    private static readonly Dictionary<int, DominoSoundType> dominoSoundTypes = new Dictionary<int, DominoSoundType>
+    {
+        { 0, DominoSoundType.Click },
+        { 1, DominoSoundType.Piano }
+    };
+
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -107,13 +125,33 @@ public class DominoSoundManager : MonoBehaviour
 
     void Update()
     {
-        // Compute the target volume based on movement
-        targetVolume = Mathf.Clamp(totalMovement * velocityScale, 0f, maxVolume);
+        // Compute the target volume based on movement and apply global volume scale
+        targetVolume = Mathf.Clamp(totalMovement * velocityScale, 0f, maxVolume) * globalVolumeScale;
         // Reset total movement for the next interval
         totalMovement = totalVelocityThreshhold;
         // Smoothly interpolate the actual volume toward the target volume
         cascadeSource.volume = Mathf.Lerp(cascadeSource.volume, targetVolume, Time.deltaTime * volumeLerpSpeed);
     }
+
+    public void SetGlobalVolume(float volume)
+    {
+        globalVolumeScale = volume; // Set the global volume scale
+        cascadeSource.volume = Mathf.Clamp(cascadeSource.volume, 0f, maxVolume) * globalVolumeScale; // Adjust the cascade source volume
+    }
+
+    public void SetDominoSound(int value)
+    {
+        if (dominoSoundTypes.TryGetValue(value, out DominoSoundType soundType))
+        {
+            userSelectedSoundType = soundType; // Set the user-selected sound type
+            Debug.Log($"Domino sound choice set to: {soundType}");
+        }
+        else
+        {
+            Debug.LogWarning($"Invalid domino sound choice: {value}");
+        }
+    }
+    
 
     public void UpdateDominoMovement(float velocityMagnitude)
     {
@@ -166,16 +204,15 @@ public class DominoSoundManager : MonoBehaviour
         AudioSource source = GetPooledAudioSource();
         if (source == null) return;
 
-        source.PlayOneShot(indicatorConfirmSound, 0.5f);
-        source.pitch = pitch; // Reverse the sound
-        source.transform.position = transform.position; // Set position to the current object
+        source.PlayOneShot(indicatorConfirmSound, 0.5f * globalVolumeScale); // Apply global volume scale
+        source.pitch = pitch;
+        source.transform.position = transform.position;
 
-        // Return the AudioSource to the pool after the clip finishes playing
         StartCoroutine(ReturnAudioSourceAfterPlayback(source));
     }
 
     // Play a sound using the pooled AudioSources
-    public void PlayDominoSound(float impactForce, bool isMusicMode, Vector3 dominoPosition)
+    public void PlayDominoSound(float impactForce, Vector3 dominoPosition, DominoSoundType? forcedSoundType = null)
     {
         if (impactForce < minimumImpactForce)
             return;
@@ -184,15 +221,18 @@ public class DominoSoundManager : MonoBehaviour
         if (source == null) return;
         if (dominoPosition != null) source.transform.position = dominoPosition;
 
-        if (isMusicMode)
+        // Determine the sound type to play (use forced type if provided, otherwise use user-selected type)
+        DominoSoundType soundType = forcedSoundType ?? userSelectedSoundType;
+
+        if (soundType == DominoSoundType.Piano)
         {
             source.pitch = 1; // Set pitch to 1 for music notes
             PlayMusicNote(impactForce, source);
         }
-        else
+        else if (soundType == DominoSoundType.Click)
         {
             AudioClip clip = dominoClickSounds.sounds[Random.Range(0, dominoClickSounds.sounds.Length)];
-            float volume = Mathf.Clamp(impactForce / 20f, 0.1f, 1.0f);
+            float volume = Mathf.Clamp(impactForce / 20f, 0.1f, 1.0f) * globalVolumeScale; // Apply global volume scale
             source.PlayOneShot(clip, volume);
             source.pitch = 2; // Set pitch to 2 for domino click sounds
         }
@@ -234,11 +274,11 @@ public class DominoSoundManager : MonoBehaviour
             return;
         }
 
-        if (noteMap.TryGetValue(note, out int noteIndex) && noteIndex >= 0 && noteIndex < soundList.sounds.Length)
+        if (noteMap.TryGetValue(note, out int noteIndex) && noteIndex >= 0 && noteIndex < dominoPianoSounds.sounds.Length)
         {
             noteIndex += octaveOffset * 12; // Adjust for octave offset
-            AudioClip clip = soundList.sounds[noteIndex];
-            float volume = Mathf.Clamp(impactForce / 20f, 0.1f, 1.0f);
+            AudioClip clip = dominoPianoSounds.sounds[noteIndex];
+            float volume = Mathf.Clamp(impactForce / 20f, 0.1f, 1.0f) * globalVolumeScale; // Apply global volume scale
             source.PlayOneShot(clip, volume);
         }
     }

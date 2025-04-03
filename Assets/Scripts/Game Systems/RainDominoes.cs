@@ -109,11 +109,11 @@ public class DominoRain : MonoBehaviour {
         // Slide in to the center of the screen
         yield return rectTransform.DOAnchorPos(Vector2.zero, bigDominoSlideDuration).SetEase(Ease.InOutQuad).WaitForCompletion();
         
-        StopCoroutine(RainDominoes());
+        
         foreach (DominoThrobber throbber in dominoThrobber) {
             throbber.StopLoop(); // Allow the throbber to set a new stable position
         }
-        elapsedTime = Mathf.Infinity; // Stop the rain effect
+        
         AudioSource audioSource = GetComponent<AudioSource>();
         if (audioSource != null) {
             // Fade out the AudioSource without using DOTween
@@ -121,9 +121,11 @@ public class DominoRain : MonoBehaviour {
         }
         // Trigger the scene transition
         mainMenuManager.CompleteSceneTransitions(); // Call the method to complete scene transitions
-
+        
         // Wait for a short delay (optional)
-        yield return new WaitForSeconds(0.125f);
+        yield return new WaitForSeconds(0.5f);
+        StopCoroutine(RainDominoes());
+        elapsedTime = Mathf.Infinity; // Stop the rain effect
 
         // Slide out to the right
         yield return rectTransform.DOAnchorPos(new Vector2(Screen.width, 0), bigDominoSlideDuration).SetEase(Ease.InOutQuad).WaitForCompletion();
