@@ -4,16 +4,14 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class MainMenuManager : MonoBehaviour
 {
-    public GameObject levelSelectPanel;
-    public GameObject optionsPanel;
-    public GameObject loadingScreenPanel;
     public TextMeshProUGUI loadingText;
 
     public GameObject throbber;
-    public float minimumLoadingTime = 3f; // Minimum loading time in seconds
+    public float minimumLoadingTime = 2f; // Minimum loading time in seconds
 
     // Reference to the main camera and virtual cameras
     public Camera mainCamera;
@@ -21,6 +19,8 @@ public class MainMenuManager : MonoBehaviour
     public CinemachineVirtualCamera optionsMenuCamera;
     public CinemachineVirtualCamera levelSelectCamera;
     public CinemachineVirtualCamera loadingScreenCamera;
+
+    public Image circularProgressBar; // Reference to the circular progress bar image
     
     // Store current active camera
     private CinemachineVirtualCamera activeCamera;
@@ -71,10 +71,14 @@ public class MainMenuManager : MonoBehaviour
         }
 
         // Begin loading the scene asynchronously
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelName);
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelName, LoadSceneMode.Additive);
         asyncLoad.allowSceneActivation = false; // Prevent automatic scene activation
-        DominoThrobber throbberComponent = throbber.GetComponent<DominoThrobber>();
-        throbberComponent.BeginLoop(); // Start the throbber loop
+
+        DominoThrobber[] throbberComponents = throbber.GetComponentsInChildren<DominoThrobber>();
+        foreach (var throbberComponent in throbberComponents)
+        {
+            throbberComponent.BeginLoop(); // Start the throbber loop for each throbber
+        }
 
         float elapsedTime = 0f; // Track elapsed time
         float fakeProgress = 0f; // Simulated progress value
@@ -83,14 +87,14 @@ public class MainMenuManager : MonoBehaviour
         while (!asyncLoad.isDone)
         {
             // Simulate gradual progress with noise
-            if (fakeProgress < 0.9f)
+            if (fakeProgress <= 1f)
             {
-                fakeProgress += Time.deltaTime / minimumLoadingTime + Random.Range(0.01f, 0.03f) * Time.deltaTime;
-                fakeProgress = Mathf.Clamp(fakeProgress, 0f, 0.9f);
+                fakeProgress += Time.deltaTime / minimumLoadingTime + Random.Range(0.002f, 0.05f) * Time.deltaTime;
+                fakeProgress = Mathf.Clamp(fakeProgress, 0f, 1f);
             }
 
             // Use the higher of the fake progress or the actual progress
-            float displayedProgress = Mathf.Max(fakeProgress, asyncLoad.progress / 0.9f);
+            float displayedProgress = Mathf.Min(fakeProgress, asyncLoad.progress / 0.9f);
 
             // Update loading text
             if (loadingText != null)
@@ -98,9 +102,17 @@ public class MainMenuManager : MonoBehaviour
                 loadingText.text = $"Loading... {Mathf.RoundToInt(displayedProgress * 100)}%";
             }
 
+            // Update circular progress bar
+            if (circularProgressBar != null)
+            {
+                circularProgressBar.fillAmount = displayedProgress; // Set the fill amount based on progress
+            }
+
             // Allow scene activation after progress reaches 90% and at least the minimum loading time has passed
             if (asyncLoad.progress >= 0.9f && elapsedTime >= minimumLoadingTime)
             {
+                //Kill all tween animations
+                DOTween.KillAll();
                 asyncLoad.allowSceneActivation = true;
             }
 
