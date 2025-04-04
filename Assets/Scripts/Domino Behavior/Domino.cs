@@ -28,7 +28,7 @@ public class Domino : DominoLike
     public bool locked = false; // Flag to prevent movement when locked
     private Vector3 lastStablePosition;
     private Quaternion lastStableRotation;
-    private static float uprightThreshold = -0.99f; // How upright the domino must be (1 = perfectly upright)
+    private static float uprightThreshold = 0.99f; // How upright the domino must be (1 = perfectly upright)
     static float stabilityCheckDelay = 0.5f; // Delay between stability checks
     public bool canSetNewStablePosition = true; // Flag to prevent multiple stability checks
 
@@ -103,7 +103,7 @@ public class Domino : DominoLike
         {
             return;
         }
-        if (!isHeld && Vector3.Dot(transform.forward, Vector3.up) < uprightThreshold)
+        if (!isHeld && Vector3.Dot(transform.up, Vector3.up) > uprightThreshold)
         {
             SaveStablePosition();
         }
@@ -130,7 +130,7 @@ public class Domino : DominoLike
         stablePositionSet = true;
         lastStablePosition = transform.position;
         //Make sure stable rotation is perfectly upright
-        lastStableRotation = Quaternion.Euler(90f, transform.eulerAngles.y, transform.eulerAngles.z);
+        lastStableRotation = Quaternion.Euler(0f, transform.eulerAngles.y, transform.eulerAngles.z);
     }
     public void SetStablePosition(Transform inputTransform)
     {
