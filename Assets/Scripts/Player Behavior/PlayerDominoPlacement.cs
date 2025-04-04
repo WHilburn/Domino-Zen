@@ -19,6 +19,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     public float maxHandSpeed = 3f;
     public float hoverOffset = 1.6f;
     public float rotationSpeed = 100f;
+    public float maxDistance = 15f; // Maximum distance from the camera
     public Camera activeCamera;
     public GameObject lockSpritePrefab; // Reference to the lock sprite prefab
     public Canvas uiCanvas; // Reference to the UI canvas
@@ -69,6 +70,10 @@ public class PlayerDominoPlacement : MonoBehaviour
         if (!IsCameraActive()) return;
 
         Vector3 spawnPos = GetMouseWorldPosition();
+
+        // Prevent spawning if the position is further than 15 units from the camera
+        if (Vector3.Distance(activeCamera.transform.position, spawnPos) > maxDistance) return;
+
         Quaternion spawnRotation = Quaternion.Euler(0f, 0f, 0f);
 
         heldDomino = Instantiate(dominoPrefab, spawnPos, spawnRotation);
@@ -90,6 +95,9 @@ public class PlayerDominoPlacement : MonoBehaviour
         Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
+            // Prevent picking up if the hit point is further than 15 units from the camera
+            if (Vector3.Distance(activeCamera.transform.position, hit.point) > maxDistance) return;
+
             Domino domino = hit.collider.GetComponent<Domino>();
             if (domino != null && !domino.isHeld)
             {
@@ -169,15 +177,28 @@ public class PlayerDominoPlacement : MonoBehaviour
 
         // Get the target position adjusted by the offset
         Vector3 targetPosition = GetMouseWorldPosition() + handMouseOffset;
+
+        // Clamp the target position to within 15 units of the camera
+        if (Vector3.Distance(activeCamera.transform.position, targetPosition) > maxDistance)
+        {
+            targetPosition = activeCamera.transform.position + 
+                             (targetPosition - activeCamera.transform.position).normalized * maxDistance;
+        }
+
         Vector3 targetFlat = new Vector3(targetPosition.x, initialHandElevation, targetPosition.z); // Maintain initial elevation
         float step = Mathf.Min(maxHandSpeed * Time.deltaTime, Vector3.Distance(handAnchor.position, targetFlat));
         handAnchor.position = Vector3.MoveTowards(handAnchor.position, targetFlat, step);
 
-        // Update the hand sprite position on the UI canvas
+        // Update the hand sprite position and scale on the UI canvas
         if (handSpriteRect != null)
         {
             Vector3 screenPosition = activeCamera.WorldToScreenPoint(handAnchor.position);
             handSpriteRect.position = screenPosition;
+
+            // Adjust the hand sprite size based on its distance from the camera
+            float distance = Vector3.Distance(activeCamera.transform.position, handAnchor.position);
+            float scale = (1f / distance) * 20;
+            handSpriteRect.localScale = new Vector3(scale, scale, 1f);
         }
     }
 
@@ -197,7 +218,18 @@ public class PlayerDominoPlacement : MonoBehaviour
         Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
         int environmentLayerMask = LayerMask.GetMask("EnvironmentLayer");
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, environmentLayerMask))
-            return hit.point + Vector3.up * hoverOffset;
+        {
+            Vector3 position = hit.point + Vector3.up * hoverOffset;
+
+            // Prevent the hand from going further than 15 units from the camera
+            if (Vector3.Distance(activeCamera.transform.position, position) > maxDistance)
+            {
+                position = activeCamera.transform.position + 
+                           (position - activeCamera.transform.position).normalized * maxDistance;
+            }
+
+            return position;
+        }
         return ray.origin + ray.direction * 5f;
     }
 
