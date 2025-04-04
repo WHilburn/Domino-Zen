@@ -66,7 +66,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         if (!IsCameraActive()) return;
 
         Vector3 spawnPos = GetMouseWorldPosition();
-        Quaternion spawnRotation = Quaternion.Euler(90f, 0f, 0f);
+        Quaternion spawnRotation = Quaternion.Euler(0f, 0f, 0f);
 
         heldDomino = Instantiate(dominoPrefab, spawnPos, spawnRotation);
         InitializeHeldDomino();
