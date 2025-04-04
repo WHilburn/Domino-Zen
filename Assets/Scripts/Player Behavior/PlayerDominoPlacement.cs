@@ -226,7 +226,7 @@ public class PlayerDominoPlacement : MonoBehaviour
 
         SpringJoint spring = heldDomino.AddComponent<SpringJoint>();
         spring.connectedBody = heldHand.GetComponent<Rigidbody>();
-        spring.anchor = heldDomino.GetComponent<Domino>().holdPoint;
+        spring.anchor = DominoLike.holdPoint;
         anchor = spring.anchor;
         spring.autoConfigureConnectedAnchor = false;
         spring.connectedAnchor = Vector3.zero;

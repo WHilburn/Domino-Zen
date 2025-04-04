@@ -4,7 +4,7 @@ using DG.Tweening;
 using UnityEditor;
 
 [SelectionBase]
-public class Domino : MonoBehaviour
+public class Domino : DominoLike
 {
     [Header("Domino Settings")]
     private Rigidbody rb;
@@ -16,7 +16,6 @@ public class Domino : MonoBehaviour
         Jiggle
     }
     private static float stillnessThreshold = 5f;  // Velocity threshold to consider "stationary"
-    public Vector3 holdPoint; // Offset from center to hold the domino
     static DominoSoundManager soundManager;
     static CameraController cameraController;
     public bool isMoving = false;
@@ -35,7 +34,7 @@ public class Domino : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // Start with high accuracy
+        SnapToGround();
         if (soundManager == null) soundManager = FindObjectOfType<DominoSoundManager>(); // Get references
         if (cameraController == null) cameraController = FindObjectOfType<CameraController>();
         CheckStability();
@@ -79,7 +78,7 @@ public class Domino : MonoBehaviour
             }
             if (!rb.isKinematic)
             {
-                // Debug.Log($"Registering domino {gameObject.name} at {transform.position} and {transform.rotation} through Update");
+                Debug.Log($"Registering domino {gameObject.name} at {transform.position} and {transform.rotation} through Update");
                 DominoResetManager.Instance.RegisterDomino(this, lastStablePosition, lastStableRotation);
             }
             StartCoroutine(RemoveFromFallingDominoes(0.25f));
@@ -156,7 +155,7 @@ public class Domino : MonoBehaviour
             DominoSoundManager.Instance.PlayDominoSound(impactForce, transform.position);
         }
 
-        // Debug.Log($"Registering domino {gameObject.name} at {transform.position} and {transform.rotation} through Colision");
+        Debug.Log($"Registering domino {gameObject.name} at world position {transform.position} and world rotation {transform.rotation.eulerAngles} through Collision");
         DominoResetManager.Instance.RegisterDomino(this, lastStablePosition, lastStableRotation);
     }
 

@@ -3,7 +3,7 @@ using DG.Tweening;
 using UnityEngine.UIElements;
 
 [ExecuteInEditMode]
-public class PlacementIndicator : MonoBehaviour
+public class PlacementIndicator : DominoLike
 {
     private Renderer indicatorRenderer;
     public BoxCollider placementCollider; //Collider for placement detection
@@ -134,18 +134,6 @@ public class PlacementIndicator : MonoBehaviour
         indicatorRenderer.material.DOKill();
         // Use DOTween to fade in the material's alpha
         indicatorRenderer.material.DOFade(maxAlpha, fadeSpeed);
-    }
-
-    private void SnapToGround()
-    {
-        if (snapCollider.enabled == false) return;
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, Mathf.Infinity))
-        {
-            float bottomOffset = snapCollider.bounds.extents.y; // Get half the height
-            transform.position = hitInfo.point + Vector3.up * bottomOffset;
-        }
-        //Disable the collider if it is not needed anymore
-        snapCollider.enabled = false; // Disable the collider
     }
     public void ApplyColor(Color inputColor)
     {

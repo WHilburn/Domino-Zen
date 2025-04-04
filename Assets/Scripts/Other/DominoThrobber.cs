@@ -64,7 +64,7 @@ public class DominoThrobber : MonoBehaviour
             rb.isKinematic = false;
 
             // Get the holdPoint position (top of the domino)
-            Vector3 holdPoint = domino.holdPoint;
+            Vector3 holdPoint = DominoLike.holdPoint;
 
             // Convert the local holdPoint to world space
             Vector3 worldHoldPoint = domino.transform.TransformPoint(holdPoint);
