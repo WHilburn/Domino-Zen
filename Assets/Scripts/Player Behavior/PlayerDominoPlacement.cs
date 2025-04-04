@@ -188,7 +188,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         savedAngularDrag = heldRb.angularDrag;
         heldRb.drag = 10f;
         heldRb.angularDrag = 90f;
-        heldRb.constraints = RigidbodyConstraints.FreezeRotationZ;
+        // heldRb.constraints = RigidbodyConstraints.FreezeRotationY;
     }
 
     private bool IsDominoFalling()
