@@ -1,14 +1,16 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
 public class PlayerDominoPlacement : MonoBehaviour
 {
     public static PlayerDominoPlacement Instance { get; private set; }
     public GameObject dominoPrefab;
-    public GameObject handPrefab;
+    public GameObject handSpritePrefab; // Reference to the hand sprite prefab
     public static GameObject heldDomino;
     private Rigidbody heldRb;
-    private Transform heldHand;
+    private Transform handAnchor; // Empty GameObject for domino attachment
+    private RectTransform handSpriteRect; // RectTransform of the hand sprite
     private Vector3 anchor;
     private DecalProjector decalProjector;
     private float savedDrag;
@@ -22,6 +24,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     public Canvas uiCanvas; // Reference to the UI canvas
 
     private Vector3 handMouseOffset; // Offset between hand and mouse cursor
+    private float initialHandElevation; // Store the initial elevation of the hand anchor
 
     void Start()
     {
@@ -71,11 +74,13 @@ public class PlayerDominoPlacement : MonoBehaviour
         heldDomino = Instantiate(dominoPrefab, spawnPos, spawnRotation);
         InitializeHeldDomino();
 
-        CreateHand(spawnPos);
-        AttachDominoToHand();
+        CreateHandAnchor(spawnPos);
+        initialHandElevation = handAnchor.position.y; // Store the initial elevation
+        AttachDominoToAnchor();
+        CreateHandSprite();
 
         // Calculate the offset between the hand and the mouse cursor
-        handMouseOffset = heldHand.position - GetMouseWorldPosition();
+        handMouseOffset = handAnchor.position - GetMouseWorldPosition();
     }
 
     void TryPickUpDomino()
@@ -112,11 +117,30 @@ public class PlayerDominoPlacement : MonoBehaviour
         }
 
         Vector3 spawnPos = AdjustSpawnPosition(heldDomino.transform.position);
-        CreateHand(spawnPos);
-        AttachDominoToHand();
+        CreateHandAnchor(spawnPos);
+        initialHandElevation = handAnchor.position.y; // Store the initial elevation
+        AttachDominoToAnchor();
+        CreateHandSprite();
 
         // Calculate the offset between the hand and the mouse cursor
-        handMouseOffset = heldHand.position - GetMouseWorldPosition();
+        handMouseOffset = handAnchor.position - GetMouseWorldPosition();
+    }
+
+    private void ResetDominoProperties()
+    {
+        heldDomino.layer = LayerMask.NameToLayer("Default");
+        heldDomino.GetComponent<Domino>().isHeld = false;
+
+        SpringJoint spring = heldDomino.GetComponent<SpringJoint>();
+        if (spring != null) Destroy(spring);
+
+        heldRb.useGravity = true;
+        if (decalProjector) decalProjector.enabled = false;
+        heldRb.velocity = Vector3.zero;
+        heldRb.angularVelocity = Vector3.zero;
+        heldRb.drag = savedDrag;
+        heldRb.angularDrag = savedAngularDrag;
+        heldRb.constraints = RigidbodyConstraints.None;
     }
 
     public void ReleaseDomino()
@@ -139,15 +163,22 @@ public class PlayerDominoPlacement : MonoBehaviour
         ClearHeldDomino();
     }
 
-    void MoveHeldDomino()
+    void MoveHeldDomino() // Also moves the hand anchor and updates the hand sprite
     {
-        if (heldHand == null) return;
+        if (handAnchor == null) return;
 
         // Get the target position adjusted by the offset
         Vector3 targetPosition = GetMouseWorldPosition() + handMouseOffset;
-        Vector3 targetFlat = new Vector3(targetPosition.x, heldHand.position.y, targetPosition.z);
-        float step = Mathf.Min(maxHandSpeed * Time.deltaTime, Vector3.Distance(heldHand.position, targetFlat));
-        heldHand.position = Vector3.MoveTowards(heldHand.position, targetFlat, step);
+        Vector3 targetFlat = new Vector3(targetPosition.x, initialHandElevation, targetPosition.z); // Maintain initial elevation
+        float step = Mathf.Min(maxHandSpeed * Time.deltaTime, Vector3.Distance(handAnchor.position, targetFlat));
+        handAnchor.position = Vector3.MoveTowards(handAnchor.position, targetFlat, step);
+
+        // Update the hand sprite position on the UI canvas
+        if (handSpriteRect != null)
+        {
+            Vector3 screenPosition = activeCamera.WorldToScreenPoint(handAnchor.position);
+            handSpriteRect.position = screenPosition;
+        }
     }
 
     void HandleRotation()
@@ -200,7 +231,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     {
         heldDomino = null;
         heldRb = null;
-        heldHand = null;
+        handAnchor = null;
     }
 
     private Vector3 AdjustSpawnPosition(Vector3 position)
@@ -215,19 +246,21 @@ public class PlayerDominoPlacement : MonoBehaviour
         return position;
     }
 
-    private void CreateHand(Vector3 spawnPos)
+    private void CreateHandAnchor(Vector3 spawnPos)
     {
-        GameObject handObject = Instantiate(handPrefab, spawnPos, Quaternion.identity);
-        heldHand = handObject.transform;
-        heldHand.position = spawnPos + new Vector3(0f, 0.5f, 0f);
+        GameObject anchorObject = new GameObject("HandAnchor");
+        handAnchor = anchorObject.transform;
+        handAnchor.position = spawnPos + new Vector3(0f, 0.5f, 0f);
     }
 
-    private void AttachDominoToHand()
+    private void AttachDominoToAnchor()
     {
-        heldDomino.transform.position = heldHand.position;
+        heldDomino.transform.position = handAnchor.position;
 
         SpringJoint spring = heldDomino.AddComponent<SpringJoint>();
-        spring.connectedBody = heldHand.GetComponent<Rigidbody>();
+        spring.connectedBody = handAnchor.gameObject.AddComponent<Rigidbody>();
+        spring.connectedBody.isKinematic = true; // Make the anchor kinematic
+        spring.connectedBody.useGravity = false; // Disable gravity on the anchor
         spring.anchor = DominoLike.holdPoint;
         anchor = spring.anchor;
         spring.autoConfigureConnectedAnchor = false;
@@ -241,27 +274,26 @@ public class PlayerDominoPlacement : MonoBehaviour
         heldRb.angularVelocity = Vector3.zero;
     }
 
-    private void ResetDominoProperties()
+    private void CreateHandSprite()
     {
-        heldDomino.layer = LayerMask.NameToLayer("Default");
-        heldDomino.GetComponent<Domino>().isHeld = false;
+        if (handSpritePrefab == null || uiCanvas == null) return;
 
-        SpringJoint spring = heldDomino.GetComponent<SpringJoint>();
-        if (spring != null) Destroy(spring);
-
-        heldRb.useGravity = true;
-        if (decalProjector) decalProjector.enabled = false;
-        heldRb.velocity = Vector3.zero;
-        heldRb.angularVelocity = Vector3.zero;
-        heldRb.drag = savedDrag;
-        heldRb.angularDrag = savedAngularDrag;
-        heldRb.constraints = RigidbodyConstraints.None;
+        GameObject handSprite = Instantiate(handSpritePrefab, uiCanvas.transform);
+        handSpriteRect = handSprite.GetComponent<RectTransform>();
+        if (handSpriteRect != null)
+        {
+            Vector3 screenPosition = activeCamera.WorldToScreenPoint(handAnchor.position);
+            handSpriteRect.position = screenPosition;
+        }
     }
 
     private void DestroyHand()
     {
-        if (heldHand != null)
-            Destroy(heldHand.gameObject);
+        if (handAnchor != null)
+            Destroy(handAnchor.gameObject);
+
+        if (handSpriteRect != null)
+            Destroy(handSpriteRect.gameObject);
     }
 
     void ShowLockSprite(Vector3 position)
