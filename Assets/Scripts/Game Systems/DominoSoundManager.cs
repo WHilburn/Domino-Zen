@@ -245,7 +245,7 @@ public class DominoSoundManager : MonoBehaviour
         else if (soundType == DominoSoundType.Click)
         {
             AudioClip clip = dominoClickSounds.sounds[Random.Range(0, dominoClickSounds.sounds.Length)];
-            float volume = Mathf.Clamp(impactForce / 20f, 0.1f, 1.0f) * globalVolumeScale; // Apply global volume scale
+            float volume = Mathf.Clamp(impactForce / 40f, 0.1f, 0.5f) * globalVolumeScale; // Apply global volume scale
             source.PlayOneShot(clip, volume);
             source.pitch = 2; // Set pitch to 2 for domino click sounds
         }

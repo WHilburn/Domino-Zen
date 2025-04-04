@@ -20,6 +20,7 @@ public class DominoSpawner : EditorWindow
     private float spiralSpacing = 0.3f; // Shrinking radius spacing for spiral
 
     private bool gradientMode = false;
+    private bool rainbowMode = false; // Toggle for Rainbow Mode
     private Color startColor = Color.red;
     private Color endColor = Color.blue;
     private int colorCycles = 1;
@@ -27,7 +28,7 @@ public class DominoSpawner : EditorWindow
     private string groupName = "Domino Group";
     private GameObject dominoPrefab;
     private DominoMaterialList dominoMaterialList;
-    private bool musicMode = true;
+    private bool musicMode = false;
     private List<GameObject> previewShapes = new List<GameObject>(); // To store preview cubes
     private bool previewMode  = true;
 
@@ -76,7 +77,11 @@ public class DominoSpawner : EditorWindow
         }
         GeneratePreviewCubes(Selection.activeGameObject);
 
+        rainbowMode = EditorGUILayout.Toggle("Rainbow Mode", rainbowMode);
+        if (rainbowMode) gradientMode = false; // Disable gradient mode if rainbow mode is active
+
         gradientMode = EditorGUILayout.Toggle("Color Gradient Mode", gradientMode);
+        if (gradientMode) rainbowMode = false; // Disable rainbow mode if gradient mode is active
 
         if (gradientMode)
         {
@@ -87,6 +92,10 @@ public class DominoSpawner : EditorWindow
             {
                 colorBounce = EditorGUILayout.Toggle("Color Bounce", colorBounce);
             }
+        }
+        else if (rainbowMode)
+        {
+            startColor = EditorGUILayout.ColorField("Start Color", startColor);
         }
         else
         {
@@ -386,32 +395,41 @@ public class DominoSpawner : EditorWindow
 
         for (int i = 0; i < dominoes.Count; i++)
         {
-            float cycleIndex;
-            bool reversed = false;
-
-            if (curveDirection == Direction.Both && (selectedFormation == FormationType.Curve || selectedFormation == FormationType.Spiral))
+            Color newColor;
+            if (rainbowMode)
             {
-                // Split into two halves for color calculation
-                int localIndex = (i < halfCount) ? i : i - halfCount;
-                int localCount = halfCount; // Each side should have its own independent gradient range
-
-                cycleIndex = (localIndex / (float)localCount) % 1f;
-
-                // Reverse coloring if needed for color bouncing
-                if (colorBounce && ((localIndex / (localCount / colorCycles)) % 2 == 1))
-                    reversed = true;
+                float hue = (i / (float)dominoes.Count) * colorCycles;
+                newColor = Color.HSVToRGB(hue % 1f, 1f, 1f); // Cycle through hues
             }
             else
             {
-                // Default case for single-direction coloring
-                cycleIndex = (i / (dominoes.Count / (float)colorCycles)) % 1f;
+                float cycleIndex;
+                bool reversed = false;
 
-                if (colorBounce && ((i / (dominoes.Count / colorCycles)) % 2 == 1))
-                    reversed = true;
-            }
+                if (curveDirection == Direction.Both && (selectedFormation == FormationType.Curve || selectedFormation == FormationType.Spiral))
+                {
+                    // Split into two halves for color calculation
+                    int localIndex = (i < halfCount) ? i : i - halfCount;
+                    int localCount = halfCount; // Each side should have its own independent gradient range
 
-            Color newColor = reversed ? Color.Lerp(effectiveEndColor, startColor, cycleIndex) 
+                    cycleIndex = (localIndex / (float)localCount) % 1f;
+
+                    // Reverse coloring if needed for color bouncing
+                    if (colorBounce && ((localIndex / (localCount / colorCycles)) % 2 == 1))
+                        reversed = true;
+                }
+                else
+                {
+                    // Default case for single-direction coloring
+                    cycleIndex = (i / (dominoes.Count / (float)colorCycles)) % 1f;
+
+                    if (colorBounce && ((i / (dominoes.Count / colorCycles)) % 2 == 1))
+                        reversed = true;
+                }
+
+                newColor = reversed ? Color.Lerp(effectiveEndColor, startColor, cycleIndex) 
                                     : Color.Lerp(startColor, effectiveEndColor, cycleIndex);
+            }
 
             DominoSkin dominoSkin = dominoes[i].GetComponent<DominoSkin>();
             if (dominoSkin != null)
