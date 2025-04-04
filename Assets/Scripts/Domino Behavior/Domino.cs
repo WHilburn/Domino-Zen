@@ -35,10 +35,13 @@ public class Domino : DominoLike
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        SnapToGround();
+        if (!isHeld){
+            SnapToGround();
+            SaveStablePosition();
+        }
         if (soundManager == null) soundManager = FindObjectOfType<DominoSoundManager>(); // Get references
         if (cameraController == null) cameraController = FindObjectOfType<CameraController>();
-        CheckStability();
+        // CheckStability();
         InvokeRepeating(nameof(CheckStability), stabilityCheckDelay + Random.Range(0f, .1f), stabilityCheckDelay);
     }
 
@@ -95,7 +98,8 @@ public class Domino : DominoLike
 
     private void CheckStability()
     {
-        if (rb.isKinematic  || 
+        if (locked ||
+        rb.isKinematic  || 
         lastStablePosition == transform.position || 
         rb.angularVelocity.magnitude > stillnessThreshold || 
         rb.velocity.magnitude > stillnessThreshold ||
