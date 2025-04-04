@@ -20,6 +20,7 @@ public class Domino : DominoLike
     static CameraController cameraController;
     public bool isMoving = false;
     public bool isHeld = false;
+    [HideInInspector]
     public float velocityMagnitude;
     public bool musicMode = true;
     [HideInInspector]
@@ -78,18 +79,16 @@ public class Domino : DominoLike
             }
             if (!rb.isKinematic)
             {
-                Debug.Log($"Registering domino {gameObject.name} at {transform.position} and {transform.rotation} through Update");
+                // Debug.Log($"Registering domino {gameObject.name} at {transform.position} and {transform.rotation} through Update");
                 DominoResetManager.Instance.RegisterDomino(this, lastStablePosition, lastStableRotation);
             }
             StartCoroutine(RemoveFromFallingDominoes(0.25f));
-            // rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
         }
         else if (!currentlyMoving && isMoving) //When we stop moving
         {
             CheckStability();
             isMoving = false;
-            // rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         }
         isMoving = currentlyMoving;
     }
@@ -104,7 +103,6 @@ public class Domino : DominoLike
         {
             return;
         }
-        //Debug.Log("Difference between up and forward: " + Vector3.Dot(transform.forward, Vector3.up));
         if (!isHeld && Vector3.Dot(transform.forward, Vector3.up) < uprightThreshold)
         {
             SaveStablePosition();
@@ -129,7 +127,6 @@ public class Domino : DominoLike
 
     public void SaveStablePosition()
     {
-        // Debug.Log($"Saving stable position for {gameObject.name} at {transform.position} and {transform.rotation}");
         stablePositionSet = true;
         lastStablePosition = transform.position;
         //Make sure stable rotation is perfectly upright
@@ -155,7 +152,7 @@ public class Domino : DominoLike
             DominoSoundManager.Instance.PlayDominoSound(impactForce, transform.position);
         }
 
-        Debug.Log($"Registering domino {gameObject.name} at world position {transform.position} and world rotation {transform.rotation.eulerAngles} through Collision");
+        // Debug.Log($"Registering domino {gameObject.name} at world position {transform.position} and world rotation {transform.rotation.eulerAngles} through Collision");
         DominoResetManager.Instance.RegisterDomino(this, lastStablePosition, lastStableRotation);
     }
 
