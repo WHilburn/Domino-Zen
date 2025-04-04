@@ -221,7 +221,7 @@ public class DominoSpawner : EditorWindow
             GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cube.transform.position = pos;
             cube.transform.rotation = rot;
-            cube.transform.localScale = new Vector3(.48f, .13f, .98f); // Match approximate domino shape
+            cube.transform.localScale = new Vector3(.48f, .98f, .13f); // Match approximate domino shape
             cube.name = "PreviewCube";
             cube.hideFlags = HideFlags.HideAndDontSave; // Hide from hierarchy
             previewShapes.Add(cube);
@@ -247,7 +247,7 @@ public class DominoSpawner : EditorWindow
 
         for (int i = 1; i <= spawnCount; i++)
         {
-            Vector3 spawnPos = startPos + selected.transform.up * (forwardSpacing * i);
+            Vector3 spawnPos = startPos + -selected.transform.forward * (forwardSpacing * i);
             spawnTransforms.Add((spawnPos, rotation)); // Store position and rotation as a tuple
         }
         // PreviewDominoPositions(spawnTransforms);
@@ -257,7 +257,7 @@ public class DominoSpawner : EditorWindow
     private List<(Vector3 position, Quaternion rotation)> GetTriangleFormationPositions(GameObject selected)
     {
         List<(Vector3, Quaternion)> spawnTransforms = new List<(Vector3, Quaternion)>();
-        Vector3 startPos = selected.transform.position + selected.transform.up * forwardSpacing;
+        Vector3 startPos = selected.transform.position + -selected.transform.forward * forwardSpacing;
         Quaternion rotation = selected.transform.rotation;
 
         int dominoesInRow = 2; // First row starts with 2 dominoes
@@ -268,7 +268,7 @@ public class DominoSpawner : EditorWindow
             {
                 float offsetX = (i - (dominoesInRow - 1) / 2f) * rowSpacing;
                 float offsetZ = currentRow * forwardSpacing;
-                Vector3 spawnPos = startPos + selected.transform.right * offsetX + selected.transform.up * offsetZ;
+                Vector3 spawnPos = startPos + selected.transform.right * offsetX + -selected.transform.forward * offsetZ;
 
                 spawnTransforms.Add((spawnPos, rotation)); // Store position and rotation
             }
@@ -293,7 +293,7 @@ public class DominoSpawner : EditorWindow
         void CalculateArc(Vector3 arcStartPos, float directionMultiplier)
         {
             // Compute the center of the arc
-            Vector3 center = arcStartPos - selected.transform.right * directionMultiplier * radius;
+            Vector3 center = arcStartPos - -selected.transform.right * directionMultiplier * radius;
 
             // Debug sphere to visualize the center
             GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -332,8 +332,8 @@ public class DominoSpawner : EditorWindow
                 CalculateArc(startPos, -1);
                 break;
             case Direction.Both:
-                CalculateArc(startPos + selected.transform.right * -0.25f, 1);
-                CalculateArc(startPos + selected.transform.right * 0.25f, -1);
+                CalculateArc(startPos + selected.transform.right * 0.25f, 1);
+                CalculateArc(startPos + selected.transform.right * -0.25f, -1);
                 break;
         }
 
@@ -357,7 +357,7 @@ public class DominoSpawner : EditorWindow
                 float angle = angleStep * i * Mathf.Deg2Rad * directionMultiplier;
                 float currentRadius = radius - (spiralSpacing * i);
                 Vector3 offset = new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle)) * currentRadius;
-                Vector3 spawnPos = startPos + selected.transform.right * offset.x + selected.transform.up * offset.z;
+                Vector3 spawnPos = startPos + selected.transform.right * offset.x + -selected.transform.forward * offset.z;
                 Quaternion newRotation = Quaternion.Euler(0, -angle * Mathf.Rad2Deg, 0) * rotation;
 
                 spawnTransforms.Add((spawnPos, newRotation));
