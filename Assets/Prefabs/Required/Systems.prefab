@@ -73,8 +73,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 802997217981455792}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.09098534, y: 0.89253044, z: -0.2088373, w: 0.38922763}
-  m_LocalPosition: {x: 26.356033, y: -1.6619215, z: -1.2195549}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 29.64, y: -3.88, z: -9.268452}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -411,8 +411,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4427080609641943509}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.29013965, y: -0.37792045, z: 0.12612155, w: -0.87010837}
-  m_LocalPosition: {x: -4.670002, y: -4.41, z: -19.35}
+  m_LocalRotation: {x: -0.06433358, y: -0.922014, z: 0.17511357, w: -0.33924428}
+  m_LocalPosition: {x: 25.36, y: -10.61, z: 28.614}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -768,7 +768,7 @@ MonoBehaviour:
   followSpeed: 1
   maxHandSpeed: 5
   hoverOffset: 1.2
-  rotationSpeed: 100
+  rotationSpeed: 15
   activeCamera: {fileID: 0}
   lockSpritePrefab: {fileID: 4181785002189258841, guid: e065b6617a4063e44a89dec531f78b67, type: 3}
   uiCanvas: {fileID: 8704060149612110857}
@@ -871,6 +871,26 @@ PrefabInstance:
     - target: {fileID: 6733193944056606906, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
       propertyPath: m_Name
       value: Game UI
+      objectReference: {fileID: 0}
+    - target: {fileID: 7051374998827033566, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7051374998827033566, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7051374998827033566, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7319737963905294748, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7319737963905294748, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9061323199219513815, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
       propertyPath: m_Pivot.x

@@ -152,11 +152,13 @@ public class PlayerDominoPlacement : MonoBehaviour
 
     void HandleRotation()
     {
+        if (heldRb == null) return; // Ensure the rigidbody exists
+
         if (Input.GetKey(KeyCode.Q))
-            heldDomino.transform.Rotate(Vector3.forward, -rotationSpeed * Time.deltaTime);
+            heldRb.AddTorque(Vector3.up * -rotationSpeed, ForceMode.Force);
 
         if (Input.GetKey(KeyCode.E))
-            heldDomino.transform.Rotate(Vector3.forward, rotationSpeed * Time.deltaTime);
+            heldRb.AddTorque(Vector3.up * rotationSpeed, ForceMode.Force);
     }
 
     Vector3 GetMouseWorldPosition()
