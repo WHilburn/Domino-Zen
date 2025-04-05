@@ -7,10 +7,13 @@ public class PlayerDominoPlacement : MonoBehaviour
     public static PlayerDominoPlacement Instance { get; private set; }
     public GameObject dominoPrefab;
     public GameObject handSpritePrefab; // Reference to the hand sprite prefab
+    public GameObject hand3DPrefab; // Reference to the 3D hand prefab
+    public bool use3DHand = false; // Toggle between 2D and 3D hand
     public static GameObject heldDomino;
     private Rigidbody heldRb;
     private Transform handAnchor; // Empty GameObject for domino attachment
     private RectTransform handSpriteRect; // RectTransform of the hand sprite
+    private GameObject hand3DInstance; // Instance of the 3D hand
     private Vector3 anchor;
     private DecalProjector decalProjector;
     private float savedDrag;
@@ -82,7 +85,11 @@ public class PlayerDominoPlacement : MonoBehaviour
         CreateHandAnchor(spawnPos);
         initialHandElevation = handAnchor.position.y; // Store the initial elevation
         AttachDominoToAnchor();
-        CreateHandSprite();
+
+        if (use3DHand)
+            Create3DHand(spawnPos);
+        else
+            CreateHandSprite();
 
         // Calculate the offset between the hand and the mouse cursor
         handMouseOffset = handAnchor.position - GetMouseWorldPosition();
@@ -128,7 +135,11 @@ public class PlayerDominoPlacement : MonoBehaviour
         CreateHandAnchor(spawnPos);
         initialHandElevation = handAnchor.position.y; // Store the initial elevation
         AttachDominoToAnchor();
-        CreateHandSprite();
+
+        if (use3DHand)
+            Create3DHand(spawnPos);
+        else
+            CreateHandSprite();
 
         // Calculate the offset between the hand and the mouse cursor
         handMouseOffset = handAnchor.position - GetMouseWorldPosition();
@@ -189,9 +200,14 @@ public class PlayerDominoPlacement : MonoBehaviour
         float step = Mathf.Min(maxHandSpeed * Time.deltaTime, Vector3.Distance(handAnchor.position, targetFlat));
         handAnchor.position = Vector3.MoveTowards(handAnchor.position, targetFlat, step);
 
-        // Update the hand sprite position and scale on the UI canvas
-        if (handSpriteRect != null)
+        if (use3DHand && hand3DInstance != null)
         {
+            hand3DInstance.transform.position = handAnchor.position;
+            hand3DInstance.transform.rotation = heldDomino.transform.rotation; // Match domino rotation
+        }
+        else if (!use3DHand && handSpriteRect != null)
+        {
+            // Update the hand sprite position and scale on the UI canvas
             Vector3 screenPosition = activeCamera.WorldToScreenPoint(handAnchor.position);
             handSpriteRect.position = screenPosition;
 
@@ -319,6 +335,15 @@ public class PlayerDominoPlacement : MonoBehaviour
         }
     }
 
+    private void Create3DHand(Vector3 spawnPos)
+    {
+        if (hand3DPrefab == null) return;
+
+        hand3DInstance = Instantiate(hand3DPrefab);
+        hand3DInstance.transform.position = spawnPos;
+        hand3DInstance.transform.rotation = Quaternion.identity;
+    }
+
     private void DestroyHand()
     {
         if (handAnchor != null)
@@ -326,6 +351,9 @@ public class PlayerDominoPlacement : MonoBehaviour
 
         if (handSpriteRect != null)
             Destroy(handSpriteRect.gameObject);
+
+        if (hand3DInstance != null)
+            Destroy(hand3DInstance);
     }
 
     void ShowLockSprite(Vector3 position)
