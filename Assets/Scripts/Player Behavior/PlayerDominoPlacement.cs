@@ -197,7 +197,7 @@ public class PlayerDominoPlacement : MonoBehaviour
 
             // Adjust the hand sprite size based on its distance from the camera
             float distance = Vector3.Distance(activeCamera.transform.position, handAnchor.position);
-            float scale = (1f / distance) * 20;
+            float scale = 1f / Mathf.Log(distance) * 5f;
             handSpriteRect.localScale = new Vector3(scale, scale, 1f);
         }
     }
