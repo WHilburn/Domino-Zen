@@ -106,7 +106,7 @@ public class PlayerDominoPlacement : MonoBehaviour
             if (Vector3.Distance(activeCamera.transform.position, hit.point) > maxDistance) return;
 
             Domino domino = hit.collider.GetComponent<Domino>();
-            if (domino != null && !domino.isHeld)
+            if (domino != null && domino.currentState != Domino.DominoState.Held)
             {
                 if (domino.locked)
                 {
@@ -148,7 +148,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private void ResetDominoProperties()
     {
         heldDomino.layer = LayerMask.NameToLayer("Default");
-        heldDomino.GetComponent<Domino>().isHeld = false;
+        heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Moving;
 
         SpringJoint spring = heldDomino.GetComponent<SpringJoint>();
         if (spring != null) Destroy(spring);
@@ -289,7 +289,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private void InitializeHeldDomino()
     {
         heldDomino.layer = LayerMask.NameToLayer("Ignore Raycast");
-        heldDomino.GetComponent<Domino>().isHeld = true;
+        heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Held;
         decalProjector = heldDomino.GetComponent<DecalProjector>();
         if (decalProjector) decalProjector.enabled = true;
 
@@ -298,7 +298,6 @@ public class PlayerDominoPlacement : MonoBehaviour
         savedAngularDrag = heldRb.angularDrag;
         heldRb.drag = 10f;
         heldRb.angularDrag = 90f;
-        // heldRb.constraints = RigidbodyConstraints.FreezeRotationY;
     }
 
     private bool IsDominoFalling()

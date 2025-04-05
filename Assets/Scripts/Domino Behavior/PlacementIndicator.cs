@@ -67,7 +67,7 @@ public class PlacementIndicator : DominoLike
                 break;
 
             case IndicatorState.Placed:
-                if (trackedDomino.isHeld)
+                if (trackedDomino.currentState == Domino.DominoState.Held)
                 {
                     currentState = IndicatorState.Occupied; // Transition to Empty state
                     FadeIn(); // Fade back in if the domino is removed
@@ -79,7 +79,7 @@ public class PlacementIndicator : DominoLike
     private void CheckDominoPlacement()
     {
         if (trackedDominoRb == null ||
-            trackedDomino.isHeld ||
+            trackedDomino.currentState == Domino.DominoState.Held ||
             // trackedDominoRb.velocity.magnitude > 0.05f ||
             trackedDominoRb.angularVelocity.magnitude > 0.05f)
         {
@@ -96,7 +96,7 @@ public class PlacementIndicator : DominoLike
 
         if (isAligned && isPositioned)
         {
-            // Debug.Log("Domino is aligned and positioned correctly.");
+            Debug.Log("Domino is aligned and positioned correctly.");
             PlaceDomino();
         }
     }
@@ -114,6 +114,7 @@ public class PlacementIndicator : DominoLike
         // Fade out the indicator
         FadeOut();
         currentState = IndicatorState.Placed; // Transition to Placed state
+        trackedDomino.currentState = Domino.DominoState.FillingIndicator; // Set the domino's state to Placed
         GameManager.Instance.CheckCompletion(); // Check if all indicators are filled
     }
 
