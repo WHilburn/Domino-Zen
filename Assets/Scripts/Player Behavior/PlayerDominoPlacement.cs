@@ -203,7 +203,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         if (use3DHand && hand3DInstance != null)
         {
             hand3DInstance.transform.position = handAnchor.position;
-            hand3DInstance.transform.rotation = heldDomino.transform.rotation; // Match domino rotation
+            // Do not match the domino's rotation to the hand
         }
         else if (!use3DHand && handSpriteRect != null)
         {
@@ -222,11 +222,36 @@ public class PlayerDominoPlacement : MonoBehaviour
     {
         if (heldRb == null) return; // Ensure the rigidbody exists
 
-        if (Input.GetKey(KeyCode.Q))
-            heldRb.AddTorque(Vector3.up * -rotationSpeed, ForceMode.Force);
+        if (use3DHand && hand3DInstance != null)
+        {
+            float rotationDelta = 0f;
 
-        if (Input.GetKey(KeyCode.E))
-            heldRb.AddTorque(Vector3.up * rotationSpeed, ForceMode.Force);
+            if (Input.GetKey(KeyCode.Q))
+                rotationDelta = -rotationSpeed * Time.deltaTime * 10f;
+
+            if (Input.GetKey(KeyCode.E))
+                rotationDelta = rotationSpeed * Time.deltaTime * 10f;
+
+            hand3DInstance.transform.Rotate(Vector3.up, rotationDelta, Space.World);
+
+            // Apply torque to the domino to match its Y-axis rotation to the hand
+            Quaternion targetRotation = Quaternion.Euler(0f, hand3DInstance.transform.eulerAngles.y, 0f);
+            Quaternion currentRotation = Quaternion.Euler(0f, heldDomino.transform.eulerAngles.y, 0f);
+            Quaternion deltaRotation = targetRotation * Quaternion.Inverse(currentRotation);
+
+            Vector3 torque = new Vector3(0f, deltaRotation.eulerAngles.y, 0f);
+            if (torque.y > 180f) torque.y -= 360f; // Normalize torque to the shortest path
+            heldRb.AddTorque(torque * rotationSpeed, ForceMode.Force);
+            
+        }
+        else
+        {
+            if (Input.GetKey(KeyCode.Q))
+                heldRb.AddTorque(Vector3.up * -rotationSpeed, ForceMode.Force);
+
+            if (Input.GetKey(KeyCode.E))
+                heldRb.AddTorque(Vector3.up * rotationSpeed, ForceMode.Force);
+        }
     }
 
     Vector3 GetMouseWorldPosition()

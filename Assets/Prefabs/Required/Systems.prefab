@@ -764,11 +764,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dominoPrefab: {fileID: 3709038208395034117, guid: 336bcad52e1c74c77ae1b4939e3a0feb, type: 3}
-  handPrefab: {fileID: 2954985963256647315, guid: 3b89fa04c77274e7a81bf1e4bfc749a1, type: 3}
+  handSpritePrefab: {fileID: 4162454289322067126, guid: 6be3dbbe68191744c97acc42efc3f0e4, type: 3}
+  hand3DPrefab: {fileID: 4323452443675221915, guid: c56510174be7a714bb3da481057232c0, type: 3}
+  use3DHand: 1
   followSpeed: 1
   maxHandSpeed: 5
   hoverOffset: 1.2
   rotationSpeed: 15
+  maxDistance: 15
   activeCamera: {fileID: 0}
   lockSpritePrefab: {fileID: 4181785002189258841, guid: e065b6617a4063e44a89dec531f78b67, type: 3}
   uiCanvas: {fileID: 8704060149612110857}
