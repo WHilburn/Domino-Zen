@@ -239,8 +239,14 @@ public class PlayerDominoPlacement : MonoBehaviour
             Quaternion currentRotation = Quaternion.Euler(0f, heldDomino.transform.eulerAngles.y, 0f);
             Quaternion deltaRotation = targetRotation * Quaternion.Inverse(currentRotation);
 
-            Vector3 torque = new Vector3(0f, deltaRotation.eulerAngles.y, 0f);
-            if (torque.y > 180f) torque.y -= 360f; // Normalize torque to the shortest path
+            // Calculate the angular difference in degrees
+            float angleDifference = Mathf.DeltaAngle(currentRotation.eulerAngles.y, targetRotation.eulerAngles.y);
+
+            // Scale the torque based on the angular difference
+            float torqueStrength = Mathf.Clamp01(Mathf.Abs(angleDifference) / 15f); // Scale down as the angle difference decreases
+            Vector3 torque = new Vector3(0f, angleDifference * torqueStrength, 0f);
+
+            // Apply the torque to the rigidbody
             heldRb.AddTorque(torque * rotationSpeed, ForceMode.Force);
             
         }
