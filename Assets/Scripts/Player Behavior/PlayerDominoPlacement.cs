@@ -26,7 +26,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     public Camera activeCamera;
     public GameObject lockSpritePrefab; // Reference to the lock sprite prefab
     public Canvas uiCanvas; // Reference to the UI canvas
-
+    private Quaternion savedRotation = Quaternion.identity; // Store the final rotation of the 3D hand
     private Vector3 handMouseOffset; // Offset between hand and mouse cursor
     private float initialHandElevation; // Store the initial elevation of the hand anchor
 
@@ -77,7 +77,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         // Prevent spawning if the position is further than 15 units from the camera
         if (Vector3.Distance(activeCamera.transform.position, spawnPos) > maxDistance) return;
 
-        Quaternion spawnRotation = Quaternion.Euler(0f, 0f, 0f);
+        Quaternion spawnRotation = savedRotation;
 
         heldDomino = Instantiate(dominoPrefab, spawnPos, spawnRotation);
         InitializeHeldDomino();
@@ -372,7 +372,7 @@ public class PlayerDominoPlacement : MonoBehaviour
 
         hand3DInstance = Instantiate(hand3DPrefab);
         hand3DInstance.transform.position = spawnPos;
-        hand3DInstance.transform.rotation = Quaternion.identity;
+        hand3DInstance.transform.rotation = savedRotation;
     }
 
     private void DestroyHand()
@@ -384,7 +384,11 @@ public class PlayerDominoPlacement : MonoBehaviour
             Destroy(handSpriteRect.gameObject);
 
         if (hand3DInstance != null)
+        {
+            // Store the final rotation of the 3D hand before destroying it
+            savedRotation = hand3DInstance.transform.rotation;
             Destroy(hand3DInstance);
+        }
     }
 
     void ShowLockSprite(Vector3 position)

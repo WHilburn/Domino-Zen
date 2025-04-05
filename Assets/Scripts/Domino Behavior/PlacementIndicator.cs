@@ -87,7 +87,8 @@ public class PlacementIndicator : DominoLike
         }
 
         // Check alignment and position
-        bool isAligned = Vector3.Angle(trackedDomino.transform.forward, transform.forward) < alignmentAngleThreshold &&
+        bool isAligned = (Vector3.Angle(trackedDomino.transform.forward, transform.forward) < alignmentAngleThreshold ||
+                          Vector3.Angle(trackedDomino.transform.forward, -transform.forward) < alignmentAngleThreshold) &&
                          Vector3.Angle(trackedDomino.transform.up, transform.up) < alignmentAngleThreshold;
 
         bool isPositioned = Vector3.Distance(new Vector3(trackedDomino.transform.position.x, 0, trackedDomino.transform.position.z),
