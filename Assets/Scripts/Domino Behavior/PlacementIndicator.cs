@@ -80,7 +80,7 @@ public class PlacementIndicator : DominoLike
     {
         if (trackedDominoRb == null ||
             trackedDomino.isHeld ||
-            trackedDominoRb.velocity.magnitude > 0.05f ||
+            // trackedDominoRb.velocity.magnitude > 0.05f ||
             trackedDominoRb.angularVelocity.magnitude > 0.05f)
         {
             return;
@@ -96,6 +96,7 @@ public class PlacementIndicator : DominoLike
 
         if (isAligned && isPositioned)
         {
+            // Debug.Log("Domino is aligned and positioned correctly.");
             PlaceDomino();
         }
     }

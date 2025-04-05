@@ -25,6 +25,8 @@ public class Domino : DominoLike
     public bool musicMode = true;
     [HideInInspector]
     public bool stablePositionSet = false;
+    [HideInInspector]
+    public PlacementIndicator placementIndicator; // Reference to the placement indicator the domino is placed inside
     public bool locked = false; // Flag to prevent movement when locked
     private Vector3 lastStablePosition;
     private Quaternion lastStableRotation;
@@ -70,7 +72,7 @@ public class Domino : DominoLike
         }
 
         bool currentlyMoving = rb.velocity.sqrMagnitude >= stillnessThreshold * stillnessThreshold || 
-        rb.angularVelocity.sqrMagnitude >= stillnessThreshold * stillnessThreshold;
+        rb.angularVelocity.sqrMagnitude >= stillnessThreshold * stillnessThreshold; // Use this to track if the "isMoving" state should change
 
         if (currentlyMoving && !isMoving) // When we start moving
         {
@@ -133,8 +135,9 @@ public class Domino : DominoLike
     {
         stablePositionSet = true;
         lastStablePosition = transform.position;
+        lastStableRotation = transform.rotation;
         //Make sure stable rotation is perfectly upright
-        lastStableRotation = Quaternion.Euler(0f, transform.eulerAngles.y, transform.eulerAngles.z);
+        // lastStableRotation = Quaternion.Euler(0f, transform.eulerAngles.y, transform.eulerAngles.z);
     }
     public void SetStablePosition(Transform inputTransform)
     {
