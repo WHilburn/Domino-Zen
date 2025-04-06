@@ -3,8 +3,8 @@ using System.Collections;
 
 public abstract class DominoLike : MonoBehaviour
 {
-    public static Vector3 holdPoint = new Vector3(0, 0.5f, 0); // Point where the domino is held
-    public static Vector3 bottomPoint = new Vector3(0, -0.5f, 0); // Default bottom point for snapping
+    public static Vector3 holdPoint = new(0, 0.5f, 0); // Point where the domino is held
+    public static Vector3 bottomPoint = new(0, -0.5f, 0); // Default bottom point for snapping
 
     public virtual void SnapToGround()
     {

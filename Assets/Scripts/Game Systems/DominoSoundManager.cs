@@ -54,7 +54,7 @@ public class DominoSoundManager : MonoBehaviour
         Piano
     }
 
-    private static readonly Dictionary<string, int> noteMap = new Dictionary<string, int>
+    private static readonly Dictionary<string, int> noteMap = new()
     {
         { "C3", 0 }, { "C#3", 1 }, { "Db3", 1 }, { "D3", 2 }, { "D#3", 3 }, { "Eb3", 3 }, { "E3", 4 },
         { "F3", 5 }, { "F#3", 6 }, { "Gb3", 6 }, { "G3", 7 }, { "G#3", 8 }, { "Ab3", 8 }, { "A3", 9 }, 
@@ -72,7 +72,7 @@ public class DominoSoundManager : MonoBehaviour
     };
 
 
-    private static readonly Dictionary<SongTitle, string> songLibrary = new Dictionary<SongTitle, string>
+    private static readonly Dictionary<SongTitle, string> songLibrary = new()
     {
         {SongTitle.FlightOfTheBumblebee, "B4C5D5C5B4A4G#4A4B4C5D5C5B4A4G#4A4B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4B4C5D5E5F5G5A5G5F5E5D5C5B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4B4C5D5E5F5G5A5G5F5E5D5C5B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4B4C5D5E5F5G5A5G5F5E5D5C5B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4"},
         {SongTitle.Twinkle,"C4C4G4G4A4A4G4-F4F4E4E4D4D4C4-G4G4F4F4E4E4D4-G4G4F4F4E4E4D4-C4C4G4G4A4A4G4-F4F4E4E4D4D4C4-"},
@@ -96,7 +96,7 @@ public class DominoSoundManager : MonoBehaviour
         {SongTitle.TurkishMarch, "E5B4C5D5E5A4B4C5D5E5B4C5D5E5A4B4C5D5E5D5C5B4A4G#4A4B4C5D5E5B4C5D5E5A4B4C5D5E5B4C5D5E5A4B4C5D5E5D5C5B4A4G#4A4B4C5D5E5C5A4E5C5A4E5C5A4B4D5G4B4D5G4B4D5G4F#4A4E4A4C5E4A4C5E4A4C5F4A4D5F4A4D5F4A4D5G4B4E5G4B4E5G4B4E5F#4A4E4A4C5E4A4C5E4A4C5F4A4D5F4A4D5F4A4D5G4B4E5G4B4E5G4B4E5C5A4E5C5A4E5C5A4B4D5G4B4D5G4B4D5G4F#4A4E4A4C5E4A4C5E4A4C5F4A4D5F4A4D5F4A4D5G4B4E5G4B4E5G4B4E5"}
     };
 
-    private static readonly Dictionary<int, DominoSoundType> dominoSoundTypes = new Dictionary<int, DominoSoundType>
+    private static readonly Dictionary<int, DominoSoundType> dominoSoundTypes = new()
     {
         { 0, DominoSoundType.Click },
         { 1, DominoSoundType.Piano }
@@ -169,7 +169,7 @@ public class DominoSoundManager : MonoBehaviour
 
         for (int i = 0; i < audioSourcePoolSize; i++)
         {
-            GameObject audioSourceObject = new GameObject($"PooledAudioSource_{i}");
+            GameObject audioSourceObject = new($"PooledAudioSource_{i}");
             audioSourceObject.transform.SetParent(transform);
             AudioSource audioSource = audioSourceObject.AddComponent<AudioSource>();
             audioSource.playOnAwake = false;
@@ -300,7 +300,7 @@ public class DominoSoundManager : MonoBehaviour
     }
     private string[] ParseNotes(string songNotes)
     {
-        List<string> parsedNotes = new List<string>();
+        List<string> parsedNotes = new();
         int i = 0;
 
         while (i < songNotes.Length)

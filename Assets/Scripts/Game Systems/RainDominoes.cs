@@ -11,7 +11,7 @@ public class DominoRain : MonoBehaviour {
     public float rainDuration = 5f; // How long the effect lasts
     public float spawnRate = 0.1f; // Time between spawns
     public float minFallSpeed = 200f; // Speed of falling dominos
-    private Vector2 spawnRangeX = new Vector2(-500, 500); // X spawn limits
+    private Vector2 spawnRangeX = new(-500, 500); // X spawn limits
     public float randomForce = 100f;
     public float randomTorque = 100f;
     public GameObject bigDominoPrefab; // Prefab for the big domino

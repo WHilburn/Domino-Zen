@@ -14,16 +14,16 @@ public class PlacementIndicator : DominoLike
 
     [Header("Indicator Settings")]
     static DominoSoundManager soundManager;
-    static float fadeSpeed = 2f;
-    static float maxAlpha = 1f;
-    static float placementThreshold = 0.2f; // Distance threshold for placement
-    static float alignmentAngleThreshold = 10f; // Angle threshold for alignment
+    static readonly float fadeSpeed = 2f;
+    static readonly float maxAlpha = 1f;
+    static readonly float placementThreshold = 0.2f; // Distance threshold for placement
+    static readonly float alignmentAngleThreshold = 10f; // Angle threshold for alignment
     public Color indicatorColor = Color.white; // Color of the indicator
 
     public enum IndicatorState { Empty, TryingToFill, Filled } // Define states
     public IndicatorState currentState = IndicatorState.Empty; // Current state
-    public static UnityEvent<PlacementIndicator> OnIndicatorFilled = new UnityEvent<PlacementIndicator>();
-    public static UnityEvent<PlacementIndicator> OnIndicatorEmptied = new UnityEvent<PlacementIndicator>();
+    public static UnityEvent<PlacementIndicator> OnIndicatorFilled = new();
+    public static UnityEvent<PlacementIndicator> OnIndicatorEmptied = new();
 
     void Start()
     {
@@ -35,7 +35,17 @@ public class PlacementIndicator : DominoLike
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("DominoTag") && trackedDomino == null)
+        if (other.CompareTag("DominoTag") && trackedDomino == null && currentState != IndicatorState.Filled)
+        {
+            trackedDomino = other.gameObject.GetComponent<Domino>();
+            trackedDominoRb = other.gameObject.GetComponent<Rigidbody>();
+            currentState = IndicatorState.TryingToFill; // Transition to Occupied state
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag("DominoTag") && trackedDomino == null && currentState != IndicatorState.Filled)
         {
             trackedDomino = other.gameObject.GetComponent<Domino>();
             trackedDominoRb = other.gameObject.GetComponent<Rigidbody>();
@@ -74,7 +84,7 @@ public class PlacementIndicator : DominoLike
             case IndicatorState.Filled:
                 if (trackedDomino.currentState == Domino.DominoState.Held)
                 {
-                    currentState = IndicatorState.TryingToFill; // Transition to Empty state
+                    currentState = IndicatorState.Empty; // Transition to Empty state
                     OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty
                     FadeIn(); // Fade back in if the domino is removed
                 }
@@ -150,7 +160,7 @@ public class PlacementIndicator : DominoLike
         indicatorColor = inputColor;
         Renderer renderer = GetComponent<Renderer>();
         // Create a new material instance so we don't modify shared materials
-        Material newMaterial = new Material(renderer.sharedMaterial);
+        Material newMaterial = new(renderer.sharedMaterial);
         newMaterial.color = inputColor; // Assign instance to avoid modifying sharedMaterial
         renderer.material = newMaterial; // Assign the new material to the renderer
     }

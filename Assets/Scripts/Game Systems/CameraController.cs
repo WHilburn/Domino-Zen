@@ -11,7 +11,7 @@ public class CameraController : MonoBehaviour
     public CinemachineTargetGroup targetGroup; // Group of falling dominoes
 
     private bool isTracking = false;
-    public List<Transform> fallingDominoes = new List<Transform>();
+    public List<Transform> fallingDominoes = new();
 
     public float heightOffset = 2f; // Extra height to prevent low shots
     public float cameraHeightBoost = 10f; // Extra height for tracking camera

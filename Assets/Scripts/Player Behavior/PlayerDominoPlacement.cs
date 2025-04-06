@@ -199,7 +199,7 @@ public class PlayerDominoPlacement : MonoBehaviour
                              (targetPosition - activeCamera.transform.position).normalized * maxDistance;
         }
 
-        Vector3 targetFlat = new Vector3(targetPosition.x, initialHandElevation, targetPosition.z); // Maintain initial elevation
+        Vector3 targetFlat = new(targetPosition.x, initialHandElevation, targetPosition.z); // Maintain initial elevation
         float step = Mathf.Min(maxHandSpeed * Time.deltaTime, Vector3.Distance(handAnchor.position, targetFlat));
         handAnchor.position = Vector3.MoveTowards(handAnchor.position, targetFlat, step);
 
@@ -247,7 +247,7 @@ public class PlayerDominoPlacement : MonoBehaviour
 
             // Scale the torque based on the angular difference
             float torqueStrength = Mathf.Clamp01(Mathf.Abs(angleDifference) / 15f); // Scale down as the angle difference decreases
-            Vector3 torque = new Vector3(0f, angleDifference * torqueStrength, 0f);
+            Vector3 torque = new(0f, angleDifference * torqueStrength, 0f);
 
             // Apply the torque to the rigidbody
             heldRb.AddTorque(torque * rotationSpeed, ForceMode.Force);
@@ -329,7 +329,7 @@ public class PlayerDominoPlacement : MonoBehaviour
 
     private void CreateHandAnchor(Vector3 spawnPos)
     {
-        GameObject anchorObject = new GameObject("HandAnchor");
+        GameObject anchorObject = new("HandAnchor");
         handAnchor = anchorObject.transform;
         handAnchor.position = spawnPos + new Vector3(0f, 0.5f, 0f);
     }

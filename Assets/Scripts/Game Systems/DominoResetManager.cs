@@ -6,7 +6,7 @@ using System.Collections;
 public class DominoResetManager : MonoBehaviour
 {
     public static DominoResetManager Instance { get; private set; }
-    public List<Domino> dominoes = new List<Domino>();
+    public List<Domino> dominoes = new();
     public float resetDelay = 3f;
     public float resetDuration = 1f;
     public Domino.DominoAnimation resetAnimation = Domino.DominoAnimation.Rotate;

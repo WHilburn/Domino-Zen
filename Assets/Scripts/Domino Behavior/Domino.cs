@@ -15,7 +15,7 @@ public class Domino : DominoLike
         Teleport,
         Jiggle
     }
-    private static float stillnessThreshold = 5f;  // Velocity threshold to consider "stationary"
+    private static readonly float stillnessThreshold = 5f;  // Velocity threshold to consider "stationary"
     public enum DominoState
     {
         Stationary,
@@ -45,10 +45,21 @@ public class Domino : DominoLike
     public static UnityEvent<Domino> OnDominoDeleted = new(); // Calls this to notify systems of it's deletion
     public static UnityEvent<Domino, float, Vector3> OnDominoImpact = new(); // Calls this to make sounds
 
+    private LineRenderer lineRenderer;////////////////////////////////////////
+
     void Start()
     {
         OnDominoCreated.Invoke(this); // Notify listeners of domino creation
         rb = GetComponent<Rigidbody>();
+
+        // Add and configure the LineRenderer ////////////////////////////////////////
+        lineRenderer = gameObject.AddComponent<LineRenderer>();
+        lineRenderer.startWidth = 0.05f;
+        lineRenderer.endWidth = 0.05f;
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default")); // Use a default material
+        lineRenderer.startColor = Color.red;
+        lineRenderer.endColor = Color.red;
+
         if (currentState != DominoState.Held)
         {
             SnapToGround();
@@ -72,6 +83,12 @@ public class Domino : DominoLike
         if (currentState == DominoState.Held)
         {
             return;
+        }
+
+        if (lineRenderer != null)
+        {
+            lineRenderer.SetPosition(0, transform.position); // Start point: current position
+            lineRenderer.SetPosition(1, lastStablePosition); // End point: last stable position
         }
 
         if (rb != null)
