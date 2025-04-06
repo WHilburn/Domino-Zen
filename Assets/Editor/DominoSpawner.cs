@@ -1,9 +1,6 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
-using System.Reflection;
-using System;
-using System.Runtime.CompilerServices;
 
 public class DominoSpawner : EditorWindow
 {
@@ -27,6 +24,7 @@ public class DominoSpawner : EditorWindow
     private bool colorBounce = false;
     private string groupName = "Domino Group";
     private GameObject dominoPrefab;
+    private GameObject indicatorPrefab;
     private DominoMaterialList dominoMaterialList;
     private bool musicMode = false;
     private List<GameObject> previewShapes = new List<GameObject>(); // To store preview cubes
@@ -111,6 +109,11 @@ public class DominoSpawner : EditorWindow
         {
             SpawnDominoes();
         }
+
+        if (GUILayout.Button("Spawn Indicators"))
+        {
+            SpawnIndicators();
+        }
     }
 
     private void OnSelectionChange()
@@ -136,7 +139,7 @@ public class DominoSpawner : EditorWindow
         
         if (dominoPrefab == null)
         {
-            Debug.LogWarning("Please assign a domino prefab in the Domino Spawner window.");
+            dominoPrefab = ResourceNames.Instance.dominoPrefab;
             return;
         }
 
@@ -189,6 +192,62 @@ public class DominoSpawner : EditorWindow
         ApplyColor(newDominoes);
     }
 
+    private void SpawnIndicators()
+    {
+        RemovePreviewCubes();
+
+        if (indicatorPrefab == null)
+        {
+            indicatorPrefab = ResourceNames.Instance.indicatorPrefab;
+            return;
+        }
+
+        GameObject selected = Selection.activeGameObject;
+        if (selected == null || !selected.CompareTag("DominoTag"))
+        {
+            Debug.LogWarning("Please select a domino in the scene.");
+            return;
+        }
+
+        List<(Vector3 position, Quaternion rotation)> spawnData = new List<(Vector3, Quaternion)>();
+
+        switch (selectedFormation)
+        {
+            case FormationType.Line:
+                spawnData = GetLineFormationPositions(selected);
+                break;
+            case FormationType.Triangle:
+                spawnData = GetTriangleFormationPositions(selected);
+                break;
+            case FormationType.Curve:
+                spawnData = GetCurveFormationPositions(selected);
+                break;
+            case FormationType.Spiral:
+                spawnData = GetSpiralFormationPositions(selected);
+                break;
+            default:
+                Debug.LogWarning("Unsupported formation type.");
+                return;
+        }
+
+        if (spawnData == null || spawnData.Count == 0) return;
+
+        // Create an empty GameObject as the parent
+        GameObject parent = new GameObject(groupName + " Indicators");
+        parent.transform.position = selected.transform.position;
+        Undo.RegisterCreatedObjectUndo(parent, "Spawn Indicators");
+
+        // Instantiate indicators at computed positions and rotations
+        foreach (var (position, rotation) in spawnData)
+        {
+            GameObject newIndicator = (GameObject)PrefabUtility.InstantiatePrefab(indicatorPrefab);
+            newIndicator.transform.position = position;
+            newIndicator.transform.rotation = rotation;
+            newIndicator.transform.SetParent(parent.transform);
+
+            Undo.RegisterCreatedObjectUndo(newIndicator, "Spawn Indicator");
+        }
+    }
 
     private GameObject SpawnDominoPrefab(Vector3 spawnPos, Quaternion rotation)
     {

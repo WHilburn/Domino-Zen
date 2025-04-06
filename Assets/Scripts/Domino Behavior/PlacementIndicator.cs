@@ -57,7 +57,8 @@ public class PlacementIndicator : DominoLike
     {
         if (other.gameObject == trackedDomino?.gameObject)
         {
-            if (currentState == IndicatorState.Filled) OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty; 
+            if (currentState == IndicatorState.Filled) OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty;
+            trackedDomino.placementIndicator = null; // Clear the domino's reference to this indicator 
             // Reset the tracked domino and its Rigidbody
             trackedDomino = null;
             trackedDominoRb = null;
