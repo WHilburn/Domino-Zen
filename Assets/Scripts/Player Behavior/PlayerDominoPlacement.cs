@@ -82,6 +82,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         Quaternion spawnRotation = savedRotation;
 
         heldDomino = Instantiate(dominoPrefab, spawnPos, spawnRotation);
+        heldDomino.name = $"{dominoPrefab.name} {InGameUI.dominoCount + 1}";
         InitializeHeldDomino();
 
         CreateHandAnchor(spawnPos);

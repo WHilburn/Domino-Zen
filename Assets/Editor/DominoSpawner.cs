@@ -31,6 +31,7 @@ public class DominoSpawner : EditorWindow
     private bool musicMode = false;
     private List<GameObject> previewShapes = new List<GameObject>(); // To store preview cubes
     private bool previewMode  = true;
+    private int totalDominoes = -1; // Total dominoes in the scene
 
     [MenuItem("Tools/Domino Spawner")]
     public static void ShowWindow()
@@ -40,6 +41,10 @@ public class DominoSpawner : EditorWindow
 
     void OnGUI()
     {
+        if (totalDominoes == -1)
+        {
+            totalDominoes = CountDominoesInScene(); // Initialize total dominoes count
+        }
         // Debug.Log("OnGUI called");
         GUILayout.Label("Domino Spawner", EditorStyles.boldLabel);
         // Allow the user to assign a domino prefab and material list
@@ -141,6 +146,7 @@ public class DominoSpawner : EditorWindow
             Debug.LogWarning("Please select a domino in the scene.");
             return;
         }
+        totalDominoes = CountDominoesInScene(); // Update the total dominoes count
 
         List<(Vector3 position, Quaternion rotation)> spawnData = new List<(Vector3, Quaternion)>();
 
@@ -190,8 +196,19 @@ public class DominoSpawner : EditorWindow
         newDomino.transform.position = spawnPos;
         newDomino.GetComponent<Domino>().musicMode = musicMode;
         newDomino.transform.rotation = rotation;
+
+        // Assign a unique name to the domino
+        totalDominoes += 1;
+        newDomino.name = $"{dominoPrefab.name} {totalDominoes + 1}";
+
         Undo.RegisterCreatedObjectUndo(newDomino, "Spawn Domino");
         return newDomino;
+    }
+
+    // Helper method to count all dominoes in the scene
+    private int CountDominoesInScene()
+    {
+        return GameObject.FindObjectsOfType<Domino>().Length;
     }
 
     // Method to display preview cubes at spawn positions

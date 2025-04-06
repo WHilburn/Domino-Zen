@@ -2,12 +2,19 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DominoCounterUI : MonoBehaviour
+public class InGameUI : MonoBehaviour
 {
+    public static InGameUI Instance { get; private set; }
     [SerializeField] private TextMeshProUGUI dominoCountText; // Reference to the UI Text element
     [SerializeField] private TextMeshProUGUI indicatorCountText;
-    private int dominoCount = 0;
-    private int indicatorCount = 0;
+    public static int dominoCount = 0;
+    public static int indicatorCount = 0;
+
+    void Awake()
+    {
+        dominoCount = 0; // Initialize domino count
+        indicatorCount = 0; // Initialize indicator count
+    }
 
     private void OnEnable()
     {

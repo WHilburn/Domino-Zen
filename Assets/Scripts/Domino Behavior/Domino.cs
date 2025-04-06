@@ -15,7 +15,8 @@ public class Domino : DominoLike
         Teleport,
         Jiggle
     }
-    private static readonly float stillnessThreshold = 5f;  // Velocity threshold to consider "stationary"
+    private static readonly float stillnessVelocityThreshold = 5f;  // Velocity threshold to consider "stationary"
+    private static readonly float stillnessRotationThreshold = 1f;  // Velocity threshold to consider "stationary"
     public enum DominoState
     {
         Stationary,
@@ -96,19 +97,17 @@ public class Domino : DominoLike
             velocityMagnitude = rb.angularVelocity.magnitude;
         }
 
-        bool currentlyMoving = rb.velocity.sqrMagnitude >= stillnessThreshold * stillnessThreshold || 
-                               rb.angularVelocity.sqrMagnitude >= stillnessThreshold * stillnessThreshold;
+        bool currentlyMoving = rb.velocity.magnitude >= stillnessVelocityThreshold || 
+                               rb.angularVelocity.magnitude >= stillnessRotationThreshold;
 
         if (currentlyMoving && currentState != DominoState.Moving && currentState != DominoState.Animating) // When we start moving
         {
             if (currentState == DominoState.Stationary || currentState == DominoState.FillingIndicator) // Releasing a held domino does not count as "falling"
             {
                 OnDominoFall.Invoke(this);
-                Debug.Log("Domino falling: " + gameObject.name);
             }
 
             currentState = DominoState.Moving; // Set state to moving
-            StartCoroutine(RemoveFromFallingDominoes(0.25f));
         }
         else if (!currentlyMoving && currentState == DominoState.Moving) // When we stop moving
         {
@@ -130,8 +129,8 @@ public class Domino : DominoLike
             !canSetNewStablePosition ||
             rb.isKinematic || 
             lastStablePosition == transform.position || 
-            rb.angularVelocity.magnitude > stillnessThreshold || 
-            rb.velocity.magnitude > stillnessThreshold)
+            rb.angularVelocity.magnitude > stillnessVelocityThreshold || 
+            rb.velocity.magnitude > stillnessVelocityThreshold)
         {
             return;
         }
@@ -158,18 +157,22 @@ public class Domino : DominoLike
             });
     }
 
-    public void SaveStablePosition()
+    public void SaveStablePosition(Transform inputTransform = null)
     {
         stablePositionSet = true;
-        lastStablePosition = transform.position;
-        lastStableRotation = transform.rotation;
+
+        if (inputTransform != null)
+        {
+            lastStablePosition = inputTransform.position;
+            lastStableRotation = inputTransform.rotation;
+        }
+        else
+        {
+            lastStablePosition = transform.position;
+            lastStableRotation = transform.rotation;
+        }
     }
-    public void SetStablePosition(Transform inputTransform)
-    {
-        stablePositionSet = true;
-        lastStablePosition = inputTransform.position;
-        lastStableRotation = inputTransform.rotation;
-    }
+
     private void OnCollisionEnter(Collision collision)
     {
         float impactForce = collision.relativeVelocity.magnitude;
@@ -179,6 +182,10 @@ public class Domino : DominoLike
 
         if (currentState != DominoState.Held)
         {
+            if (currentState == DominoState.Stationary || currentState == DominoState.FillingIndicator) // Releasing a held domino does not count as "falling"
+            {
+                OnDominoFall.Invoke(this);
+            }
             currentState = DominoState.Moving;
         }
     }
@@ -229,7 +236,6 @@ public class Domino : DominoLike
         rb.transform.DORotateQuaternion(lastStableRotation, resetDuration).OnComplete(() =>
         {
             TogglePhysics(true);
-            StartCoroutine(RemoveFromFallingDominoes(0.25f));
         });
     }
 
@@ -252,7 +258,6 @@ public class Domino : DominoLike
             transform.position = lastStablePosition;
             transform.rotation = lastStableRotation;
             TogglePhysics(true);
-            StartCoroutine(RemoveFromFallingDominoes(0.1f));
         });
         jumpSequence.Play();
     }
@@ -310,14 +315,10 @@ public class Domino : DominoLike
         {
             currentState = DominoState.Held;
         }
-        else if (rb.velocity.sqrMagnitude < stillnessThreshold * stillnessThreshold &&
-                 rb.angularVelocity.sqrMagnitude < stillnessThreshold * stillnessThreshold)
+        else if (rb.velocity.sqrMagnitude < stillnessVelocityThreshold * stillnessVelocityThreshold &&
+                 rb.angularVelocity.sqrMagnitude < stillnessVelocityThreshold * stillnessVelocityThreshold)
         {
             currentState = DominoState.Stationary;
         }
-    }
-    public IEnumerator RemoveFromFallingDominoes(float delay)
-    {
-        yield return new WaitForSeconds(delay);
     }
 }

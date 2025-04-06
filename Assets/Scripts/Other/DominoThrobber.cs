@@ -16,7 +16,7 @@ public class DominoThrobber : MonoBehaviour
         // Save the stable positions of all dominoes
         foreach (var domino in dominoes)
         {
-            domino.SetStablePosition(domino.transform);
+            domino.SaveStablePosition(domino.transform);
             domino.canSetNewStablePosition = false;
         }
 

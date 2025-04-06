@@ -77,6 +77,7 @@ public class PlacementIndicator : DominoLike
             case IndicatorState.TryingToFill:
                 if (trackedDomino != null)
                 {
+                    Debug.DrawLine(transform.position, trackedDomino.transform.position, Color.yellow);
                     CheckDominoPlacement();
                 }
                 break;
@@ -95,7 +96,13 @@ public class PlacementIndicator : DominoLike
     private void CheckDominoPlacement()
     {
         if (trackedDominoRb == null ||
-            trackedDomino.currentState == Domino.DominoState.Held ||
+            Vector3.Distance(trackedDomino.transform.position, transform.position) > 1)
+        {
+            trackedDomino = null;
+            currentState = IndicatorState.Empty; // Transition to Empty state if too far away
+            return;
+        }
+        if (trackedDomino.currentState == Domino.DominoState.Held ||
             // trackedDominoRb.velocity.magnitude > 0.05f ||
             trackedDominoRb.angularVelocity.magnitude > 0.05f)
         {
@@ -119,7 +126,7 @@ public class PlacementIndicator : DominoLike
     private void PlaceDomino()
     {
         // Set the domino's stable position and rotation
-        trackedDomino.SetStablePosition(transform);
+        trackedDomino.SaveStablePosition(transform);
         // Reset the domino's position using the rotate reset animation
         trackedDomino.AnimateDomino(Domino.DominoAnimation.Rotate);
 

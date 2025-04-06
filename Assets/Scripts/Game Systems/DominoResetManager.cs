@@ -39,6 +39,7 @@ public class DominoResetManager : MonoBehaviour
         if (Instance == null) return; // Ensure the instance is not null
         if (!dominoes.Contains(domino))
         {
+            Debug.Log("Registering domino as fallen: " + domino.name);
             dominoes.Add(domino);
         }
 
@@ -48,9 +49,9 @@ public class DominoResetManager : MonoBehaviour
 
     public void RemoveDomino(Domino domino)
     {
-        Debug.Log("Removing domino: " + domino.name);
         if (dominoes.Contains(domino))
         {
+            Debug.Log("Removing domino from fallen list: " + domino.name);
             dominoes.Remove(domino);
         }
     }
@@ -79,9 +80,10 @@ public class DominoResetManager : MonoBehaviour
 
     private void ChooseResetAnimation(Domino domino)
     {
+        float angleDifference = Quaternion.Angle(domino.transform.rotation, domino.lastStableRotation);
         float distance = Vector3.Distance(domino.transform.position, domino.lastStablePosition);
-        if (distance >= 1f) resetAnimation = Domino.DominoAnimation.Jump;
-        else if (distance >= 0.5f) resetAnimation = Domino.DominoAnimation.Rotate;
+        if (distance >= .5f || angleDifference >= 10f) resetAnimation = Domino.DominoAnimation.Jump;
+        else if (distance >= 0.25f && angleDifference >= 5f) resetAnimation = Domino.DominoAnimation.Rotate;
         else resetAnimation = Domino.DominoAnimation.Teleport;
         domino.AnimateDomino(resetAnimation);
     }
@@ -90,7 +92,6 @@ public class DominoResetManager : MonoBehaviour
     {
         foreach (var domino in dominoes)
         {
-            float distance = Vector3.Distance(domino.transform.position, domino.lastStablePosition);
             ChooseResetAnimation(domino);
             yield return new WaitForSeconds(cascadingResetDelay);
         }
