@@ -75,6 +75,7 @@ public class PlacementIndicator : DominoLike
                 if (trackedDomino.currentState == Domino.DominoState.Held)
                 {
                     currentState = IndicatorState.TryingToFill; // Transition to Empty state
+                    OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty
                     FadeIn(); // Fade back in if the domino is removed
                 }
                 break;
