@@ -37,7 +37,7 @@ public class Domino : DominoLike
     public Vector3 lastStablePosition;
     public Quaternion lastStableRotation;
     private static float uprightThreshold = 0.99f; // How upright the domino must be (1 = perfectly upright)
-    static float stabilityCheckDelay = 0.5f; // Delay between stability checks
+    //static float stabilityCheckDelay = 0.5f; // Delay between stability checks
     public bool canSetNewStablePosition = true; // Flag to prevent multiple stability checks
     public static UnityEvent<Domino> OnDominoFall = new(); // Domino calls this to register for reset, causing cascade sounds, etc
     public static UnityEvent<Domino> OnDominoStopMoving = new(); // Domino calls this to end cascade sounds
@@ -46,7 +46,7 @@ public class Domino : DominoLike
     public static UnityEvent<Domino> OnDominoDeleted = new(); // Calls this to notify systems of it's deletion
     public static UnityEvent<Domino, float, Vector3> OnDominoImpact = new(); // Calls this to make sounds
 
-    private LineRenderer lineRenderer;////////////////////////////////////////
+    // private LineRenderer lineRenderer;// For debugging Domino's stable point
 
     void Start()
     {
@@ -54,19 +54,19 @@ public class Domino : DominoLike
         rb = GetComponent<Rigidbody>();
 
         // Add and configure the LineRenderer ////////////////////////////////////////
-        lineRenderer = gameObject.AddComponent<LineRenderer>();
-        lineRenderer.startWidth = 0.05f;
-        lineRenderer.endWidth = 0.05f;
-        lineRenderer.material = new Material(Shader.Find("Sprites/Default")); // Use a default material
-        lineRenderer.startColor = Color.red;
-        lineRenderer.endColor = Color.red;
+        // lineRenderer = gameObject.AddComponent<LineRenderer>();
+        // lineRenderer.startWidth = 0.05f;
+        // lineRenderer.endWidth = 0.05f;
+        // lineRenderer.material = new Material(Shader.Find("Sprites/Default")); // Use a default material
+        // lineRenderer.startColor = Color.red;
+        // lineRenderer.endColor = Color.red;
 
         if (currentState != DominoState.Held)
         {
             SnapToGround();
             SaveStablePosition();
         }
-        InvokeRepeating(nameof(CheckStability), stabilityCheckDelay + Random.Range(0f, .1f), stabilityCheckDelay);
+        // InvokeRepeating(nameof(CheckStability), stabilityCheckDelay + Random.Range(0f, .1f), stabilityCheckDelay);
     }
 
     void Awake()
@@ -86,11 +86,11 @@ public class Domino : DominoLike
             return;
         }
 
-        if (lineRenderer != null)
-        {
-            lineRenderer.SetPosition(0, transform.position); // Start point: current position
-            lineRenderer.SetPosition(1, lastStablePosition); // End point: last stable position
-        }
+        // if (lineRenderer != null && stablePositionSet)///////////
+        // {
+        //     lineRenderer.SetPosition(0, transform.position); // Start point: current position
+        //     lineRenderer.SetPosition(1, lastStablePosition); // End point: last stable position
+        // }
 
         if (rb != null)
         {
@@ -111,7 +111,7 @@ public class Domino : DominoLike
         }
         else if (!currentlyMoving && currentState == DominoState.Moving) // When we stop moving
         {
-            CheckStability();
+            // CheckStability();
             currentState = DominoState.Stationary;
             OnDominoStopMoving.Invoke(this); // Notify listeners of domino stopping
         }
@@ -235,6 +235,8 @@ public class Domino : DominoLike
         rb.transform.DOMove(lastStablePosition, resetDuration);
         rb.transform.DORotateQuaternion(lastStableRotation, resetDuration).OnComplete(() =>
         {
+            transform.position = lastStablePosition;
+            transform.rotation = lastStableRotation;
             TogglePhysics(true);
         });
     }
@@ -291,32 +293,17 @@ public class Domino : DominoLike
 
     public void TogglePhysics(bool value)
     {
-        if (rb == null)
-        {
-            Debug.LogError($"Rigidbody is missing on {gameObject.name}. Ensure the prefab has a Rigidbody component.");
-            return;
-        }
-
         rb.isKinematic = !value;
 
         BoxCollider boxCollider = GetComponent<BoxCollider>();
-        if (boxCollider == null)
-        {
-            Debug.LogError($"BoxCollider is missing on {gameObject.name}. Ensure the prefab has a BoxCollider component.");
-            return;
-        }
 
         boxCollider.enabled = value;
 
         // Stop any active DOTween animations
         transform.DOKill();
 
-        if (!value)
-        {
-            currentState = DominoState.Held;
-        }
-        else if (rb.velocity.sqrMagnitude < stillnessVelocityThreshold * stillnessVelocityThreshold &&
-                 rb.angularVelocity.sqrMagnitude < stillnessVelocityThreshold * stillnessVelocityThreshold)
+        if (rb.velocity.magnitude < stillnessVelocityThreshold&&
+                 rb.angularVelocity.magnitude < stillnessRotationThreshold)
         {
             currentState = DominoState.Stationary;
         }
