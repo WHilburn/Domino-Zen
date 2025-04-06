@@ -5,8 +5,7 @@ using DG.Tweening;
 public class DominoResetManager : MonoBehaviour
 {
     public static DominoResetManager Instance { get; private set; }
-
-    private Dictionary<Domino, (Vector3 position, Quaternion rotation)> dominoes = new Dictionary<Domino, (Vector3, Quaternion)>();
+    public List<Domino> dominoes = new List<Domino>();
     public float resetDelay = 3f;
     public float resetDuration = 1f;
     public Domino.DominoAnimation resetAnimation = Domino.DominoAnimation.Rotate;
@@ -20,17 +19,17 @@ public class DominoResetManager : MonoBehaviour
         }
         Instance = this;
 
-        Domino.OnDominoFall.AddListener(RegisterDominoOnFall);
-        Domino.OnDominoStopMoving.AddListener(RemoveDominoOnStop);
+        Domino.OnDominoFall.AddListener(RegisterDomino);
+        Domino.OnDominoPlacedCorrectly.AddListener(RemoveDomino);
         Domino.OnDominoDeleted.AddListener(RemoveDomino); // Subscribe to domino deletion event
     }
 
-    public void RegisterDomino(Domino domino, Vector3 stablePos, Quaternion stableRot)
+    public void RegisterDomino(Domino domino)
     {
         if (Instance == null) return; // Ensure the instance is not null
-        if (!dominoes.ContainsKey(domino))
+        if (!dominoes.Contains(domino))
         {
-            dominoes[domino] = (stablePos, stableRot);
+            dominoes.Add(domino);
         }
 
         CancelInvoke(nameof(ResetAllDominoes));
@@ -39,26 +38,8 @@ public class DominoResetManager : MonoBehaviour
 
     public void RemoveDomino(Domino domino)
     {
-        if (dominoes.ContainsKey(domino))
-        {
-            dominoes.Remove(domino);
-        }
-    }
-
-    private void RegisterDominoOnFall(Domino domino)
-    {
-        if (!dominoes.ContainsKey(domino))
-        {
-            dominoes[domino] = (domino.transform.position, domino.transform.rotation);
-        }
-
-        CancelInvoke(nameof(ResetAllDominoes));
-        Invoke(nameof(ResetAllDominoes), resetDelay);
-    }
-
-    private void RemoveDominoOnStop(Domino domino)
-    {
-        if (dominoes.ContainsKey(domino))
+        Debug.Log("Removing domino: " + domino.name);
+        if (dominoes.Contains(domino))
         {
             dominoes.Remove(domino);
         }
@@ -66,14 +47,14 @@ public class DominoResetManager : MonoBehaviour
 
     private void ResetAllDominoes()
     {
+        Debug.Log("Resetting all dominoes. Count: " + dominoes.Count);
         if (dominoes.Count < 1000) resetAnimation = Domino.DominoAnimation.Jump;
         else if (dominoes.Count < 2000) resetAnimation = Domino.DominoAnimation.Rotate;
         else resetAnimation = Domino.DominoAnimation.Teleport;
-        foreach (var kvp in dominoes)
+        foreach (var domino in dominoes)
         {
-            kvp.Key.AnimateDomino(resetAnimation);
+            domino.AnimateDomino(resetAnimation);
         }
-
         dominoes.Clear();
     }
 

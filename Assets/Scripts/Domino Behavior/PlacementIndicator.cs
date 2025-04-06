@@ -96,7 +96,6 @@ public class PlacementIndicator : DominoLike
 
         if (isAligned && isPositioned)
         {
-            Debug.Log("Domino is aligned and positioned correctly.");
             PlaceDomino();
         }
     }
@@ -116,6 +115,7 @@ public class PlacementIndicator : DominoLike
         currentState = IndicatorState.Placed; // Transition to Placed state
         trackedDomino.currentState = Domino.DominoState.FillingIndicator; // Set the domino's state to Placed
         GameManager.Instance.CheckCompletion(); // Check if all indicators are filled
+        Domino.OnDominoPlacedCorrectly.Invoke(trackedDomino);
     }
 
     private void FadeOut()

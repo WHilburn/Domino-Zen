@@ -22,7 +22,8 @@ public class Domino : DominoLike
         Stationary,
         FillingIndicator,
         Moving,
-        Held
+        Held,
+        Animating
     }
     public DominoState currentState = DominoState.Stationary;
     [HideInInspector]
@@ -83,9 +84,10 @@ public class Domino : DominoLike
 
         if (currentlyMoving && currentState != DominoState.Moving) // When we start moving
         {
-            if (currentState == DominoState.Stationary || currentState == DominoState.FillingIndicator)
+            if (currentState == DominoState.Stationary || currentState == DominoState.FillingIndicator) // Releasing a held domino does not count as "falling"
             {
                 OnDominoFall.Invoke(this);
+                Debug.Log("Domino falling: " + gameObject.name);
             }
 
             currentState = DominoState.Moving; // Set state to moving
@@ -167,6 +169,7 @@ public class Domino : DominoLike
     public void AnimateDomino(DominoAnimation animation, float resetDuration = 1f)
     {
         if (currentState == DominoState.Held) return; // Don't reset if the domino is being held
+        currentState = DominoState.Animating; // Set state to animating
         if (!stablePositionSet)
         {
             DespawnDomino();
@@ -192,6 +195,7 @@ public class Domino : DominoLike
                 break;
         }
         canSetNewStablePosition = savedSetting; // Restore the ability to set new stable positions
+        currentState = DominoState.Stationary; // Reset state to stationary
     }
 
     private void PerformTeleport()
