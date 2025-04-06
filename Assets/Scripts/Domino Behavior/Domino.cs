@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using DG.Tweening;
-using UnityEditor;
+using System;
 
 [SelectionBase]
 public class Domino : DominoLike
@@ -33,12 +33,13 @@ public class Domino : DominoLike
     public bool stablePositionSet = false;
     [HideInInspector]
     public PlacementIndicator placementIndicator; // Reference to the placement indicator the domino is placed inside
-    public bool locked = false; // Flag to prevent movement when locked
+    public bool locked = false; // Flag to prevent player pickup when locked
     private Vector3 lastStablePosition;
     private Quaternion lastStableRotation;
     private static float uprightThreshold = 0.99f; // How upright the domino must be (1 = perfectly upright)
     static float stabilityCheckDelay = 0.5f; // Delay between stability checks
     public bool canSetNewStablePosition = true; // Flag to prevent multiple stability checks
+    public static event Action<Domino> OnDominoFallen;
 
     void Start()
     {
@@ -50,7 +51,7 @@ public class Domino : DominoLike
         }
         if (soundManager == null) soundManager = FindObjectOfType<DominoSoundManager>(); // Get references
         if (cameraController == null) cameraController = FindObjectOfType<CameraController>();
-        InvokeRepeating(nameof(CheckStability), stabilityCheckDelay + Random.Range(0f, .1f), stabilityCheckDelay);
+        InvokeRepeating(nameof(CheckStability), stabilityCheckDelay + UnityEngine.Random.Range(0f, .1f), stabilityCheckDelay);
     }
 
     void Awake()
@@ -82,7 +83,12 @@ public class Domino : DominoLike
 
         if (currentlyMoving && currentState != DominoState.Moving) // When we start moving
         {
-            currentState = DominoState.Moving;
+            if (currentState == DominoState.Stationary || currentState == DominoState.FillingIndicator)
+            {
+                OnDominoFallen?.Invoke(this);
+            }
+
+            currentState = DominoState.Moving; //Set state to moving
 
             if (cameraController != null && !cameraController.fallingDominoes.Contains(transform))
             {
@@ -109,17 +115,20 @@ public class Domino : DominoLike
 
     private void CheckStability()
     {
-        if (locked || rb.isKinematic || lastStablePosition == transform.position || 
-            rb.angularVelocity.magnitude > stillnessThreshold || rb.velocity.magnitude > stillnessThreshold || 
-            !canSetNewStablePosition)
+        if (currentState != DominoState.Stationary ||
+            locked || 
+            !canSetNewStablePosition ||
+            rb.isKinematic || 
+            lastStablePosition == transform.position || 
+            rb.angularVelocity.magnitude > stillnessThreshold || 
+            rb.velocity.magnitude > stillnessThreshold)
         {
             return;
         }
 
-        if (currentState != DominoState.Held && Vector3.Dot(transform.up, Vector3.up) > uprightThreshold)
+        if (Vector3.Dot(transform.up, Vector3.up) > uprightThreshold)
         {
             SaveStablePosition();
-            currentState = DominoState.Stationary;
         }
     }
 
@@ -231,7 +240,7 @@ public class Domino : DominoLike
         TogglePhysics(false);
         Sequence jumpSequence = DOTween.Sequence();
         jumpSequence.Append(transform.DOMoveY(lastStablePosition.y + jumpHeight, jumpDuration).SetEase(Ease.OutQuad));
-        Vector3 randomFlip = new Vector3(Random.Range(0f, 720f), Random.Range(0f, 720f), Random.Range(0f, 720f));
+        Vector3 randomFlip = new Vector3(UnityEngine.Random.Range(0f, 720f), UnityEngine.Random.Range(0f, 720f), UnityEngine.Random.Range(0f, 720f));
         jumpSequence.Join(transform.DORotate(randomFlip, jumpDuration, RotateMode.FastBeyond360).SetEase(Ease.OutQuad));
         jumpSequence.Append(transform.DORotateQuaternion(lastStableRotation, rotationDuration).SetEase(Ease.OutQuad));
         jumpSequence.Append(transform.DOMove(lastStablePosition, fallDuration).SetEase(Ease.InQuad));

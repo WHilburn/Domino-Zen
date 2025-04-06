@@ -60,7 +60,6 @@ public class MainMenuManager : MonoBehaviour
         DOTween.defaultRecyclable = true;
 
         PopulateLevelSelectButtons(); // Create level select buttons
-        // StartThrobberLoop();
     }
 
     private void PopulateLevelSelectButtons()

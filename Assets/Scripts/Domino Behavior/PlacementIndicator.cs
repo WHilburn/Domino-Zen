@@ -104,12 +104,12 @@ public class PlacementIndicator : DominoLike
     private void PlaceDomino()
     {
         // Set the domino's stable position and rotation
-        trackedDomino.GetComponent<Domino>().SetStablePosition(transform);
-
+        trackedDomino.SetStablePosition(transform);
         // Reset the domino's position using the rotate reset animation
-        trackedDomino.GetComponent<Domino>().AnimateDomino(Domino.DominoAnimation.Rotate);
+        trackedDomino.AnimateDomino(Domino.DominoAnimation.Rotate);
 
         trackedDominoRb.GetComponent<DominoSkin>().TweenColor(indicatorColor, 1f); // Tween the color of the domino
+        trackedDomino.currentState = Domino.DominoState.FillingIndicator; // Set the domino's state to Placed
 
         // Fade out the indicator
         FadeOut();
