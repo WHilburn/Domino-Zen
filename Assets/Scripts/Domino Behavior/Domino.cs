@@ -16,7 +16,7 @@ public class Domino : DominoLike
         Jiggle
     }
     private static readonly float stillnessVelocityThreshold = 5f;  // Velocity threshold to consider "stationary"
-    private static readonly float stillnessRotationThreshold = 1f;  // Velocity threshold to consider "stationary"
+    private static readonly float stillnessRotationThreshold = 1f;  // Rotation threshold to consider "stationary"
     public enum DominoState
     {
         Stationary,
@@ -143,8 +143,9 @@ public class Domino : DominoLike
 
     public void DespawnDomino()
     {
-        // Disable collisions with other dominoes
-        TogglePhysics(false);
+        StartCoroutine(
+                // Disable collisions with other dominoes
+                TogglePhysics(false));
 
         // Scale the domino down to zero
         float scaleDuration = 0.5f; // Duration of the scaling animation
@@ -226,18 +227,18 @@ public class Domino : DominoLike
     {
         rb.transform.position = lastStablePosition;
         rb.transform.rotation = lastStableRotation;
-        TogglePhysics(true);
+        StartCoroutine(TogglePhysics(true));
     }
 
     private void PerformRotate(float resetDuration)
     {
-        TogglePhysics(false);
+        StartCoroutine(TogglePhysics(false));
         rb.transform.DOMove(lastStablePosition, resetDuration);
         rb.transform.DORotateQuaternion(lastStableRotation, resetDuration).OnComplete(() =>
         {
             transform.position = lastStablePosition;
             transform.rotation = lastStableRotation;
-            TogglePhysics(true);
+            StartCoroutine(TogglePhysics(true));
         });
     }
 
@@ -247,8 +248,7 @@ public class Domino : DominoLike
         float jumpDuration = 0.3f;  // Faster upward motion
         float fallDuration = 0.15f; // Faster downward motion
         float rotationDuration = 0.4f; // Smooth rotation time
-
-        TogglePhysics(false);
+        StartCoroutine(TogglePhysics(false));
         Sequence jumpSequence = DOTween.Sequence();
         jumpSequence.Append(transform.DOMoveY(lastStablePosition.y + jumpHeight, jumpDuration).SetEase(Ease.OutQuad));
         Vector3 randomFlip = new(Random.Range(0f, 720f), Random.Range(0f, 720f), Random.Range(0f, 720f));
@@ -259,7 +259,7 @@ public class Domino : DominoLike
         {
             transform.position = lastStablePosition;
             transform.rotation = lastStableRotation;
-            TogglePhysics(true);
+            StartCoroutine(TogglePhysics(true));
         });
         jumpSequence.Play();
     }
@@ -269,8 +269,7 @@ public class Domino : DominoLike
         float jiggleDuration = 0.2f;
         float noiseIntensity = 0.1f; // Intensity of the jiggle movement
         Vector3 originalPosition = lastStablePosition;
-
-        TogglePhysics(false);
+        StartCoroutine(TogglePhysics(false));
 
         // Create a sequence for the jiggle animation
         Sequence jiggleSequence = DOTween.Sequence();
@@ -285,14 +284,15 @@ public class Domino : DominoLike
         jiggleSequence.OnComplete(() =>
         {
             transform.position = originalPosition;
-            TogglePhysics(true);
+            StartCoroutine(TogglePhysics(true));
         });
 
         jiggleSequence.Play();
     }
 
-    public void TogglePhysics(bool value)
+    public IEnumerator TogglePhysics(bool value)
     {
+        if (value == true) yield return null; // Wait for the next frame to reenable physics
         rb.isKinematic = !value;
 
         BoxCollider boxCollider = GetComponent<BoxCollider>();
