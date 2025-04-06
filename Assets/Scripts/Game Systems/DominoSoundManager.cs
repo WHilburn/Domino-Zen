@@ -27,7 +27,7 @@ public class DominoSoundManager : MonoBehaviour
     private float lastSoundTime = 0f;
     private int songIndex = 0;
     private SongTitle currentSong = SongTitle.OdeToJoy;
-    public int octaveOffset = 1;
+    public int octaveOffset = 0;
     public DominoSoundList dominoPianoSounds;
     public DominoSoundList dominoClickSounds;
 
@@ -46,7 +46,6 @@ public class DominoSoundManager : MonoBehaviour
         CanonInD, Beethoven5th, Greensleeves,
         MoonlightSonata, ClairDeLune, MinuteWaltz,
         ToccataAndFugue, WilliamTellOverture, SwanLake, BachPrelude
-    
     }
 
     public enum DominoSoundType
@@ -113,6 +112,7 @@ public class DominoSoundManager : MonoBehaviour
         Instance = this;
 
         InitializeAudioSourcePool();
+        Domino.OnDominoImpact.AddListener(PlayDominoSound);
     }
 
     void Start()
@@ -197,7 +197,7 @@ public class DominoSoundManager : MonoBehaviour
         audioSourcePool.Enqueue(audioSource);
     }
 
-    public void playArbitrarySound(AudioClip clip, float volume = 1f, float pitch = 1f, Vector3? position = null)
+    public void PlayArbitrarySound(AudioClip clip, float volume = 1f, float pitch = 1f, Vector3? position = null)
     {
         AudioSource source = GetPooledAudioSource();
         if (source == null) return;
@@ -225,7 +225,7 @@ public class DominoSoundManager : MonoBehaviour
     }
 
     // Play a sound using the pooled AudioSources
-    public void PlayDominoSound(float impactForce, Vector3 dominoPosition, DominoSoundType? forcedSoundType = null)
+    public void PlayDominoSound(Domino domino, float impactForce, Vector3 dominoPosition)
     {
         if (impactForce < minimumImpactForce)
             return;
@@ -235,7 +235,10 @@ public class DominoSoundManager : MonoBehaviour
         if (dominoPosition != null) source.transform.position = dominoPosition;
 
         // Determine the sound type to play (use forced type if provided, otherwise use user-selected type)
-        DominoSoundType soundType = forcedSoundType ?? userSelectedSoundType;
+        DominoSoundType soundType = userSelectedSoundType;
+        if (domino.musicMode) {
+            soundType = DominoSoundType.Piano; // Use forced sound type if provided
+        }
 
         if (soundType == DominoSoundType.Piano)
         {
@@ -295,57 +298,57 @@ public class DominoSoundManager : MonoBehaviour
             source.PlayOneShot(clip, volume);
         }
     }
-private string[] ParseNotes(string songNotes)
-{
-    List<string> parsedNotes = new List<string>();
-    int i = 0;
-
-    while (i < songNotes.Length)
+    private string[] ParseNotes(string songNotes)
     {
-        char note = songNotes[i];
-        
-        // Handle rests
-        if (note == '-')
+        List<string> parsedNotes = new List<string>();
+        int i = 0;
+
+        while (i < songNotes.Length)
         {
-            parsedNotes.Add("-");
+            char note = songNotes[i];
+            
+            // Handle rests
+            if (note == '-')
+            {
+                parsedNotes.Add("-");
+                i++;
+                continue;
+            }
+
+            // Ensure it's a valid note letter (A-G)
+            if (note < 'A' || note > 'G')
+            {
+                i++;
+                continue;
+            }
+
+            string parsedNote = note.ToString();
             i++;
-            continue;
+
+            // Check for sharp (#) or flat (b)
+            if (i < songNotes.Length && (songNotes[i] == '#' || songNotes[i] == 'b'))
+            {
+                parsedNote += songNotes[i];
+                i++;
+            }
+
+            // Check for octave number (3-5)
+            if (i < songNotes.Length && char.IsDigit(songNotes[i]))
+            {
+                parsedNote += songNotes[i];
+                i++;
+            }
+            else
+            {
+                // Default to octave 4 if not specified
+                parsedNote += "4";
+            }
+
+            parsedNotes.Add(parsedNote);
         }
 
-        // Ensure it's a valid note letter (A-G)
-        if (note < 'A' || note > 'G')
-        {
-            i++;
-            continue;
-        }
-
-        string parsedNote = note.ToString();
-        i++;
-
-        // Check for sharp (#) or flat (b)
-        if (i < songNotes.Length && (songNotes[i] == '#' || songNotes[i] == 'b'))
-        {
-            parsedNote += songNotes[i];
-            i++;
-        }
-
-        // Check for octave number (3-5)
-        if (i < songNotes.Length && char.IsDigit(songNotes[i]))
-        {
-            parsedNote += songNotes[i];
-            i++;
-        }
-        else
-        {
-            // Default to octave 4 if not specified
-            parsedNote += "4";
-        }
-
-        parsedNotes.Add(parsedNote);
+        return parsedNotes.ToArray();
     }
-
-    return parsedNotes.ToArray();
-}
 
 
     private void SwitchToNextSong()

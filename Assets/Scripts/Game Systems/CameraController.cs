@@ -24,7 +24,37 @@ public class CameraController : MonoBehaviour
             Instance = this;
         else
             Destroy(gameObject);
+
+        Domino.OnDominoFall.AddListener(HandleDominoFall);
+        Domino.OnDominoStopMoving.AddListener(HandleDominoStopMoving);
+        Domino.OnDominoDeleted.AddListener(HandleDominoDeleted);
+
         EnableFreeLook(); // Start with player control
+    }
+
+    void OnDestroy()
+    {
+        Domino.OnDominoFall.RemoveListener(HandleDominoFall);
+        Domino.OnDominoStopMoving.RemoveListener(HandleDominoStopMoving);
+        Domino.OnDominoDeleted.RemoveListener(HandleDominoDeleted);
+    }
+
+    private void HandleDominoFall(Domino domino)
+    {
+        if (!fallingDominoes.Contains(domino.transform))
+        {
+            fallingDominoes.Add(domino.transform);
+        }
+    }
+
+    private void HandleDominoStopMoving(Domino domino)
+    {
+        fallingDominoes.Remove(domino.transform);
+    }
+
+    private void HandleDominoDeleted(Domino domino)
+    {
+        fallingDominoes.Remove(domino.transform);
     }
 
     void Update()
@@ -47,11 +77,6 @@ public class CameraController : MonoBehaviour
         targetGroup.m_Targets = new CinemachineTargetGroup.Target[fallingDominoes.Count];
         for (int i = 0; i < fallingDominoes.Count; i++)
         {
-            // float dominoVelocity = fallingDominoes[i].GetComponent<Rigidbody>().angularVelocity.magnitude;
-            // if (dominoVelocity < .1f)
-            // {
-            //     dominoVelocity = .1f;
-            // }
             targetGroup.m_Targets[i] = new CinemachineTargetGroup.Target
             {
                 target = fallingDominoes[i],
