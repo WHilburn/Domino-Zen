@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using DG.Tweening;
+using System.Collections;
 
 public class DominoResetManager : MonoBehaviour
 {
@@ -9,6 +10,15 @@ public class DominoResetManager : MonoBehaviour
     public float resetDelay = 3f;
     public float resetDuration = 1f;
     public Domino.DominoAnimation resetAnimation = Domino.DominoAnimation.Rotate;
+
+    public enum ResetMode
+    {
+        Simultaneous,
+        Cascading
+    }
+
+    public ResetMode resetMode = ResetMode.Simultaneous;
+    public float cascadingResetDelay = 0.01f;
 
     private void Awake()
     {
@@ -51,11 +61,39 @@ public class DominoResetManager : MonoBehaviour
         if (dominoes.Count < 1000) resetAnimation = Domino.DominoAnimation.Jump;
         else if (dominoes.Count < 2000) resetAnimation = Domino.DominoAnimation.Rotate;
         else resetAnimation = Domino.DominoAnimation.Teleport;
+
+        if (resetMode == ResetMode.Simultaneous)
+        {
+            foreach (var domino in dominoes)
+            {
+                ChooseResetAnimation(domino);
+            }
+        }
+        else if (resetMode == ResetMode.Cascading)
+        {
+            StartCoroutine(CascadingReset());
+        }
+
+        dominoes.Clear();
+    }
+
+    private void ChooseResetAnimation(Domino domino)
+    {
+        float distance = Vector3.Distance(domino.transform.position, domino.lastStablePosition);
+        if (distance >= 1f) resetAnimation = Domino.DominoAnimation.Jump;
+        else if (distance >= 0.5f) resetAnimation = Domino.DominoAnimation.Rotate;
+        else resetAnimation = Domino.DominoAnimation.Teleport;
+        domino.AnimateDomino(resetAnimation);
+    }
+
+    private IEnumerator CascadingReset()
+    {
         foreach (var domino in dominoes)
         {
-            domino.AnimateDomino(resetAnimation);
+            float distance = Vector3.Distance(domino.transform.position, domino.lastStablePosition);
+            ChooseResetAnimation(domino);
+            yield return new WaitForSeconds(cascadingResetDelay);
         }
-        dominoes.Clear();
     }
 
     private void Update()

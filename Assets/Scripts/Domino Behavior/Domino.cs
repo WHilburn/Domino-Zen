@@ -16,7 +16,6 @@ public class Domino : DominoLike
         Jiggle
     }
     private static float stillnessThreshold = 5f;  // Velocity threshold to consider "stationary"
-    static DominoSoundManager soundManager;
     public enum DominoState
     {
         Stationary,
@@ -34,26 +33,27 @@ public class Domino : DominoLike
     [HideInInspector]
     public PlacementIndicator placementIndicator; // Reference to the placement indicator the domino is placed inside
     public bool locked = false; // Flag to prevent player pickup when locked
-    private Vector3 lastStablePosition;
-    private Quaternion lastStableRotation;
+    public Vector3 lastStablePosition;
+    public Quaternion lastStableRotation;
     private static float uprightThreshold = 0.99f; // How upright the domino must be (1 = perfectly upright)
     static float stabilityCheckDelay = 0.5f; // Delay between stability checks
     public bool canSetNewStablePosition = true; // Flag to prevent multiple stability checks
-    public static UnityEvent<Domino> OnDominoFall = new UnityEvent<Domino>(); // Domino registered for reset
-    public static UnityEvent<Domino> OnDominoStopMoving = new UnityEvent<Domino>(); // Domino registered for reset
-    public static UnityEvent<Domino> OnDominoPlacedCorrectly= new UnityEvent<Domino>(); // Domino registered for reset
-    public static UnityEvent<Domino> OnDominoDeleted = new UnityEvent<Domino>(); // Domino registered for reset
-    public static UnityEvent<Domino, float, Vector3> OnDominoImpact = new UnityEvent<Domino, float, Vector3>(); // Impact force and position
+    public static UnityEvent<Domino> OnDominoFall = new(); // Domino calls this to register for reset, causing cascade sounds, etc
+    public static UnityEvent<Domino> OnDominoStopMoving = new(); // Domino calls this to end cascade sounds
+    public static UnityEvent<Domino> OnDominoPlacedCorrectly= new(); // Calls this to notify systems it's been placed in an indicator
+    public static UnityEvent<Domino> OnDominoCreated = new(); // Calls this to notify systems of it's creation
+    public static UnityEvent<Domino> OnDominoDeleted = new(); // Calls this to notify systems of it's deletion
+    public static UnityEvent<Domino, float, Vector3> OnDominoImpact = new(); // Calls this to make sounds
 
     void Start()
     {
+        OnDominoCreated.Invoke(this); // Notify listeners of domino creation
         rb = GetComponent<Rigidbody>();
         if (currentState != DominoState.Held)
         {
             SnapToGround();
             SaveStablePosition();
         }
-        if (soundManager == null) soundManager = FindObjectOfType<DominoSoundManager>(); // Get references
         InvokeRepeating(nameof(CheckStability), stabilityCheckDelay + Random.Range(0f, .1f), stabilityCheckDelay);
     }
 
@@ -82,7 +82,7 @@ public class Domino : DominoLike
         bool currentlyMoving = rb.velocity.sqrMagnitude >= stillnessThreshold * stillnessThreshold || 
                                rb.angularVelocity.sqrMagnitude >= stillnessThreshold * stillnessThreshold;
 
-        if (currentlyMoving && currentState != DominoState.Moving) // When we start moving
+        if (currentlyMoving && currentState != DominoState.Moving && currentState != DominoState.Animating) // When we start moving
         {
             if (currentState == DominoState.Stationary || currentState == DominoState.FillingIndicator) // Releasing a held domino does not count as "falling"
             {
@@ -226,7 +226,7 @@ public class Domino : DominoLike
         TogglePhysics(false);
         Sequence jumpSequence = DOTween.Sequence();
         jumpSequence.Append(transform.DOMoveY(lastStablePosition.y + jumpHeight, jumpDuration).SetEase(Ease.OutQuad));
-        Vector3 randomFlip = new Vector3(Random.Range(0f, 720f), Random.Range(0f, 720f), Random.Range(0f, 720f));
+        Vector3 randomFlip = new(Random.Range(0f, 720f), Random.Range(0f, 720f), Random.Range(0f, 720f));
         jumpSequence.Join(transform.DORotate(randomFlip, jumpDuration, RotateMode.FastBeyond360).SetEase(Ease.OutQuad));
         jumpSequence.Append(transform.DORotateQuaternion(lastStableRotation, rotationDuration).SetEase(Ease.OutQuad));
         jumpSequence.Append(transform.DOMove(lastStablePosition, fallDuration).SetEase(Ease.InQuad));
@@ -242,8 +242,6 @@ public class Domino : DominoLike
 
     private void PerformJiggle()
     {
-        soundManager?.PlayArbitrarySound(soundManager.dominoLockedSound, 1, 1, transform.position);
-
         float jiggleDuration = 0.2f;
         float noiseIntensity = 0.1f; // Intensity of the jiggle movement
         Vector3 originalPosition = lastStablePosition;

@@ -14,6 +14,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private Transform handAnchor; // Empty GameObject for domino attachment
     private RectTransform handSpriteRect; // RectTransform of the hand sprite
     private GameObject hand3DInstance; // Instance of the 3D hand
+    private DominoSoundManager soundManager; // Reference to the SoundManager
     private Vector3 anchor;
     private DecalProjector decalProjector;
     private float savedDrag;
@@ -38,6 +39,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         }
         Instance = this;
         activeCamera = FindFirstObjectByType<Camera>();
+        soundManager = FindObjectOfType<DominoSoundManager>(); // Get reference to the SoundManager
     }
 
     void Update()
@@ -112,6 +114,7 @@ public class PlayerDominoPlacement : MonoBehaviour
                 {
                     domino.AnimateDomino(Domino.DominoAnimation.Jiggle);
                     ShowLockSprite(hit.point); // Show the lock sprite at the hit point
+                    soundManager?.PlayArbitrarySound(soundManager.dominoLockedSound, 1, 1, domino.transform.position);
                     return;
                 }
                 PickUpDomino(domino.gameObject);

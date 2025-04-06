@@ -1,6 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UIElements;
+using UnityEngine.Events;
 
 [ExecuteInEditMode]
 public class PlacementIndicator : DominoLike
@@ -19,8 +20,10 @@ public class PlacementIndicator : DominoLike
     static float alignmentAngleThreshold = 10f; // Angle threshold for alignment
     public Color indicatorColor = Color.white; // Color of the indicator
 
-    public enum IndicatorState { Empty, Occupied, Placed } // Define states
+    public enum IndicatorState { Empty, TryingToFill, Filled } // Define states
     public IndicatorState currentState = IndicatorState.Empty; // Current state
+    public static UnityEvent<PlacementIndicator> OnIndicatorFilled = new UnityEvent<PlacementIndicator>();
+    public static UnityEvent<PlacementIndicator> OnIndicatorEmptied = new UnityEvent<PlacementIndicator>();
 
     void Start()
     {
@@ -36,7 +39,7 @@ public class PlacementIndicator : DominoLike
         {
             trackedDomino = other.gameObject.GetComponent<Domino>();
             trackedDominoRb = other.gameObject.GetComponent<Rigidbody>();
-            currentState = IndicatorState.Occupied; // Transition to Occupied state
+            currentState = IndicatorState.TryingToFill; // Transition to Occupied state
         }
     }
 
@@ -44,6 +47,8 @@ public class PlacementIndicator : DominoLike
     {
         if (other.gameObject == trackedDomino?.gameObject)
         {
+            if (currentState == IndicatorState.Filled) OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty; 
+            // Reset the tracked domino and its Rigidbody
             trackedDomino = null;
             trackedDominoRb = null;
             currentState = IndicatorState.Empty; // Transition to Empty state
@@ -59,17 +64,17 @@ public class PlacementIndicator : DominoLike
                 // Wait for a collision with a domino
                 break;
 
-            case IndicatorState.Occupied:
+            case IndicatorState.TryingToFill:
                 if (trackedDomino != null)
                 {
                     CheckDominoPlacement();
                 }
                 break;
 
-            case IndicatorState.Placed:
+            case IndicatorState.Filled:
                 if (trackedDomino.currentState == Domino.DominoState.Held)
                 {
-                    currentState = IndicatorState.Occupied; // Transition to Empty state
+                    currentState = IndicatorState.TryingToFill; // Transition to Empty state
                     FadeIn(); // Fade back in if the domino is removed
                 }
                 break;
@@ -86,7 +91,7 @@ public class PlacementIndicator : DominoLike
             return;
         }
 
-        // Check alignment and position
+        // Check alignment and position, accepts the domino if it's facing backwards or forwards
         bool isAligned = (Vector3.Angle(trackedDomino.transform.forward, transform.forward) < alignmentAngleThreshold ||
                           Vector3.Angle(trackedDomino.transform.forward, -transform.forward) < alignmentAngleThreshold) &&
                          Vector3.Angle(trackedDomino.transform.up, transform.up) < alignmentAngleThreshold;
@@ -112,7 +117,8 @@ public class PlacementIndicator : DominoLike
 
         // Fade out the indicator
         FadeOut();
-        currentState = IndicatorState.Placed; // Transition to Placed state
+        OnIndicatorFilled.Invoke(this); // Notify that the indicator is filled
+        currentState = IndicatorState.Filled; // Transition to Placed state
         trackedDomino.currentState = Domino.DominoState.FillingIndicator; // Set the domino's state to Placed
         GameManager.Instance.CheckCompletion(); // Check if all indicators are filled
         Domino.OnDominoPlacedCorrectly.Invoke(trackedDomino);

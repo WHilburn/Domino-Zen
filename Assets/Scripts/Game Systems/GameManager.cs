@@ -41,7 +41,7 @@ public class GameManager : MonoBehaviour
         bool allIndicatorsFilled = true;
         foreach (var indicator in allIndicators)
         {
-            if (indicator.currentState != PlacementIndicator.IndicatorState.Placed)
+            if (indicator.currentState != PlacementIndicator.IndicatorState.Filled)
             {
                 allIndicatorsFilled = false;
                 break;

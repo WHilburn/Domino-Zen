@@ -860,9 +860,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2be93d9b9ff6a4f6aa377926a6975c0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dominoes: []
   resetDelay: 3
   resetDuration: 1
   resetAnimation: 1
+  resetMode: 0
+  cascadingResetDelay: 0.01
 --- !u!1001 &8751091506713413807
 PrefabInstance:
   m_ObjectHideFlags: 0
