@@ -23,7 +23,7 @@ public class DominoResetManager : MonoBehaviour
         Domino.OnDominoFall.AddListener(RegisterDominoForReset);
         Domino.OnDominoDeleted.AddListener(RemoveDomino); // Subscribe to domino deletion event
         Domino.OnDominoPlacedCorrectly.AddListener(RegisterDominoPlacement); // Subscribe to domino placement event
-        Invoke("UpdateDifficulty", 0.1f); // Update difficulty after a short delay
+        Invoke("UpdateDifficulty", 0.05f); // Update difficulty after a short delay
     }
 
     public void UpdateDifficulty() // Set the game difficulty

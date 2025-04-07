@@ -6,9 +6,7 @@ public class PlayerDominoPlacement : MonoBehaviour
 {
     public static PlayerDominoPlacement Instance { get; private set; }
     public GameObject dominoPrefab;
-    public GameObject handSpritePrefab; // Reference to the hand sprite prefab
     public GameObject hand3DPrefab; // Reference to the 3D hand prefab
-    public bool use3DHand = false; // Toggle between 2D and 3D hand
     public static GameObject heldDomino;
     private Rigidbody heldRb;
     private Transform handAnchor; // Empty GameObject for domino attachment
@@ -89,11 +87,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         initialHandElevation = handAnchor.position.y; // Store the initial elevation
         AttachDominoToAnchor();
 
-        if (use3DHand)
-            Create3DHand(spawnPos);
-        else
-            CreateHandSprite();
-
+        Create3DHand(spawnPos);
         // Calculate the offset between the hand and the mouse cursor
         handMouseOffset = handAnchor.position - GetMouseWorldPosition();
     }
@@ -140,10 +134,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         initialHandElevation = handAnchor.position.y; // Store the initial elevation
         AttachDominoToAnchor();
 
-        if (use3DHand)
-            Create3DHand(spawnPos);
-        else
-            CreateHandSprite();
+        Create3DHand(spawnPos);
 
         // Calculate the offset between the hand and the mouse cursor
         handMouseOffset = handAnchor.position - GetMouseWorldPosition();
@@ -204,21 +195,10 @@ public class PlayerDominoPlacement : MonoBehaviour
         float step = Mathf.Min(maxHandSpeed * Time.deltaTime, Vector3.Distance(handAnchor.position, targetFlat));
         handAnchor.position = Vector3.MoveTowards(handAnchor.position, targetFlat, step);
 
-        if (use3DHand && hand3DInstance != null)
+        if (hand3DInstance != null)
         {
             hand3DInstance.transform.position = handAnchor.position;
             // Do not match the domino's rotation to the hand
-        }
-        else if (!use3DHand && handSpriteRect != null)
-        {
-            // Update the hand sprite position and scale on the UI canvas
-            Vector3 screenPosition = activeCamera.WorldToScreenPoint(handAnchor.position);
-            handSpriteRect.position = screenPosition;
-
-            // Adjust the hand sprite size based on its distance from the camera
-            float distance = Vector3.Distance(activeCamera.transform.position, handAnchor.position);
-            float scale = 1f / Mathf.Log(distance) * 5f;
-            handSpriteRect.localScale = new Vector3(scale, scale, 1f);
         }
     }
 
@@ -226,7 +206,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     {
         if (heldRb == null) return; // Ensure the rigidbody exists
 
-        if (use3DHand && hand3DInstance != null)
+        if (hand3DInstance != null)
         {
             float rotationDelta = 0f;
 
@@ -252,15 +232,6 @@ public class PlayerDominoPlacement : MonoBehaviour
 
             // Apply the torque to the rigidbody
             heldRb.AddTorque(torque * rotationSpeed, ForceMode.Force);
-            
-        }
-        else
-        {
-            if (Input.GetKey(KeyCode.Q))
-                heldRb.AddTorque(Vector3.up * -rotationSpeed, ForceMode.Force);
-
-            if (Input.GetKey(KeyCode.E))
-                heldRb.AddTorque(Vector3.up * rotationSpeed, ForceMode.Force);
         }
     }
 
@@ -338,6 +309,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private void AttachDominoToAnchor()
     {
         heldDomino.transform.position = handAnchor.position;
+        heldDomino.transform.rotation = savedRotation; // Match the rotation of the hand
 
         SpringJoint spring = heldDomino.AddComponent<SpringJoint>();
         spring.connectedBody = handAnchor.gameObject.AddComponent<Rigidbody>();
@@ -354,19 +326,6 @@ public class PlayerDominoPlacement : MonoBehaviour
 
         heldRb.velocity = Vector3.zero;
         heldRb.angularVelocity = Vector3.zero;
-    }
-
-    private void CreateHandSprite()
-    {
-        if (handSpritePrefab == null || uiCanvas == null) return;
-
-        GameObject handSprite = Instantiate(handSpritePrefab, uiCanvas.transform);
-        handSpriteRect = handSprite.GetComponent<RectTransform>();
-        if (handSpriteRect != null)
-        {
-            Vector3 screenPosition = activeCamera.WorldToScreenPoint(handAnchor.position);
-            handSpriteRect.position = screenPosition;
-        }
     }
 
     private void Create3DHand(Vector3 spawnPos)
