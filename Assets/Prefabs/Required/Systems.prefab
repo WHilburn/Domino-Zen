@@ -73,8 +73,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 802997217981455792}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.09098534, y: 0.89253044, z: -0.2088373, w: 0.38922763}
-  m_LocalPosition: {x: 26.356033, y: -1.6619215, z: -1.2195549}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 29.64, y: -3.88, z: -9.268452}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -411,8 +411,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4427080609641943509}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.29013965, y: -0.37792045, z: 0.12612155, w: -0.87010837}
-  m_LocalPosition: {x: -4.670002, y: -4.41, z: -19.35}
+  m_LocalRotation: {x: -0.14157073, y: -0.8482287, z: 0.28292283, w: -0.4247593}
+  m_LocalPosition: {x: 32.74, y: -12.75531, z: -25.91}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -609,6 +609,7 @@ GameObject:
   - component: {fileID: 8842277024513562491}
   - component: {fileID: 6366756040542395597}
   - component: {fileID: 4299241003555251527}
+  - component: {fileID: 3075726223686852279}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: Untagged
@@ -764,11 +765,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dominoPrefab: {fileID: 3709038208395034117, guid: 336bcad52e1c74c77ae1b4939e3a0feb, type: 3}
-  handPrefab: {fileID: 2954985963256647315, guid: 3b89fa04c77274e7a81bf1e4bfc749a1, type: 3}
+  handSpritePrefab: {fileID: 4162454289322067126, guid: 6be3dbbe68191744c97acc42efc3f0e4, type: 3}
+  hand3DPrefab: {fileID: 4323452443675221915, guid: c56510174be7a714bb3da481057232c0, type: 3}
+  use3DHand: 1
   followSpeed: 1
   maxHandSpeed: 5
   hoverOffset: 1.2
-  rotationSpeed: 100
+  rotationSpeed: 15
+  maxDistance: 15
   activeCamera: {fileID: 0}
   lockSpritePrefab: {fileID: 4181785002189258841, guid: e065b6617a4063e44a89dec531f78b67, type: 3}
   uiCanvas: {fileID: 8704060149612110857}
@@ -857,9 +861,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2be93d9b9ff6a4f6aa377926a6975c0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dominoes: []
   resetDelay: 3
   resetDuration: 1
   resetAnimation: 1
+  resetMode: 0
+  cascadingResetDelay: 0.01
+--- !u!114 &3075726223686852279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5524845532295669555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd160e1d839460346a832c16126b3e53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blackDominoSkin: {fileID: 11400000, guid: f760040ee9558b74d8a334a3bc06609c, type: 2}
+  whiteDominoSkin: {fileID: 11400000, guid: 1c1c03eb8896b474abdc27ed5b386e2e, type: 2}
+  glassDominoSkin: {fileID: 11400000, guid: c6caf771a1cea6147b605727b0e1ecdc, type: 2}
+  dominoClickSounds: {fileID: 11400000, guid: b75dc4c91cf6ef244897d08b0a63e357, type: 2}
+  dominoPianoSounds: {fileID: 11400000, guid: ea7b78dcee7b70141a4ed3e24a359220, type: 2}
+  dominoPrefab: {fileID: 3709038208395034117, guid: 336bcad52e1c74c77ae1b4939e3a0feb, type: 3}
+  indicatorPrefab: {fileID: 6552790223727392609, guid: 1c73f5abb806b4bc9a967567c2c432a9, type: 3}
 --- !u!1001 &8751091506713413807
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -871,6 +897,26 @@ PrefabInstance:
     - target: {fileID: 6733193944056606906, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
       propertyPath: m_Name
       value: Game UI
+      objectReference: {fileID: 0}
+    - target: {fileID: 7051374998827033566, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7051374998827033566, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7051374998827033566, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7319737963905294748, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7319737963905294748, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9061323199219513815, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
       propertyPath: m_Pivot.x

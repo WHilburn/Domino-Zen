@@ -7,6 +7,7 @@ public class DominoPainter : EditorWindow
     private DominoMaterialList selectedMaterialList;
     private Color selectedColor = Color.white; // Default color is white
     private GameObject indicatorPrefab; // Reference to the placement indicator prefab
+    private GameObject dominoPrefab; // Reference to the placement indicator prefab
 
     [MenuItem("Tools/Domino Painter")]
     public static void ShowWindow()
@@ -22,7 +23,8 @@ public class DominoPainter : EditorWindow
         selectedMaterialList = (DominoMaterialList)EditorGUILayout.ObjectField("Material List", selectedMaterialList, typeof(DominoMaterialList), false);
         selectedColor = EditorGUILayout.ColorField("Start Color", selectedColor);
 
-        // Select the placement indicator prefab
+        // Select the prefab objects
+        dominoPrefab = (GameObject)EditorGUILayout.ObjectField("Domino Prefab", dominoPrefab, typeof(GameObject), false);
         indicatorPrefab = (GameObject)EditorGUILayout.ObjectField("Indicator Prefab", indicatorPrefab, typeof(GameObject), false);
 
         // Button to apply material to selected dominoes
@@ -35,6 +37,12 @@ public class DominoPainter : EditorWindow
         if (GUILayout.Button("Replace with Indicators"))
         {
             ReplaceDominoesWithIndicators();
+        }
+
+        // Button to replace indicators with dominoes
+        if (GUILayout.Button("Replace with Dominoes"))
+        {
+            ReplaceIndicatorsWithDominoes();
         }
     }
 
@@ -59,7 +67,7 @@ public class DominoPainter : EditorWindow
             return;
         }
         // Check if material list is assigned
-        if (dominoSkinsToApply.Count > 0 && selectedMaterialList == null)
+        if (selectedMaterialList == null)
         {
             Debug.LogWarning("No material list selected!");
             return;
@@ -68,6 +76,7 @@ public class DominoPainter : EditorWindow
         // Register the undo operation
         Undo.RegisterCompleteObjectUndo(dominoSkinsToApply.ToArray(), "Apply Material to Dominoes");
         Undo.RegisterCompleteObjectUndo(placementSkinsToApply.ToArray(), "Apply Material to Dominoes");
+        Debug.Log($"Applying material list: {selectedMaterialList.name} to objects");
 
         // Apply the material and trigger ApplyRandomMaterial on each DominoSkin
         foreach (DominoSkin dominoSkin in dominoSkinsToApply)
@@ -79,7 +88,12 @@ public class DominoPainter : EditorWindow
         }
         foreach (PlacementIndicator placementSkin in placementSkinsToApply)
         {
-            placementSkin.ApplyColor(selectedColor); // Apply the selected color override
+            Color placementColor = placementSkin.indicatorColor; // Get the current color of the indicator
+            if (selectedMaterialList.name == "BlackDominoMaterials") 
+            {
+                placementColor = Color.black;
+            }
+            placementSkin.ApplyColor(placementColor); // Apply the selected color override
             EditorUtility.SetDirty(placementSkin); // Mark the object as changed for saving
         }
     }
@@ -95,7 +109,6 @@ public class DominoPainter : EditorWindow
 
         // Get all selected objects in the Scene
         GameObject[] selectedObjects = Selection.gameObjects;
-
         List<DominoSkin> dominoSkinsToReplace = new List<DominoSkin>();
 
         foreach (GameObject obj in selectedObjects)
@@ -119,6 +132,10 @@ public class DominoPainter : EditorWindow
             // Get the domino's position, rotation, and color
             Transform dominoTransform = dominoSkin.transform;
             Color dominoColor = dominoSkin.colorOverride;
+            if (dominoSkin.materialList.name == "BlackDominoMaterials") 
+            {
+                dominoColor = Color.black;
+            }
 
             // Spawn the placement indicator
             GameObject indicator = (GameObject)PrefabUtility.InstantiatePrefab(indicatorPrefab, dominoTransform.parent);
@@ -139,5 +156,61 @@ public class DominoPainter : EditorWindow
         }
 
         Debug.Log($"Replaced {dominoSkinsToReplace.Count} dominoes with placement indicators.");
+    }
+
+    private void ReplaceIndicatorsWithDominoes()
+    {
+        // Check if the domino prefab is assigned
+        if (dominoPrefab == null)
+        {
+            Debug.LogWarning("No domino prefab assigned!");
+            return;
+        }
+        // Get all selected objects in the Scene
+        GameObject[] selectedObjects = Selection.gameObjects;
+
+        List<PlacementIndicator> indicatorsToReplace = new List<PlacementIndicator>();
+
+        foreach (GameObject obj in selectedObjects)
+        {
+            // Look for PlacementIndicator components in selected objects and their children
+            indicatorsToReplace.AddRange(obj.GetComponentsInChildren<PlacementIndicator>());
+        }
+
+        if (indicatorsToReplace.Count == 0)
+        {
+            Debug.LogWarning("No PlacementIndicator objects found in the selected objects or their children.");
+            return;
+        }
+
+        // Register the undo operation
+        Undo.RegisterCompleteObjectUndo(this, "Replace Indicators with Dominoes");
+
+        // Replace each indicator with a domino
+        foreach (PlacementIndicator indicator in indicatorsToReplace)
+        {
+            // Get the indicator's position, rotation, and color
+            Transform indicatorTransform = indicator.transform;
+            Color indicatorColor = indicator.indicatorColor;
+
+            // Create a new GameObject for the domino
+            GameObject domino = (GameObject)PrefabUtility.InstantiatePrefab(dominoPrefab, indicatorTransform.parent);
+            Undo.RegisterCreatedObjectUndo(domino, "Create Domino");
+
+            domino.transform.position = indicatorTransform.position;
+            domino.transform.rotation = indicatorTransform.rotation;
+            domino.transform.parent = indicatorTransform.parent;
+
+            // Add and configure the DominoSkin component
+            DominoSkin dominoSkin = domino.AddComponent<DominoSkin>();
+            if (selectedMaterialList != null) dominoSkin.materialList = selectedMaterialList; // Assign the selected material list
+            dominoSkin.colorOverride = indicatorColor; // Apply the indicator's color
+            dominoSkin.ApplyRandomMaterial(); // Apply a random material from the list
+
+            // Register the indicator for undo before destroying it
+            Undo.DestroyObjectImmediate(indicator.gameObject);
+        }
+
+        Debug.Log($"Replaced {indicatorsToReplace.Count} placement indicators with dominoes.");
     }
 }

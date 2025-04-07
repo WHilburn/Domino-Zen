@@ -37,7 +37,7 @@ public class MainMenuManager : MonoBehaviour
         Progress
     }
 
-    private Dictionary<Level, string> levelNameMap = new Dictionary<Level, string>
+    private Dictionary<Level, string> levelNameMap = new()
     {
         { Level.Tutorial, "Tutorial Level" },
         { Level.Beginner, "Beginner Level" },
@@ -60,7 +60,6 @@ public class MainMenuManager : MonoBehaviour
         DOTween.defaultRecyclable = true;
 
         PopulateLevelSelectButtons(); // Create level select buttons
-        // StartThrobberLoop();
     }
 
     private void PopulateLevelSelectButtons()
@@ -99,7 +98,7 @@ public class MainMenuManager : MonoBehaviour
         if (levelNameMap.TryGetValue(selectedLevel, out string levelName))
         {
             SetActiveCamera(mainMenuCamera); // Set the loading screen camera as active
-            List<Button> buttons = new List<Button>(FindObjectsOfType<Button>());
+            List<Button> buttons = new(FindObjectsOfType<Button>());
             foreach (Button button in buttons)
             {
                 button.interactable = false; // Disable all buttons

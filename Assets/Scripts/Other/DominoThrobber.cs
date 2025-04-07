@@ -16,7 +16,7 @@ public class DominoThrobber : MonoBehaviour
         // Save the stable positions of all dominoes
         foreach (var domino in dominoes)
         {
-            domino.SetStablePosition(domino.transform);
+            domino.SaveStablePosition(domino.transform);
             domino.canSetNewStablePosition = false;
         }
 
@@ -70,7 +70,7 @@ public class DominoThrobber : MonoBehaviour
             Vector3 worldHoldPoint = domino.transform.TransformPoint(holdPoint);
 
             // Calculate the force direction based on the domino's forward direction
-            Vector3 forceDirection = domino.transform.up;
+            Vector3 forceDirection = -domino.transform.forward;
 
             // Apply the force at the holdPoint in the forward direction
             rb.AddForceAtPosition(forceDirection * 1f, worldHoldPoint, ForceMode.Impulse);

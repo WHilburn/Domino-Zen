@@ -27,7 +27,7 @@ public class DominoSoundManager : MonoBehaviour
     private float lastSoundTime = 0f;
     private int songIndex = 0;
     private SongTitle currentSong = SongTitle.OdeToJoy;
-    public int octaveOffset = 1;
+    public int octaveOffset = 0;
     public DominoSoundList dominoPianoSounds;
     public DominoSoundList dominoClickSounds;
 
@@ -46,7 +46,6 @@ public class DominoSoundManager : MonoBehaviour
         CanonInD, Beethoven5th, Greensleeves,
         MoonlightSonata, ClairDeLune, MinuteWaltz,
         ToccataAndFugue, WilliamTellOverture, SwanLake, BachPrelude
-    
     }
 
     public enum DominoSoundType
@@ -55,7 +54,7 @@ public class DominoSoundManager : MonoBehaviour
         Piano
     }
 
-    private static readonly Dictionary<string, int> noteMap = new Dictionary<string, int>
+    private static readonly Dictionary<string, int> noteMap = new()
     {
         { "C3", 0 }, { "C#3", 1 }, { "Db3", 1 }, { "D3", 2 }, { "D#3", 3 }, { "Eb3", 3 }, { "E3", 4 },
         { "F3", 5 }, { "F#3", 6 }, { "Gb3", 6 }, { "G3", 7 }, { "G#3", 8 }, { "Ab3", 8 }, { "A3", 9 }, 
@@ -73,7 +72,7 @@ public class DominoSoundManager : MonoBehaviour
     };
 
 
-    private static readonly Dictionary<SongTitle, string> songLibrary = new Dictionary<SongTitle, string>
+    private static readonly Dictionary<SongTitle, string> songLibrary = new()
     {
         {SongTitle.FlightOfTheBumblebee, "B4C5D5C5B4A4G#4A4B4C5D5C5B4A4G#4A4B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4B4C5D5E5F5G5A5G5F5E5D5C5B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4B4C5D5E5F5G5A5G5F5E5D5C5B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4B4C5D5E5F5G5A5G5F5E5D5C5B4A4G#4A4B4C5D5E5F5E5D5C5B4C5D5E5D5C5B4A4G#4A4"},
         {SongTitle.Twinkle,"C4C4G4G4A4A4G4-F4F4E4E4D4D4C4-G4G4F4F4E4E4D4-G4G4F4F4E4E4D4-C4C4G4G4A4A4G4-F4F4E4E4D4D4C4-"},
@@ -97,7 +96,7 @@ public class DominoSoundManager : MonoBehaviour
         {SongTitle.TurkishMarch, "E5B4C5D5E5A4B4C5D5E5B4C5D5E5A4B4C5D5E5D5C5B4A4G#4A4B4C5D5E5B4C5D5E5A4B4C5D5E5B4C5D5E5A4B4C5D5E5D5C5B4A4G#4A4B4C5D5E5C5A4E5C5A4E5C5A4B4D5G4B4D5G4B4D5G4F#4A4E4A4C5E4A4C5E4A4C5F4A4D5F4A4D5F4A4D5G4B4E5G4B4E5G4B4E5F#4A4E4A4C5E4A4C5E4A4C5F4A4D5F4A4D5F4A4D5G4B4E5G4B4E5G4B4E5C5A4E5C5A4E5C5A4B4D5G4B4D5G4B4D5G4F#4A4E4A4C5E4A4C5E4A4C5F4A4D5F4A4D5F4A4D5G4B4E5G4B4E5G4B4E5"}
     };
 
-    private static readonly Dictionary<int, DominoSoundType> dominoSoundTypes = new Dictionary<int, DominoSoundType>
+    private static readonly Dictionary<int, DominoSoundType> dominoSoundTypes = new()
     {
         { 0, DominoSoundType.Click },
         { 1, DominoSoundType.Piano }
@@ -113,6 +112,7 @@ public class DominoSoundManager : MonoBehaviour
         Instance = this;
 
         InitializeAudioSourcePool();
+        Domino.OnDominoImpact.AddListener(PlayDominoSound);
     }
 
     void Start()
@@ -169,7 +169,7 @@ public class DominoSoundManager : MonoBehaviour
 
         for (int i = 0; i < audioSourcePoolSize; i++)
         {
-            GameObject audioSourceObject = new GameObject($"PooledAudioSource_{i}");
+            GameObject audioSourceObject = new($"PooledAudioSource_{i}");
             audioSourceObject.transform.SetParent(transform);
             AudioSource audioSource = audioSourceObject.AddComponent<AudioSource>();
             audioSource.playOnAwake = false;
@@ -197,7 +197,7 @@ public class DominoSoundManager : MonoBehaviour
         audioSourcePool.Enqueue(audioSource);
     }
 
-    public void playArbitrarySound(AudioClip clip, float volume = 1f, float pitch = 1f, Vector3? position = null)
+    public void PlayArbitrarySound(AudioClip clip, float volume = 1f, float pitch = 1f, Vector3? position = null)
     {
         AudioSource source = GetPooledAudioSource();
         if (source == null) return;
@@ -225,7 +225,7 @@ public class DominoSoundManager : MonoBehaviour
     }
 
     // Play a sound using the pooled AudioSources
-    public void PlayDominoSound(float impactForce, Vector3 dominoPosition, DominoSoundType? forcedSoundType = null)
+    public void PlayDominoSound(Domino domino, float impactForce, Vector3 dominoPosition)
     {
         if (impactForce < minimumImpactForce)
             return;
@@ -235,7 +235,10 @@ public class DominoSoundManager : MonoBehaviour
         if (dominoPosition != null) source.transform.position = dominoPosition;
 
         // Determine the sound type to play (use forced type if provided, otherwise use user-selected type)
-        DominoSoundType soundType = forcedSoundType ?? userSelectedSoundType;
+        DominoSoundType soundType = userSelectedSoundType;
+        if (domino.musicMode) {
+            soundType = DominoSoundType.Piano; // Use forced sound type if provided
+        }
 
         if (soundType == DominoSoundType.Piano)
         {
@@ -245,7 +248,7 @@ public class DominoSoundManager : MonoBehaviour
         else if (soundType == DominoSoundType.Click)
         {
             AudioClip clip = dominoClickSounds.sounds[Random.Range(0, dominoClickSounds.sounds.Length)];
-            float volume = Mathf.Clamp(impactForce / 20f, 0.1f, 1.0f) * globalVolumeScale; // Apply global volume scale
+            float volume = Mathf.Clamp(impactForce / 40f, 0.1f, 0.5f) * globalVolumeScale; // Apply global volume scale
             source.PlayOneShot(clip, volume);
             source.pitch = 2; // Set pitch to 2 for domino click sounds
         }
@@ -295,57 +298,57 @@ public class DominoSoundManager : MonoBehaviour
             source.PlayOneShot(clip, volume);
         }
     }
-private string[] ParseNotes(string songNotes)
-{
-    List<string> parsedNotes = new List<string>();
-    int i = 0;
-
-    while (i < songNotes.Length)
+    private string[] ParseNotes(string songNotes)
     {
-        char note = songNotes[i];
-        
-        // Handle rests
-        if (note == '-')
+        List<string> parsedNotes = new();
+        int i = 0;
+
+        while (i < songNotes.Length)
         {
-            parsedNotes.Add("-");
+            char note = songNotes[i];
+            
+            // Handle rests
+            if (note == '-')
+            {
+                parsedNotes.Add("-");
+                i++;
+                continue;
+            }
+
+            // Ensure it's a valid note letter (A-G)
+            if (note < 'A' || note > 'G')
+            {
+                i++;
+                continue;
+            }
+
+            string parsedNote = note.ToString();
             i++;
-            continue;
+
+            // Check for sharp (#) or flat (b)
+            if (i < songNotes.Length && (songNotes[i] == '#' || songNotes[i] == 'b'))
+            {
+                parsedNote += songNotes[i];
+                i++;
+            }
+
+            // Check for octave number (3-5)
+            if (i < songNotes.Length && char.IsDigit(songNotes[i]))
+            {
+                parsedNote += songNotes[i];
+                i++;
+            }
+            else
+            {
+                // Default to octave 4 if not specified
+                parsedNote += "4";
+            }
+
+            parsedNotes.Add(parsedNote);
         }
 
-        // Ensure it's a valid note letter (A-G)
-        if (note < 'A' || note > 'G')
-        {
-            i++;
-            continue;
-        }
-
-        string parsedNote = note.ToString();
-        i++;
-
-        // Check for sharp (#) or flat (b)
-        if (i < songNotes.Length && (songNotes[i] == '#' || songNotes[i] == 'b'))
-        {
-            parsedNote += songNotes[i];
-            i++;
-        }
-
-        // Check for octave number (3-5)
-        if (i < songNotes.Length && char.IsDigit(songNotes[i]))
-        {
-            parsedNote += songNotes[i];
-            i++;
-        }
-        else
-        {
-            // Default to octave 4 if not specified
-            parsedNote += "4";
-        }
-
-        parsedNotes.Add(parsedNote);
+        return parsedNotes.ToArray();
     }
-
-    return parsedNotes.ToArray();
-}
 
 
     private void SwitchToNextSong()

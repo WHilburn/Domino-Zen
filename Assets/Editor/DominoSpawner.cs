@@ -1,9 +1,6 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
-using System.Reflection;
-using System;
-using System.Runtime.CompilerServices;
 
 public class DominoSpawner : EditorWindow
 {
@@ -20,16 +17,19 @@ public class DominoSpawner : EditorWindow
     private float spiralSpacing = 0.3f; // Shrinking radius spacing for spiral
 
     private bool gradientMode = false;
+    private bool rainbowMode = false; // Toggle for Rainbow Mode
     private Color startColor = Color.red;
     private Color endColor = Color.blue;
     private int colorCycles = 1;
     private bool colorBounce = false;
     private string groupName = "Domino Group";
     private GameObject dominoPrefab;
+    private GameObject indicatorPrefab;
     private DominoMaterialList dominoMaterialList;
-    private bool musicMode = true;
+    private bool musicMode = false;
     private List<GameObject> previewShapes = new List<GameObject>(); // To store preview cubes
     private bool previewMode  = true;
+    private int totalDominoes = -1; // Total dominoes in the scene
 
     [MenuItem("Tools/Domino Spawner")]
     public static void ShowWindow()
@@ -39,6 +39,10 @@ public class DominoSpawner : EditorWindow
 
     void OnGUI()
     {
+        if (totalDominoes == -1)
+        {
+            totalDominoes = CountDominoesInScene(); // Initialize total dominoes count
+        }
         // Debug.Log("OnGUI called");
         GUILayout.Label("Domino Spawner", EditorStyles.boldLabel);
         // Allow the user to assign a domino prefab and material list
@@ -76,7 +80,11 @@ public class DominoSpawner : EditorWindow
         }
         GeneratePreviewCubes(Selection.activeGameObject);
 
+        rainbowMode = EditorGUILayout.Toggle("Rainbow Mode", rainbowMode);
+        if (rainbowMode) gradientMode = false; // Disable gradient mode if rainbow mode is active
+
         gradientMode = EditorGUILayout.Toggle("Color Gradient Mode", gradientMode);
+        if (gradientMode) rainbowMode = false; // Disable rainbow mode if gradient mode is active
 
         if (gradientMode)
         {
@@ -88,6 +96,10 @@ public class DominoSpawner : EditorWindow
                 colorBounce = EditorGUILayout.Toggle("Color Bounce", colorBounce);
             }
         }
+        else if (rainbowMode)
+        {
+            startColor = EditorGUILayout.ColorField("Start Color", startColor);
+        }
         else
         {
             startColor = EditorGUILayout.ColorField("Color", startColor);
@@ -96,6 +108,11 @@ public class DominoSpawner : EditorWindow
         if (GUILayout.Button("Spawn Dominoes"))
         {
             SpawnDominoes();
+        }
+
+        if (GUILayout.Button("Spawn Indicators"))
+        {
+            SpawnIndicators();
         }
     }
 
@@ -122,7 +139,7 @@ public class DominoSpawner : EditorWindow
         
         if (dominoPrefab == null)
         {
-            Debug.LogWarning("Please assign a domino prefab in the Domino Spawner window.");
+            dominoPrefab = ResourceNames.Instance.dominoPrefab;
             return;
         }
 
@@ -132,6 +149,7 @@ public class DominoSpawner : EditorWindow
             Debug.LogWarning("Please select a domino in the scene.");
             return;
         }
+        totalDominoes = CountDominoesInScene(); // Update the total dominoes count
 
         List<(Vector3 position, Quaternion rotation)> spawnData = new List<(Vector3, Quaternion)>();
 
@@ -174,6 +192,62 @@ public class DominoSpawner : EditorWindow
         ApplyColor(newDominoes);
     }
 
+    private void SpawnIndicators()
+    {
+        RemovePreviewCubes();
+
+        if (indicatorPrefab == null)
+        {
+            indicatorPrefab = ResourceNames.Instance.indicatorPrefab;
+            return;
+        }
+
+        GameObject selected = Selection.activeGameObject;
+        if (selected == null || !selected.CompareTag("DominoTag"))
+        {
+            Debug.LogWarning("Please select a domino in the scene.");
+            return;
+        }
+
+        List<(Vector3 position, Quaternion rotation)> spawnData = new List<(Vector3, Quaternion)>();
+
+        switch (selectedFormation)
+        {
+            case FormationType.Line:
+                spawnData = GetLineFormationPositions(selected);
+                break;
+            case FormationType.Triangle:
+                spawnData = GetTriangleFormationPositions(selected);
+                break;
+            case FormationType.Curve:
+                spawnData = GetCurveFormationPositions(selected);
+                break;
+            case FormationType.Spiral:
+                spawnData = GetSpiralFormationPositions(selected);
+                break;
+            default:
+                Debug.LogWarning("Unsupported formation type.");
+                return;
+        }
+
+        if (spawnData == null || spawnData.Count == 0) return;
+
+        // Create an empty GameObject as the parent
+        GameObject parent = new GameObject(groupName + " Indicators");
+        parent.transform.position = selected.transform.position;
+        Undo.RegisterCreatedObjectUndo(parent, "Spawn Indicators");
+
+        // Instantiate indicators at computed positions and rotations
+        foreach (var (position, rotation) in spawnData)
+        {
+            GameObject newIndicator = (GameObject)PrefabUtility.InstantiatePrefab(indicatorPrefab);
+            newIndicator.transform.position = position;
+            newIndicator.transform.rotation = rotation;
+            newIndicator.transform.SetParent(parent.transform);
+
+            Undo.RegisterCreatedObjectUndo(newIndicator, "Spawn Indicator");
+        }
+    }
 
     private GameObject SpawnDominoPrefab(Vector3 spawnPos, Quaternion rotation)
     {
@@ -181,8 +255,19 @@ public class DominoSpawner : EditorWindow
         newDomino.transform.position = spawnPos;
         newDomino.GetComponent<Domino>().musicMode = musicMode;
         newDomino.transform.rotation = rotation;
+
+        // Assign a unique name to the domino
+        totalDominoes += 1;
+        newDomino.name = $"{dominoPrefab.name} {totalDominoes + 1}";
+
         Undo.RegisterCreatedObjectUndo(newDomino, "Spawn Domino");
         return newDomino;
+    }
+
+    // Helper method to count all dominoes in the scene
+    private int CountDominoesInScene()
+    {
+        return GameObject.FindObjectsOfType<Domino>().Length;
     }
 
     // Method to display preview cubes at spawn positions
@@ -221,7 +306,7 @@ public class DominoSpawner : EditorWindow
             GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cube.transform.position = pos;
             cube.transform.rotation = rot;
-            cube.transform.localScale = new Vector3(.48f, .13f, .98f); // Match approximate domino shape
+            cube.transform.localScale = new Vector3(.48f, .98f, .13f); // Match approximate domino shape
             cube.name = "PreviewCube";
             cube.hideFlags = HideFlags.HideAndDontSave; // Hide from hierarchy
             previewShapes.Add(cube);
@@ -247,7 +332,7 @@ public class DominoSpawner : EditorWindow
 
         for (int i = 1; i <= spawnCount; i++)
         {
-            Vector3 spawnPos = startPos + selected.transform.up * (forwardSpacing * i);
+            Vector3 spawnPos = startPos + -selected.transform.forward * (forwardSpacing * i);
             spawnTransforms.Add((spawnPos, rotation)); // Store position and rotation as a tuple
         }
         // PreviewDominoPositions(spawnTransforms);
@@ -257,7 +342,7 @@ public class DominoSpawner : EditorWindow
     private List<(Vector3 position, Quaternion rotation)> GetTriangleFormationPositions(GameObject selected)
     {
         List<(Vector3, Quaternion)> spawnTransforms = new List<(Vector3, Quaternion)>();
-        Vector3 startPos = selected.transform.position + selected.transform.up * forwardSpacing;
+        Vector3 startPos = selected.transform.position + -selected.transform.forward * forwardSpacing;
         Quaternion rotation = selected.transform.rotation;
 
         int dominoesInRow = 2; // First row starts with 2 dominoes
@@ -268,7 +353,7 @@ public class DominoSpawner : EditorWindow
             {
                 float offsetX = (i - (dominoesInRow - 1) / 2f) * rowSpacing;
                 float offsetZ = currentRow * forwardSpacing;
-                Vector3 spawnPos = startPos + selected.transform.right * offsetX + selected.transform.up * offsetZ;
+                Vector3 spawnPos = startPos + selected.transform.right * offsetX + -selected.transform.forward * offsetZ;
 
                 spawnTransforms.Add((spawnPos, rotation)); // Store position and rotation
             }
@@ -293,7 +378,7 @@ public class DominoSpawner : EditorWindow
         void CalculateArc(Vector3 arcStartPos, float directionMultiplier)
         {
             // Compute the center of the arc
-            Vector3 center = arcStartPos - selected.transform.right * directionMultiplier * radius;
+            Vector3 center = arcStartPos - -selected.transform.right * directionMultiplier * radius;
 
             // Debug sphere to visualize the center
             GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -332,8 +417,8 @@ public class DominoSpawner : EditorWindow
                 CalculateArc(startPos, -1);
                 break;
             case Direction.Both:
-                CalculateArc(startPos + selected.transform.right * -0.25f, 1);
-                CalculateArc(startPos + selected.transform.right * 0.25f, -1);
+                CalculateArc(startPos + selected.transform.right * 0.25f, 1);
+                CalculateArc(startPos + selected.transform.right * -0.25f, -1);
                 break;
         }
 
@@ -357,7 +442,7 @@ public class DominoSpawner : EditorWindow
                 float angle = angleStep * i * Mathf.Deg2Rad * directionMultiplier;
                 float currentRadius = radius - (spiralSpacing * i);
                 Vector3 offset = new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle)) * currentRadius;
-                Vector3 spawnPos = startPos + selected.transform.right * offset.x + selected.transform.up * offset.z;
+                Vector3 spawnPos = startPos + selected.transform.right * offset.x + -selected.transform.forward * offset.z;
                 Quaternion newRotation = Quaternion.Euler(0, -angle * Mathf.Rad2Deg, 0) * rotation;
 
                 spawnTransforms.Add((spawnPos, newRotation));
@@ -386,32 +471,41 @@ public class DominoSpawner : EditorWindow
 
         for (int i = 0; i < dominoes.Count; i++)
         {
-            float cycleIndex;
-            bool reversed = false;
-
-            if (curveDirection == Direction.Both && (selectedFormation == FormationType.Curve || selectedFormation == FormationType.Spiral))
+            Color newColor;
+            if (rainbowMode)
             {
-                // Split into two halves for color calculation
-                int localIndex = (i < halfCount) ? i : i - halfCount;
-                int localCount = halfCount; // Each side should have its own independent gradient range
-
-                cycleIndex = (localIndex / (float)localCount) % 1f;
-
-                // Reverse coloring if needed for color bouncing
-                if (colorBounce && ((localIndex / (localCount / colorCycles)) % 2 == 1))
-                    reversed = true;
+                float hue = (i / (float)dominoes.Count) * colorCycles;
+                newColor = Color.HSVToRGB(hue % 1f, 1f, 1f); // Cycle through hues
             }
             else
             {
-                // Default case for single-direction coloring
-                cycleIndex = (i / (dominoes.Count / (float)colorCycles)) % 1f;
+                float cycleIndex;
+                bool reversed = false;
 
-                if (colorBounce && ((i / (dominoes.Count / colorCycles)) % 2 == 1))
-                    reversed = true;
-            }
+                if (curveDirection == Direction.Both && (selectedFormation == FormationType.Curve || selectedFormation == FormationType.Spiral))
+                {
+                    // Split into two halves for color calculation
+                    int localIndex = (i < halfCount) ? i : i - halfCount;
+                    int localCount = halfCount; // Each side should have its own independent gradient range
 
-            Color newColor = reversed ? Color.Lerp(effectiveEndColor, startColor, cycleIndex) 
+                    cycleIndex = (localIndex / (float)localCount) % 1f;
+
+                    // Reverse coloring if needed for color bouncing
+                    if (colorBounce && ((localIndex / (localCount / colorCycles)) % 2 == 1))
+                        reversed = true;
+                }
+                else
+                {
+                    // Default case for single-direction coloring
+                    cycleIndex = (i / (dominoes.Count / (float)colorCycles)) % 1f;
+
+                    if (colorBounce && ((i / (dominoes.Count / colorCycles)) % 2 == 1))
+                        reversed = true;
+                }
+
+                newColor = reversed ? Color.Lerp(effectiveEndColor, startColor, cycleIndex) 
                                     : Color.Lerp(startColor, effectiveEndColor, cycleIndex);
+            }
 
             DominoSkin dominoSkin = dominoes[i].GetComponent<DominoSkin>();
             if (dominoSkin != null)

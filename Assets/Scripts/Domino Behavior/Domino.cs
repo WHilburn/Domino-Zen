@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using DG.Tweening;
-using UnityEditor;
+using UnityEngine.Events;
 
 [SelectionBase]
 public class Domino : DominoLike
@@ -15,30 +15,58 @@ public class Domino : DominoLike
         Teleport,
         Jiggle
     }
-    private static float stillnessThreshold = 5f;  // Velocity threshold to consider "stationary"
-    static DominoSoundManager soundManager;
-    static CameraController cameraController;
-    public bool isMoving = false;
-    public bool isHeld = false;
+    private static readonly float stillnessVelocityThreshold = 5f;  // Velocity threshold to consider "stationary"
+    private static readonly float stillnessRotationThreshold = 1f;  // Rotation threshold to consider "stationary"
+    public enum DominoState
+    {
+        Stationary,
+        FillingIndicator,
+        Moving,
+        Held,
+        Animating
+    }
+    public DominoState currentState = DominoState.Stationary;
+    [HideInInspector]
     public float velocityMagnitude;
     public bool musicMode = true;
     [HideInInspector]
     public bool stablePositionSet = false;
-    public bool locked = false; // Flag to prevent movement when locked
-    private Vector3 lastStablePosition;
-    private Quaternion lastStableRotation;
-    private static float uprightThreshold = -0.99f; // How upright the domino must be (1 = perfectly upright)
-    static float stabilityCheckDelay = 0.5f; // Delay between stability checks
+    [HideInInspector]
+    public PlacementIndicator placementIndicator; // Reference to the placement indicator the domino is placed inside
+    public bool locked = false; // Flag to prevent player pickup when locked
+    public Vector3 lastStablePosition;
+    public Quaternion lastStableRotation;
+    private static float uprightThreshold = 0.99f; // How upright the domino must be (1 = perfectly upright)
+    //static float stabilityCheckDelay = 0.5f; // Delay between stability checks
     public bool canSetNewStablePosition = true; // Flag to prevent multiple stability checks
+    public static UnityEvent<Domino> OnDominoFall = new(); // Domino calls this to register for reset, causing cascade sounds, etc
+    public static UnityEvent<Domino> OnDominoStopMoving = new(); // Domino calls this to end cascade sounds
+    public static UnityEvent<Domino> OnDominoPlacedCorrectly= new(); // Calls this to notify systems it's been placed in an indicator
+    public static UnityEvent<Domino> OnDominoCreated = new(); // Calls this to notify systems of it's creation
+    public static UnityEvent<Domino> OnDominoDeleted = new(); // Calls this to notify systems of it's deletion
+    public static UnityEvent<Domino, float, Vector3> OnDominoImpact = new(); // Calls this to make sounds
+
+    // private LineRenderer lineRenderer;// For debugging Domino's stable point
 
     void Start()
     {
+        OnDominoCreated.Invoke(this); // Notify listeners of domino creation
         rb = GetComponent<Rigidbody>();
-        SnapToGround();
-        if (soundManager == null) soundManager = FindObjectOfType<DominoSoundManager>(); // Get references
-        if (cameraController == null) cameraController = FindObjectOfType<CameraController>();
-        CheckStability();
-        InvokeRepeating(nameof(CheckStability), stabilityCheckDelay + Random.Range(0f, .1f), stabilityCheckDelay);
+
+        // Add and configure the LineRenderer ////////////////////////////////////////
+        // lineRenderer = gameObject.AddComponent<LineRenderer>();
+        // lineRenderer.startWidth = 0.05f;
+        // lineRenderer.endWidth = 0.05f;
+        // lineRenderer.material = new Material(Shader.Find("Sprites/Default")); // Use a default material
+        // lineRenderer.startColor = Color.red;
+        // lineRenderer.endColor = Color.red;
+
+        if (currentState != DominoState.Held)
+        {
+            SnapToGround();
+            SaveStablePosition();
+        }
+        // InvokeRepeating(nameof(CheckStability), stabilityCheckDelay + Random.Range(0f, .1f), stabilityCheckDelay);
     }
 
     void Awake()
@@ -48,64 +76,66 @@ public class Domino : DominoLike
 
     void OnDestroy()
     {
-        cameraController?.fallingDominoes.Remove(transform);
-        DominoResetManager.Instance.RemoveDomino(this); // Remove from reset manager
+        OnDominoDeleted.Invoke(this); // Notify listeners of domino deletion
     }
 
     void Update()
     {
-        if (isHeld)
+        if (currentState == DominoState.Held)
         {
             return;
         }
-        
-        if (rb != null && soundManager != null)
+
+        // if (lineRenderer != null && stablePositionSet)///////////
+        // {
+        //     lineRenderer.SetPosition(0, transform.position); // Start point: current position
+        //     lineRenderer.SetPosition(1, lastStablePosition); // End point: last stable position
+        // }
+
+        if (rb != null)
         {
             velocityMagnitude = rb.angularVelocity.magnitude;
-            soundManager.UpdateDominoMovement(velocityMagnitude);
         }
 
-        bool currentlyMoving = rb.velocity.sqrMagnitude >= stillnessThreshold * stillnessThreshold || 
-        rb.angularVelocity.sqrMagnitude >= stillnessThreshold * stillnessThreshold;
+        bool currentlyMoving = rb.velocity.magnitude >= stillnessVelocityThreshold || 
+                               rb.angularVelocity.magnitude >= stillnessRotationThreshold;
 
-        if (currentlyMoving && !isMoving) // When we start moving
+        if (currentlyMoving && currentState != DominoState.Moving && currentState != DominoState.Animating) // When we start moving
         {
-            isMoving = true;
-            
-            if (cameraController!= null && !cameraController.fallingDominoes.Contains(transform))
+            if (currentState == DominoState.Stationary || currentState == DominoState.FillingIndicator) // Releasing a held domino does not count as "falling"
             {
-                cameraController.fallingDominoes.Add(transform);
+                OnDominoFall.Invoke(this);
             }
-            if (!rb.isKinematic)
-            {
-                Debug.Log($"Registering domino {gameObject.name} at {transform.position} and {transform.rotation} through Update");
-                DominoResetManager.Instance.RegisterDomino(this, lastStablePosition, lastStableRotation);
-            }
-            StartCoroutine(RemoveFromFallingDominoes(0.25f));
-            // rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
+            currentState = DominoState.Moving; // Set state to moving
         }
-        else if (!currentlyMoving && isMoving) //When we stop moving
+        else if (!currentlyMoving && currentState == DominoState.Moving) // When we stop moving
         {
-            CheckStability();
-            isMoving = false;
-            // rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            // CheckStability();
+            currentState = DominoState.Stationary;
+            OnDominoStopMoving.Invoke(this); // Notify listeners of domino stopping
         }
-        isMoving = currentlyMoving;
+
+        if (!currentlyMoving && placementIndicator != null && !locked)
+        {
+            currentState = DominoState.FillingIndicator;
+        }
     }
 
     private void CheckStability()
     {
-        if (rb.isKinematic  || 
-        lastStablePosition == transform.position || 
-        rb.angularVelocity.magnitude > stillnessThreshold || 
-        rb.velocity.magnitude > stillnessThreshold ||
-        !canSetNewStablePosition)
+        if (currentState != DominoState.Stationary ||
+            locked || 
+            !canSetNewStablePosition ||
+            rb.isKinematic || 
+            lastStablePosition == transform.position || 
+            rb.angularVelocity.magnitude > stillnessVelocityThreshold || 
+            rb.velocity.magnitude > stillnessVelocityThreshold)
         {
             return;
         }
-        //Debug.Log("Difference between up and forward: " + Vector3.Dot(transform.forward, Vector3.up));
-        if (!isHeld && Vector3.Dot(transform.forward, Vector3.up) < uprightThreshold)
+
+        if (Vector3.Dot(transform.up, Vector3.up) > uprightThreshold)
         {
             SaveStablePosition();
         }
@@ -113,8 +143,7 @@ public class Domino : DominoLike
 
     public void DespawnDomino()
     {
-        // Disable collisions with other dominoes
-        TogglePhysics(false);
+        StartCoroutine(TogglePhysics(false)); // Disable collisions with other dominoes
 
         // Scale the domino down to zero
         float scaleDuration = 0.5f; // Duration of the scaling animation
@@ -127,46 +156,43 @@ public class Domino : DominoLike
             });
     }
 
-    public void SaveStablePosition()
-    {
-        // Debug.Log($"Saving stable position for {gameObject.name} at {transform.position} and {transform.rotation}");
-        stablePositionSet = true;
-        lastStablePosition = transform.position;
-        //Make sure stable rotation is perfectly upright
-        lastStableRotation = Quaternion.Euler(90f, transform.eulerAngles.y, transform.eulerAngles.z);
-    }
-    public void SetStablePosition(Transform inputTransform)
+    public void SaveStablePosition(Transform inputTransform = null)
     {
         stablePositionSet = true;
-        lastStablePosition = inputTransform.position;
-        lastStableRotation = inputTransform.rotation;
+
+        if (inputTransform != null)
+        {
+            lastStablePosition = inputTransform.position;
+            lastStableRotation = inputTransform.rotation;
+        }
+        else
+        {
+            lastStablePosition = transform.position;
+            lastStableRotation = transform.rotation;
+        }
     }
+
     private void OnCollisionEnter(Collision collision)
     {
         float impactForce = collision.relativeVelocity.magnitude;
         if (impactForce < .5f || rb.isKinematic) return; // Ignore small impacts
 
-        if (musicMode)
-        {
-            DominoSoundManager.Instance.PlayDominoSound(impactForce, transform.position, DominoSoundManager.DominoSoundType.Piano);
-        }
-        else
-        {
-            DominoSoundManager.Instance.PlayDominoSound(impactForce, transform.position);
-        }
+        OnDominoImpact.Invoke(this, impactForce, transform.position);
 
-        Debug.Log($"Registering domino {gameObject.name} at world position {transform.position} and world rotation {transform.rotation.eulerAngles} through Collision");
-        DominoResetManager.Instance.RegisterDomino(this, lastStablePosition, lastStableRotation);
+        if (currentState != DominoState.Held)
+        {
+            if (currentState == DominoState.Stationary || currentState == DominoState.FillingIndicator) // Releasing a held domino does not count as "falling"
+            {
+                OnDominoFall.Invoke(this);
+            }
+            currentState = DominoState.Moving;
+        }
     }
 
     public void AnimateDomino(DominoAnimation animation, float resetDuration = 1f)
     {
-        if (isHeld) return; // Don't reset if the domino is being held
-        if (!stablePositionSet)
-        {
-            DespawnDomino();
-            return;
-        }
+        if (currentState == DominoState.Held) return; // Don't reset if the domino is being held
+        currentState = DominoState.Animating; // Set state to animating
         if (DOTween.IsTweening(transform)) return; // Prevent additional animations if a tween is active
 
         bool savedSetting = canSetNewStablePosition;
@@ -187,24 +213,25 @@ public class Domino : DominoLike
                 break;
         }
         canSetNewStablePosition = savedSetting; // Restore the ability to set new stable positions
+        currentState = DominoState.Stationary; // Reset state to stationary
     }
 
-    // Abstracted methods for each animation type
     private void PerformTeleport()
     {
         rb.transform.position = lastStablePosition;
         rb.transform.rotation = lastStableRotation;
-        TogglePhysics(true);
+        StartCoroutine(TogglePhysics(true));
     }
 
     private void PerformRotate(float resetDuration)
     {
-        TogglePhysics(false);
+        StartCoroutine(TogglePhysics(false));
         rb.transform.DOMove(lastStablePosition, resetDuration);
         rb.transform.DORotateQuaternion(lastStableRotation, resetDuration).OnComplete(() =>
         {
-            TogglePhysics(true);
-            StartCoroutine(RemoveFromFallingDominoes(0.25f));
+            transform.position = lastStablePosition;
+            transform.rotation = lastStableRotation;
+            StartCoroutine(TogglePhysics(true));
         });
     }
 
@@ -214,11 +241,10 @@ public class Domino : DominoLike
         float jumpDuration = 0.3f;  // Faster upward motion
         float fallDuration = 0.15f; // Faster downward motion
         float rotationDuration = 0.4f; // Smooth rotation time
-
-        TogglePhysics(false);
+        StartCoroutine(TogglePhysics(false));
         Sequence jumpSequence = DOTween.Sequence();
         jumpSequence.Append(transform.DOMoveY(lastStablePosition.y + jumpHeight, jumpDuration).SetEase(Ease.OutQuad));
-        Vector3 randomFlip = new Vector3(Random.Range(0f, 720f), Random.Range(0f, 720f), Random.Range(0f, 720f));
+        Vector3 randomFlip = new(Random.Range(0f, 720f), Random.Range(0f, 720f), Random.Range(0f, 720f));
         jumpSequence.Join(transform.DORotate(randomFlip, jumpDuration, RotateMode.FastBeyond360).SetEase(Ease.OutQuad));
         jumpSequence.Append(transform.DORotateQuaternion(lastStableRotation, rotationDuration).SetEase(Ease.OutQuad));
         jumpSequence.Append(transform.DOMove(lastStablePosition, fallDuration).SetEase(Ease.InQuad));
@@ -226,21 +252,17 @@ public class Domino : DominoLike
         {
             transform.position = lastStablePosition;
             transform.rotation = lastStableRotation;
-            TogglePhysics(true);
-            StartCoroutine(RemoveFromFallingDominoes(0.1f));
+            StartCoroutine(TogglePhysics(true));
         });
         jumpSequence.Play();
     }
 
     private void PerformJiggle()
     {
-        soundManager?.playArbitrarySound(soundManager.dominoLockedSound, 1, 1, transform.position);
-
         float jiggleDuration = 0.2f;
         float noiseIntensity = 0.1f; // Intensity of the jiggle movement
         Vector3 originalPosition = lastStablePosition;
-
-        TogglePhysics(false);
+        StartCoroutine(TogglePhysics(false));
 
         // Create a sequence for the jiggle animation
         Sequence jiggleSequence = DOTween.Sequence();
@@ -250,46 +272,33 @@ public class Domino : DominoLike
         jiggleSequence.Append(transform.DOMove(originalPosition + rightDirection, jiggleDuration / 4).SetEase(Ease.InOutSine));
         jiggleSequence.Append(transform.DOMove(originalPosition - rightDirection, jiggleDuration / 2).SetEase(Ease.InOutSine));
         jiggleSequence.Append(transform.DOMove(originalPosition, jiggleDuration / 4).SetEase(Ease.InOutSine));
-        // jiggleSequence.Append(transform.DOMove(originalPosition + new Vector3(noiseIntensity, 0, 0), jiggleDuration / 4).SetEase(Ease.InOutSine));
-        // jiggleSequence.Append(transform.DOMove(originalPosition + new Vector3(-noiseIntensity, 0, 0), jiggleDuration / 2).SetEase(Ease.InOutSine));
-        // jiggleSequence.Append(transform.DOMove(originalPosition, jiggleDuration / 4).SetEase(Ease.InOutSine));
 
         // Ensure the position is reset to the original position at the end
         jiggleSequence.OnComplete(() =>
         {
             transform.position = originalPosition;
-            TogglePhysics(true);
+            StartCoroutine(TogglePhysics(true));
         });
 
         jiggleSequence.Play();
     }
 
-    public void TogglePhysics(bool value)
+    public IEnumerator TogglePhysics(bool value)
     {
-        if (rb == null)
-        {
-            Debug.LogError($"Rigidbody is missing on {gameObject.name}. Ensure the prefab has a Rigidbody component.");
-            return;
-        }
-
+        if (value == true) yield return null; // Wait for the next frame to reenable physics
         rb.isKinematic = !value;
 
         BoxCollider boxCollider = GetComponent<BoxCollider>();
-        if (boxCollider == null)
-        {
-            Debug.LogError($"BoxCollider is missing on {gameObject.name}. Ensure the prefab has a BoxCollider component.");
-            return;
-        }
 
         boxCollider.enabled = value;
 
         // Stop any active DOTween animations
         transform.DOKill();
-    }
-    public IEnumerator RemoveFromFallingDominoes(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        cameraController?.fallingDominoes.Remove(transform);
-    }
 
+        if (rb.velocity.magnitude < stillnessVelocityThreshold&&
+                 rb.angularVelocity.magnitude < stillnessRotationThreshold)
+        {
+            currentState = DominoState.Stationary;
+        }
+    }
 }

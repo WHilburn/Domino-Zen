@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
@@ -9,8 +8,17 @@ public class GameManager : MonoBehaviour
     public List<PlacementIndicator> allIndicators;  // List of all dominoes in the scene
     private bool physicsEnabled = true; // Whether domino physics are enabled
 
+    public enum GameDifficulty
+    {
+        Easy,
+        Medium,
+        Hard
+    }
+    public GameDifficulty gameDifficulty = GameDifficulty.Easy; // Default difficulty
+
     void Start()
     {
+        DOTween.SetTweensCapacity(20000, 20000);
         DOTween.defaultRecyclable = true; // Enable DOTween recycling
         if (Instance != null && Instance != this)
         {
@@ -41,7 +49,7 @@ public class GameManager : MonoBehaviour
         bool allIndicatorsFilled = true;
         foreach (var indicator in allIndicators)
         {
-            if (indicator.currentState != PlacementIndicator.IndicatorState.Placed)
+            if (indicator.currentState != PlacementIndicator.IndicatorState.Filled)
             {
                 allIndicatorsFilled = false;
                 break;
