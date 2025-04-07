@@ -38,6 +38,11 @@ public class PlacementIndicator : DominoLike
         if (other.CompareTag("DominoTag") && trackedDomino == null && currentState != IndicatorState.Filled)
         {
             trackedDomino = other.gameObject.GetComponent<Domino>();
+            if (trackedDomino.placementIndicator != null && trackedDomino.placementIndicator != this) //If the domino is also paired to another indicator, ignore it
+            {
+                trackedDomino = null; // Clear the tracked domino if it's already paired with another indicator
+                return;
+            }
             trackedDominoRb = other.gameObject.GetComponent<Rigidbody>();
             currentState = IndicatorState.TryingToFill; // Transition to Occupied state
         }

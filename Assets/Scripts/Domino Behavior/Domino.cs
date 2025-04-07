@@ -143,9 +143,7 @@ public class Domino : DominoLike
 
     public void DespawnDomino()
     {
-        StartCoroutine(
-                // Disable collisions with other dominoes
-                TogglePhysics(false));
+        StartCoroutine(TogglePhysics(false)); // Disable collisions with other dominoes
 
         // Scale the domino down to zero
         float scaleDuration = 0.5f; // Duration of the scaling animation
@@ -195,11 +193,6 @@ public class Domino : DominoLike
     {
         if (currentState == DominoState.Held) return; // Don't reset if the domino is being held
         currentState = DominoState.Animating; // Set state to animating
-        if (!stablePositionSet)
-        {
-            DespawnDomino();
-            return;
-        }
         if (DOTween.IsTweening(transform)) return; // Prevent additional animations if a tween is active
 
         bool savedSetting = canSetNewStablePosition;

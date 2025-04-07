@@ -8,6 +8,14 @@ public class GameManager : MonoBehaviour
     public List<PlacementIndicator> allIndicators;  // List of all dominoes in the scene
     private bool physicsEnabled = true; // Whether domino physics are enabled
 
+    public enum GameDifficulty
+    {
+        Easy,
+        Medium,
+        Hard
+    }
+    public GameDifficulty gameDifficulty = GameDifficulty.Easy; // Default difficulty
+
     void Start()
     {
         DOTween.SetTweensCapacity(20000, 20000);
