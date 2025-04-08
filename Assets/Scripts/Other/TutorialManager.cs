@@ -15,10 +15,14 @@ public class TutorialManager : MonoBehaviour
 
     public Button tutorialButton;
     public TextMeshProUGUI tutorialText; // Reference to the UI Text element
-    private LineRenderer tutorialArrow; // Reference to the LineRenderer for the tutorial arrow
-    private bool controlsEnabled = false; // Flag to enable/disable controls
-    public static UnityEvent<bool> OnToggleControls = new(); //Event to enable/disable controls
+    public GameObject arrowSpriteInstance; // Instance of the arrow sprite
+    private float bobbingSpeed = 3f; // Speed of the bobbing animation
+    private float bobbingHeight = 10f; // Height of the bobbing animation
+    private bool placementEnabled = false; // Flag to enable/disable controls
+    public static UnityEvent<bool> OnTogglePlacementControls = new(); //Events to enable/disable controls
+    public static UnityEvent<bool> OnToggleCameraControls = new();
     public Camera mainCamera; // Reference to the main camera
+    public Canvas uiCanvas; // Reference to the UI Canvas
 
     private Transform currentTarget; // Store the current target for the arrow
     private Material arrowMaterial; // Material for the arrow
@@ -68,8 +72,8 @@ public class TutorialManager : MonoBehaviour
         var currentStep = steps[currentStepIndex];
         tutorialText.text = currentStep.text;
         tutorialButton.gameObject.SetActive(currentStep.enableButton);
-        controlsEnabled = currentStep.controlsEnabled;
-        OnToggleControls.Invoke(controlsEnabled);
+        placementEnabled = currentStep.placementEnabled;
+        OnTogglePlacementControls.Invoke(placementEnabled);
 
         if (currentStep.worldTarget != null)
         {
@@ -96,9 +100,6 @@ public class TutorialManager : MonoBehaviour
         {
             NextStep();
         }
-    }
-    private void LateUpdate()
-    {
         // Update arrow position if a target is set
         if (currentTarget != null)
         {
@@ -122,51 +123,50 @@ public class TutorialManager : MonoBehaviour
         ClearArrow();
         tutorialText.text = string.Empty;
         tutorialButton.gameObject.SetActive(false);
-        OnToggleControls.Invoke(true); // Re-enable controls after tutorial
+        OnTogglePlacementControls.Invoke(true); // Re-enable controls after tutorial
         transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InBack).OnComplete(() => gameObject.SetActive(false));
     }
 
-    // Draw the arrow and set the current target
     private void DrawArrowToTarget(Transform target)
     {
-        if (tutorialArrow == null)
-        {
-            tutorialArrow = gameObject.AddComponent<LineRenderer>();
-            tutorialArrow.startWidth = 0.01f;
-            tutorialArrow.endWidth = 0.05f;
-            tutorialArrow.material = arrowMaterial;
-            tutorialArrow.startColor = Color.red;
-            tutorialArrow.endColor = Color.red;
-        }
+        if (uiCanvas == null) return;
 
         currentTarget = target; // Set the current target
         UpdateArrowPosition(target);
     }
 
-    // Update the arrow's position dynamically
     private void UpdateArrowPosition(Transform target)
     {
-        // Convert UI position to world space
-        Vector3 uiWorldPosition = mainCamera.ScreenToWorldPoint(new Vector3(
-            tutorialText.transform.position.x,
-            tutorialText.transform.position.y,
-            mainCamera.nearClipPlane));
+        if (arrowSpriteInstance == null || target == null || uiCanvas == null) return;
 
-        // Convert target position to world space
-        Vector3 targetWorldPosition = target.position;
-        targetWorldPosition.y += 0.5f; // Adjust height for the arrow
+        // Convert target position to screen space
+        Vector3 adjustedTargetPosition = target.position;
+        adjustedTargetPosition.y += 1; // Adjust height for the arrow
+        Vector3 targetScreenPosition = mainCamera.WorldToScreenPoint(adjustedTargetPosition);
 
-        tutorialArrow.positionCount = 2;
-        tutorialArrow.SetPosition(0, uiWorldPosition);
-        tutorialArrow.SetPosition(1, targetWorldPosition);
+        arrowSpriteInstance.SetActive(true); // Show the arrow
+        // Position the arrow on the canvas
+        RectTransform arrowRectTransform = arrowSpriteInstance.GetComponent<RectTransform>();
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            uiCanvas.GetComponent<RectTransform>(),
+            targetScreenPosition,
+            uiCanvas.worldCamera,
+            out Vector2 localPoint);
+        arrowRectTransform.localPosition = localPoint;
+
+        // Apply bobbing animation
+        float bobbingOffset = Mathf.Sin(Time.time * bobbingSpeed) * bobbingHeight;
+        arrowRectTransform.localPosition += new Vector3(0, bobbingOffset, 0);
+
+        // Reset rotation since it's hovering
+        arrowRectTransform.rotation = Quaternion.identity;
     }
 
-    // Clear the arrow and reset the target
     private void ClearArrow()
     {
-        if (tutorialArrow != null)
+        if (arrowSpriteInstance != null)
         {
-            tutorialArrow.positionCount = 0;
+            Destroy(arrowSpriteInstance);
         }
         currentTarget = null; // Reset the current target
     }
