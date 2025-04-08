@@ -12,7 +12,6 @@ public class TutorialManager : MonoBehaviour
     private bool isTutorialActive = false;
     private int currentStepIndex = 0;
     public List<TutorialStep> steps;
-
     public Button tutorialButton;
     public TextMeshProUGUI tutorialText; // Reference to the UI Text element
     public GameObject arrowSpriteInstance; // Instance of the arrow sprite
@@ -23,9 +22,7 @@ public class TutorialManager : MonoBehaviour
     public static UnityEvent<bool> OnToggleCameraControls = new();
     public Camera mainCamera; // Reference to the main camera
     public Canvas uiCanvas; // Reference to the UI Canvas
-
     private Transform currentTarget; // Store the current target for the arrow
-    private Material arrowMaterial; // Material for the arrow
 
     void Awake()
     {
@@ -40,6 +37,7 @@ public class TutorialManager : MonoBehaviour
         // tween the scale of the object from 0 to 1 over 0.5 seconds
         transform.localScale = Vector3.zero;
         transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
+        arrowSpriteInstance.SetActive(false); // Hide the arrow sprite initially
     }
 
     void Start()
@@ -48,10 +46,6 @@ public class TutorialManager : MonoBehaviour
         {
             StartTutorial();
         }
-
-        arrowMaterial = new Material(Shader.Find("Sprites/Default"));
-        arrowMaterial.mainTexture = Resources.Load<Texture2D>("ArrowTexture"); // Ensure you have an arrow texture in Resources
-        arrowMaterial.color = Color.red;
     }
 
     public void StartTutorial()
@@ -130,6 +124,7 @@ public class TutorialManager : MonoBehaviour
     private void DrawArrowToTarget(Transform target)
     {
         if (uiCanvas == null) return;
+        arrowSpriteInstance.SetActive(true);
 
         currentTarget = target; // Set the current target
         UpdateArrowPosition(target);
@@ -166,7 +161,7 @@ public class TutorialManager : MonoBehaviour
     {
         if (arrowSpriteInstance != null)
         {
-            Destroy(arrowSpriteInstance);
+            arrowSpriteInstance.SetActive(false);
         }
         currentTarget = null; // Reset the current target
     }
