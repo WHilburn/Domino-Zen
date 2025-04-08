@@ -24,6 +24,7 @@ public class DominoResetManager : MonoBehaviour
         Domino.OnDominoDeleted.AddListener(RemoveDomino); // Subscribe to domino deletion event
         Domino.OnDominoPlacedCorrectly.AddListener(RegisterDominoPlacement); // Subscribe to domino placement event
         Invoke("UpdateDifficulty", 0.05f); // Update difficulty after a short delay
+        // Add all dominos in the scene to checkpointedDominoes
     }
 
     public void UpdateDifficulty() // Set the game difficulty
@@ -41,6 +42,13 @@ public class DominoResetManager : MonoBehaviour
                 checkpointThreshold = 10000;
                 break;
         }
+        foreach (var domino in FindObjectsOfType<Domino>())
+        {
+            if (domino.stablePositionSet && difficulty != GameManager.GameDifficulty.Hard) // Only add dominoes with a stable position set
+            {
+                checkpointedDominoes.Add(domino);
+            }
+        }
     }
 
     private void RegisterDominoPlacement(Domino domino) // Registers that a domino was placed in an indicator
@@ -51,7 +59,7 @@ public class DominoResetManager : MonoBehaviour
         if (waitingForCheckpoint.Count % checkpointThreshold == 0)
         {
             LockWaitingDominoes(); // Lock dominoes in waitingForCheckpoint set
-            Debug.Log("Checkpoint reached! Locked dominoes count: " + checkpointedDominoes.Count);
+            // Debug.Log("Checkpoint reached! Locked dominoes count: " + checkpointedDominoes.Count);
         }
         
     }
