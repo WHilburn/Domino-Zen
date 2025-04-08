@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
 using System.Collections.Generic;
+using Cinemachine;
 
 public class TutorialManager : MonoBehaviour
 {
@@ -20,9 +21,13 @@ public class TutorialManager : MonoBehaviour
     public static UnityEvent<bool> OnTogglePlacementControls = new(); //Events to enable/disable controls
     public static UnityEvent<bool> OnToggleCameraControls = new();
     public Camera mainCamera; // Reference to the main camera
+    public CinemachineVirtualCamera starterCamera; // Reference to the starter camera
     public Canvas uiCanvas; // Reference to the UI Canvas
     private Transform currentTarget; // Store the current target for the arrow
     private bool visible = true; // Flag to show/hide the tutorial
+
+    public TutorialIndicatorCheck tutorialIndicatorCheck1;
+    public TutorialIndicatorCheck tutorialIndicatorCheck2; // Reference to the tutorial indicator checks
 
     void Awake()
     {
@@ -47,18 +52,16 @@ public class TutorialManager : MonoBehaviour
             StartTutorial();
         }
 
-        // Subscribe to TutorialIndicatorCheck's event
-        foreach (var indicatorCheck in FindObjectsOfType<TutorialIndicatorCheck>())
-        {
-            indicatorCheck.OnAllIndicatorsFilled.AddListener(OnCompleteIndicatorRow);
-        }
+        // Subscribe to TutorialIndicatorCheck's events
+        tutorialIndicatorCheck1.OnCompleteIndicatorRow.AddListener(OnCompleteIndicatorRow1);
+        tutorialIndicatorCheck2.OnCompleteIndicatorRow.AddListener(OnCompleteIndicatorRow2);
 
         // Subscribe to other relevant events
         Domino.OnDominoCreated.AddListener(OnSpawnDomino);
         PlayerDominoPlacement.OnDominoReleased.AddListener(OnDropDomino);
         PlacementIndicator.OnIndicatorFilled.AddListener(OnFillOneIndicator);
         CameraController.OnFreeLookCameraEnabled.AddListener(OnCascadeEnd);
-        CameraController.OnFreeLookCameraDisabled.AddListener(OnCascaseStart);
+        CameraController.OnFreeLookCameraDisabled.AddListener(OnCascadeStart);
     }
 
     public void StartTutorial()
@@ -78,14 +81,28 @@ public class TutorialManager : MonoBehaviour
 
         var currentStep = steps[currentStepIndex];
         tutorialText.text = currentStep.text;
-        if (currentStep.completionCondition == CompletionCondition.ClickButton){
+        if (currentStep.completionCondition == CompletionCondition.ClickButton)
+        {
             tutorialButton.gameObject.SetActive(true); // Show the button
         }
-        
+
         placementEnabled = currentStep.placementEnabled;
         OnTogglePlacementControls.Invoke(placementEnabled);
         PlayerDominoPlacement.placementEnabled = placementEnabled; // Update the PlayerDominoPlacement script
         visible = currentStep.visible;
+
+        if (currentStep.cameraEnabled)
+        {
+            starterCamera.Priority = 0; // Set the camera priority to 0
+            Debug.Log($"Starter camera priority set to {starterCamera.Priority}"); // Debug log to confirm
+            OnToggleCameraControls.Invoke(true); // Disable camera controls during the tutorial
+        }
+        else
+        {
+            starterCamera.Priority = 30; // Reset the camera priority
+            Debug.Log($"Starter camera priority set to {starterCamera.Priority}"); // Debug log to confirm
+            OnToggleCameraControls.Invoke(false); // Enable camera controls after the tutorial
+        }
 
         if (currentStep.worldTarget != null)
         {
@@ -103,9 +120,6 @@ public class TutorialManager : MonoBehaviour
     {
         switch (condition)
         {
-            case CompletionCondition.CompleteIndicatorRow:
-                // Already handled via OnCompleteIndicatorRow
-                break;
             case CompletionCondition.SpawnADomino:
                 // Handled via OnSpawnDomino
                 break;
@@ -215,11 +229,15 @@ public class TutorialManager : MonoBehaviour
         currentTarget = null; // Reset the current target
     }
 
-    private void OnCompleteIndicatorRow()
+    private void OnCompleteIndicatorRow1(TutorialIndicatorCheck check)
     {
-        CheckCompletionCondition(CompletionCondition.CompleteIndicatorRow);
+        CheckCompletionCondition(CompletionCondition.CompleteIndicatorRow1);
     }
-    private void OnCascaseStart()
+    private void OnCompleteIndicatorRow2(TutorialIndicatorCheck check)
+    {
+        CheckCompletionCondition(CompletionCondition.CompleteIndicatorRow2);
+    }
+    private void OnCascadeStart()
     {
         CheckCompletionCondition(CompletionCondition.WaitforCascadeStart);
     }

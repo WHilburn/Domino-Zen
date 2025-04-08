@@ -4,7 +4,7 @@ using UnityEngine.Events;
 
 public class TutorialIndicatorCheck : MonoBehaviour
 {
-    public UnityEvent OnAllIndicatorsFilled = new();
+    public UnityEvent<TutorialIndicatorCheck> OnCompleteIndicatorRow = new UnityEvent<TutorialIndicatorCheck>();
 
     private List<PlacementIndicator> childIndicators = new List<PlacementIndicator>();
 
@@ -30,7 +30,7 @@ public class TutorialIndicatorCheck : MonoBehaviour
         }
         if (allIndicatorsFilled)
         {
-            OnAllIndicatorsFilled.Invoke(); // Invoke the event when all indicators are filled
+            OnCompleteIndicatorRow.Invoke(this); // Invoke the event when all indicators are filled
             Debug.Log("All indicators filled!");
         }
     }
