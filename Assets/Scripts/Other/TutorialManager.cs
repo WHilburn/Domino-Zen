@@ -218,11 +218,16 @@ public class TutorialManager : MonoBehaviour
 
     private void OnSpawnDomino(Domino domino)
     {
-        NextStep();
+        CheckCompletionCondition(CompletionCondition.SpawnADomino);
     }
 
     private void OnDropDomino(Domino domino)
     {
-        NextStep();
+        CheckCompletionCondition(CompletionCondition.DropADomino);
+    }
+
+    private void OnFillOneIndicator(PlacementIndicator indicator)
+    {
+        CheckCompletionCondition(CompletionCondition.FillOneIndicator);
     }
 }
