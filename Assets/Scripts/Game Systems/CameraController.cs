@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+using UnityEngine.Events;
 
 public class CameraController : MonoBehaviour
 {
@@ -17,6 +18,8 @@ public class CameraController : MonoBehaviour
     public float cameraHeightBoost = 10f; // Extra height for tracking camera
     public float smoothTime = 0.5f; // Smoothing time for camera adjustments
     public bool prioritySystem = true; // Use Cinemachine priority system
+    public static UnityEvent OnFreeLookCameraEnabled = new();
+    public static UnityEvent OnFreeLookCameraDisabled = new();
 
     void Start()
     {
@@ -107,6 +110,7 @@ public class CameraController : MonoBehaviour
             trackingCamera.enabled = false;
         }
         freeLookCamera.GetComponent<PlayerCameraController>().InitializeRotation();
+        OnFreeLookCameraEnabled.Invoke(); // Invoke the event when free look camera is enabled
     }
 
     private void EnableTrackingCamera()
@@ -122,5 +126,6 @@ public class CameraController : MonoBehaviour
             trackingCamera.enabled = true;
         }
         GetComponent<PlayerDominoPlacement>().ReleaseDomino();
+        OnFreeLookCameraDisabled.Invoke();
     }
 }

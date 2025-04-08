@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -23,6 +22,7 @@ public class TutorialManager : MonoBehaviour
     public Camera mainCamera; // Reference to the main camera
     public Canvas uiCanvas; // Reference to the UI Canvas
     private Transform currentTarget; // Store the current target for the arrow
+    private bool visible = true; // Flag to show/hide the tutorial
 
     void Awake()
     {
@@ -55,7 +55,10 @@ public class TutorialManager : MonoBehaviour
 
         // Subscribe to other relevant events
         Domino.OnDominoCreated.AddListener(OnSpawnDomino);
-        PlayerDominoPlacement.OnDominoReleased.AddListener(OnDropDomino);        
+        PlayerDominoPlacement.OnDominoReleased.AddListener(OnDropDomino);
+        PlacementIndicator.OnIndicatorFilled.AddListener(OnFillOneIndicator);
+        CameraController.OnFreeLookCameraEnabled.AddListener(OnCascadeEnd);
+        CameraController.OnFreeLookCameraDisabled.AddListener(OnCascaseStart);
     }
 
     public void StartTutorial()
@@ -76,11 +79,13 @@ public class TutorialManager : MonoBehaviour
         var currentStep = steps[currentStepIndex];
         tutorialText.text = currentStep.text;
         if (currentStep.completionCondition == CompletionCondition.ClickButton){
-            tutorialButton.enabled = true;
+            tutorialButton.gameObject.SetActive(true); // Show the button
         }
         
         placementEnabled = currentStep.placementEnabled;
         OnTogglePlacementControls.Invoke(placementEnabled);
+        PlayerDominoPlacement.placementEnabled = placementEnabled; // Update the PlayerDominoPlacement script
+        visible = currentStep.visible;
 
         if (currentStep.worldTarget != null)
         {
@@ -111,7 +116,7 @@ public class TutorialManager : MonoBehaviour
                 // Logic to handle FillOneIndicator can be added here
                 break;
             case CompletionCondition.ClickButton:
-                tutorialButton.enabled = true; // Enable the button for clicking
+                tutorialButton.gameObject.SetActive(true); // Show the button
                 tutorialButton.onClick.RemoveAllListeners();
                 tutorialButton.onClick.AddListener(() => NextStep());
                 break;
@@ -121,12 +126,6 @@ public class TutorialManager : MonoBehaviour
     private void Update()
     {
         if (!isTutorialActive || currentStepIndex >= steps.Count) return;
-
-        var currentStep = steps[currentStepIndex];
-        // if (currentStep.completionCondition != null && currentStep.completionCondition.Invoke()) 
-        // {
-        //     NextStep();
-        // }
         // Update arrow position if a target is set
         if (currentTarget != null)
         {
@@ -148,12 +147,17 @@ public class TutorialManager : MonoBehaviour
     private void NextStep()
     {
         currentStepIndex++;
-        tutorialButton.enabled = false; // Disable the button after clicking
+        tutorialButton.gameObject.SetActive(false); // Disable the button after clicking
         UpdateStep();
-        transform.DOScale(0.8f, 0.2f).SetEase(Ease.OutQuad).OnComplete(() =>
+        if (visible)
         {
-            transform.DOScale(1f, 0.2f).SetEase(Ease.OutQuad);
-        });
+            transform.DOScale(0.5f, 0.2f).SetEase(Ease.OutQuad).OnComplete(() =>
+                {transform.DOScale(1f, 0.2f).SetEase(Ease.OutQuad);});
+        }
+        else
+        {
+            transform.DOScale(0, 0.2f).SetEase(Ease.OutQuad);
+        }
     }
 
     private void CompleteTutorial()
@@ -181,7 +185,7 @@ public class TutorialManager : MonoBehaviour
 
         // Convert target position to screen space
         Vector3 adjustedTargetPosition = target.position;
-        adjustedTargetPosition.y += 1; // Adjust height for the arrow
+        adjustedTargetPosition.y += .75f; // Adjust height for the arrow
         Vector3 targetScreenPosition = mainCamera.WorldToScreenPoint(adjustedTargetPosition);
 
         arrowSpriteInstance.SetActive(true); // Show the arrow
@@ -214,6 +218,14 @@ public class TutorialManager : MonoBehaviour
     private void OnCompleteIndicatorRow()
     {
         CheckCompletionCondition(CompletionCondition.CompleteIndicatorRow);
+    }
+    private void OnCascaseStart()
+    {
+        CheckCompletionCondition(CompletionCondition.WaitforCascadeStart);
+    }
+    private void OnCascadeEnd()
+    {
+        CheckCompletionCondition(CompletionCondition.WaitForCascadeEnd);
     }
 
     private void OnSpawnDomino(Domino domino)

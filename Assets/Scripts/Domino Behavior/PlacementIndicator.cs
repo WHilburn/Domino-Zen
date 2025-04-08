@@ -141,8 +141,8 @@ public class PlacementIndicator : DominoLike
 
         // Fade out the indicator
         FadeOut();
-        OnIndicatorFilled.Invoke(this); // Notify that the indicator is filled
         currentState = IndicatorState.Filled; // Transition to Placed state
+        OnIndicatorFilled.Invoke(this); // Notify that the indicator is filled
         trackedDomino.currentState = Domino.DominoState.FillingIndicator; // Set the domino's state to Placed
         trackedDomino.placementIndicator = this;
         GameManager.Instance.CheckCompletion(); // Check if all indicators are filled

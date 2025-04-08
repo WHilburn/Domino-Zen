@@ -30,6 +30,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private Vector3 handMouseOffset; // Offset between hand and mouse cursor
     private float initialHandElevation; // Store the initial elevation of the hand anchor
     public static UnityEvent<Domino> OnDominoReleased = new();
+    public static bool placementEnabled = true; // Flag to enable/disable placement controls
 
     void Start()
     {
@@ -40,6 +41,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         Instance = this;
         activeCamera = FindFirstObjectByType<Camera>();
         soundManager = FindObjectOfType<DominoSoundManager>(); // Get reference to the SoundManager
+        TutorialManager.OnTogglePlacementControls.AddListener(TogglePlacementControls); // Subscribe to the event
     }
 
     void Update()
@@ -50,7 +52,7 @@ public class PlayerDominoPlacement : MonoBehaviour
             HandleRotation();
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && placementEnabled)
         {
             if (heldDomino == null)
                 SpawnDomino();
@@ -68,6 +70,13 @@ public class PlayerDominoPlacement : MonoBehaviour
         {
             DeleteHeldDomino();
         }
+    }
+
+    public void TogglePlacementControls(bool enable)
+    {
+        placementEnabled = enable;
+        Debug.Log($"Placement controls toggled: {placementEnabled}");
+        if (!placementEnabled) DestroyHand(); // Destroy the hand when controls are disabled
     }
 
     void SpawnDomino()

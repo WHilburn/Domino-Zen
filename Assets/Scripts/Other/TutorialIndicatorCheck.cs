@@ -31,6 +31,7 @@ public class TutorialIndicatorCheck : MonoBehaviour
         if (allIndicatorsFilled)
         {
             OnAllIndicatorsFilled.Invoke(); // Invoke the event when all indicators are filled
+            Debug.Log("All indicators filled!");
         }
     }
 }

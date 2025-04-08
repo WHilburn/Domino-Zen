@@ -11,6 +11,7 @@ public class TutorialStep
 
     public bool placementEnabled = true; // Flag to enable/disable controls
     public bool cameraEnabled = true; // Flag to enable/disable camera movement
+    public bool visible = true; // Flag to show/hide the arrow UI
 }
 
 public enum CompletionCondition
@@ -19,5 +20,7 @@ public enum CompletionCondition
     SpawnADomino,
     DropADomino,
     FillOneIndicator,
-    ClickButton
+    ClickButton,
+    WaitforCascadeStart,
+    WaitForCascadeEnd
 }

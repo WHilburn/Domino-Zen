@@ -14,6 +14,7 @@ public class PlayerCameraController : MonoBehaviour
     private float currentRotationX = 0f;
     private float currentRotationY = 0f;
     public CinemachineBrain brain;
+    public bool isCameraEnabled = true; // Flag to enable/disable camera controls
 
     void Start()
     {
@@ -24,6 +25,12 @@ public class PlayerCameraController : MonoBehaviour
         Instance = this;
         InitializeRotation();
         brain = FindObjectOfType<CinemachineBrain>();
+        TutorialManager.OnToggleCameraControls.AddListener(ToggleCameraControls); // Subscribe to the event
+    }
+
+    private void ToggleCameraControls(bool enable)
+    {
+        isCameraEnabled = enable; // Update the flag based on the event
     }
 
     void OnEnable()
@@ -43,7 +50,8 @@ public class PlayerCameraController : MonoBehaviour
     void Update()
     {
         // Check if the active virtual camera is null, a different camera, or blending
-        if (brain == null ||
+        if (!isCameraEnabled ||
+            brain == null ||
             brain.ActiveVirtualCamera == null || 
             brain.ActiveVirtualCamera.VirtualCameraGameObject != gameObject || 
             brain.IsBlending)
