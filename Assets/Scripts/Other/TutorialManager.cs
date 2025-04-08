@@ -46,6 +46,16 @@ public class TutorialManager : MonoBehaviour
         {
             StartTutorial();
         }
+
+        // Subscribe to TutorialIndicatorCheck's event
+        foreach (var indicatorCheck in FindObjectsOfType<TutorialIndicatorCheck>())
+        {
+            indicatorCheck.OnAllIndicatorsFilled.AddListener(OnCompleteIndicatorRow);
+        }
+
+        // Subscribe to other relevant events
+        Domino.OnDominoCreated.AddListener(OnSpawnDomino);
+        PlayerDominoPlacement.OnDominoReleased.AddListener(OnDropDomino);        
     }
 
     public void StartTutorial()
@@ -65,7 +75,10 @@ public class TutorialManager : MonoBehaviour
 
         var currentStep = steps[currentStepIndex];
         tutorialText.text = currentStep.text;
-        tutorialButton.gameObject.SetActive(currentStep.enableButton);
+        if (currentStep.completionCondition == CompletionCondition.ClickButton){
+            tutorialButton.enabled = true;
+        }
+        
         placementEnabled = currentStep.placementEnabled;
         OnTogglePlacementControls.Invoke(placementEnabled);
 
@@ -78,10 +91,30 @@ public class TutorialManager : MonoBehaviour
             ClearArrow();
         }
 
-        if (currentStep.enableButton)
+        SubscribeToCompletionCondition(currentStep.completionCondition);
+    }
+
+    private void SubscribeToCompletionCondition(CompletionCondition condition)
+    {
+        switch (condition)
         {
-            tutorialButton.onClick.RemoveAllListeners();
-            tutorialButton.onClick.AddListener(() => NextStep());
+            case CompletionCondition.CompleteIndicatorRow:
+                // Already handled via OnCompleteIndicatorRow
+                break;
+            case CompletionCondition.SpawnADomino:
+                // Handled via OnSpawnDomino
+                break;
+            case CompletionCondition.DropADomino:
+                // Handled via OnDropDomino
+                break;
+            case CompletionCondition.FillOneIndicator:
+                // Logic to handle FillOneIndicator can be added here
+                break;
+            case CompletionCondition.ClickButton:
+                tutorialButton.enabled = true; // Enable the button for clicking
+                tutorialButton.onClick.RemoveAllListeners();
+                tutorialButton.onClick.AddListener(() => NextStep());
+                break;
         }
     }
 
@@ -90,10 +123,10 @@ public class TutorialManager : MonoBehaviour
         if (!isTutorialActive || currentStepIndex >= steps.Count) return;
 
         var currentStep = steps[currentStepIndex];
-        if (currentStep.completionCondition != null && currentStep.completionCondition.Invoke())
-        {
-            NextStep();
-        }
+        // if (currentStep.completionCondition != null && currentStep.completionCondition.Invoke()) 
+        // {
+        //     NextStep();
+        // }
         // Update arrow position if a target is set
         if (currentTarget != null)
         {
@@ -101,9 +134,21 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
+    private void CheckCompletionCondition(CompletionCondition condition)
+    {
+        if (!isTutorialActive || currentStepIndex >= steps.Count) return;
+
+        var currentStep = steps[currentStepIndex];
+        if (currentStep.completionCondition == condition)
+        {
+            NextStep();
+        }
+    }
+
     private void NextStep()
     {
         currentStepIndex++;
+        tutorialButton.enabled = false; // Disable the button after clicking
         UpdateStep();
         transform.DOScale(0.8f, 0.2f).SetEase(Ease.OutQuad).OnComplete(() =>
         {
@@ -164,5 +209,20 @@ public class TutorialManager : MonoBehaviour
             arrowSpriteInstance.SetActive(false);
         }
         currentTarget = null; // Reset the current target
+    }
+
+    private void OnCompleteIndicatorRow()
+    {
+        CheckCompletionCondition(CompletionCondition.CompleteIndicatorRow);
+    }
+
+    private void OnSpawnDomino(Domino domino)
+    {
+        NextStep();
+    }
+
+    private void OnDropDomino(Domino domino)
+    {
+        NextStep();
     }
 }

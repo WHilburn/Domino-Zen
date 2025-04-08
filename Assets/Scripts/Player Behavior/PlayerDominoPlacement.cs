@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
@@ -28,6 +29,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private Quaternion savedRotation = Quaternion.identity; // Store the final rotation of the 3D hand
     private Vector3 handMouseOffset; // Offset between hand and mouse cursor
     private float initialHandElevation; // Store the initial elevation of the hand anchor
+    public static UnityEvent<Domino> OnDominoReleased = new();
 
     void Start()
     {
@@ -160,6 +162,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     public void ReleaseDomino()
     {
         if (heldDomino == null) return;
+        OnDominoReleased.Invoke(heldDomino.GetComponent<Domino>()); // Invoke the event
 
         ResetDominoProperties();
         DestroyHand();
