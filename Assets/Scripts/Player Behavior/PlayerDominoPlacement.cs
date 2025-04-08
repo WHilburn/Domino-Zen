@@ -31,6 +31,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private float initialHandElevation; // Store the initial elevation of the hand anchor
     public static UnityEvent<Domino> OnDominoReleased = new();
     public static bool placementEnabled = true; // Flag to enable/disable placement controls
+    public static bool flickEnabled = true;
 
     void Start()
     {
@@ -60,7 +61,7 @@ public class PlayerDominoPlacement : MonoBehaviour
                 ReleaseDomino();
         }
 
-        if (Input.GetMouseButtonDown(0)) // Left Click
+        if (Input.GetMouseButtonDown(0) && placementEnabled) // Left Click
         {
             if (heldDomino == null)
                 TryPickUpDomino();
@@ -69,6 +70,11 @@ public class PlayerDominoPlacement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             DeleteHeldDomino();
+        }
+
+        if (Input.GetKeyDown(KeyCode.F) && flickEnabled)
+        {
+            TryFlickDomino();
         }
     }
 
@@ -373,5 +379,44 @@ public class PlayerDominoPlacement : MonoBehaviour
         GameObject lockSprite = Instantiate(lockSpritePrefab, uiCanvas.transform);
         LockSpriteFollower follower = lockSprite.AddComponent<LockSpriteFollower>();
         follower.Initialize(activeCamera, position, 1f); // Pass camera, world position, and fade duration
+    }
+
+    private void TryFlickDomino()
+    {
+        if (!IsCameraActive()) return;
+
+        Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            Domino domino = hit.collider.GetComponent<Domino>();
+            if (domino != null && domino.currentState != Domino.DominoState.Held)
+            {
+                FlickDomino(domino);
+            }
+        }
+    }
+
+    private void FlickDomino(Domino domino)
+    {
+        Rigidbody rb = domino.GetComponent<Rigidbody>();
+        if (rb)
+        {
+            rb.isKinematic = false;
+
+            // Get the holdPoint position (top of the domino)
+            Vector3 holdPoint = DominoLike.holdPoint;
+
+            // Convert the local holdPoint to world space
+            Vector3 worldHoldPoint = domino.transform.TransformPoint(holdPoint);
+
+            // Calculate the force direction relative to the camera
+            Vector3 cameraToDomino = domino.transform.position - activeCamera.transform.position;
+            Vector3 forceDirection = Vector3.Dot(cameraToDomino, domino.transform.forward) > 0
+                ? domino.transform.forward
+                : -domino.transform.forward;
+
+            // Apply the force at the holdPoint in the calculated direction
+            rb.AddForceAtPosition(forceDirection * 1f, worldHoldPoint, ForceMode.Impulse);
+        }
     }
 }
