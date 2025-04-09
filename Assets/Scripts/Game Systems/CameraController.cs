@@ -10,14 +10,8 @@ public class CameraController : MonoBehaviour
     public CinemachineVirtualCamera freeLookCamera; // Player-controlled camera
     public CinemachineVirtualCamera trackingCamera; // Auto-framing camera
     public CinemachineTargetGroup targetGroup; // Group of falling dominoes
-
     private bool isTracking = false;
     public List<Transform> fallingDominoes = new();
-
-    public float heightOffset = 2f; // Extra height to prevent low shots
-    public float cameraHeightBoost = 10f; // Extra height for tracking camera
-    public float smoothTime = 0.5f; // Smoothing time for camera adjustments
-    public bool prioritySystem = true; // Use Cinemachine priority system
     public static UnityEvent OnFreeLookCameraEnabled = new();
     public static UnityEvent OnFreeLookCameraDisabled = new();
 
@@ -66,7 +60,7 @@ public class CameraController : MonoBehaviour
         {
             TrackDominoes();
         }
-        else
+        else if (fallingDominoes.Count == 0)
         {
             StopTracking();
         }
@@ -74,6 +68,7 @@ public class CameraController : MonoBehaviour
 
     public void TrackDominoes()
     {
+        if (!isTracking) EnableTrackingCamera(); // Switch to tracking camera if not already tracking
         isTracking = true;
 
         // Add dominoes to target group with smooth weight adjustments
@@ -87,8 +82,6 @@ public class CameraController : MonoBehaviour
                 radius = 3f
             };
         }
-
-        EnableTrackingCamera();
     }
 
     public void StopTracking()
@@ -99,32 +92,18 @@ public class CameraController : MonoBehaviour
     }
     private void EnableFreeLook()
     {
-        if (prioritySystem)
-        {
-            freeLookCamera.Priority = 20;
-            trackingCamera.Priority = 10;
-        }
-        else
-        {
-            freeLookCamera.enabled = true;
-            trackingCamera.enabled = false;
-        }
+        // Debug.Log("Enabling FreeLook Camera");
+        freeLookCamera.Priority = 20;
+        trackingCamera.Priority = 10;
         freeLookCamera.GetComponent<PlayerCameraController>().InitializeRotation();
         OnFreeLookCameraEnabled.Invoke(); // Invoke the event when free look camera is enabled
     }
 
     private void EnableTrackingCamera()
     {
-        if (prioritySystem)
-        {
-            freeLookCamera.Priority = 10;
-            trackingCamera.Priority = 20;
-        }
-        else
-        {
-            freeLookCamera.enabled = false;
-            trackingCamera.enabled = true;
-        }
+        // Debug.Log("Enabling Tracking Camera");
+        freeLookCamera.Priority = 10;
+        trackingCamera.Priority = 20;
         GetComponent<PlayerDominoPlacement>().ReleaseDomino();
         OnFreeLookCameraDisabled.Invoke();
     }

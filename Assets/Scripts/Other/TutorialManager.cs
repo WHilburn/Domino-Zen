@@ -29,6 +29,8 @@ public class TutorialManager : MonoBehaviour
     public TutorialIndicatorCheck tutorialIndicatorCheck1;
     public TutorialIndicatorCheck tutorialIndicatorCheck2; // Reference to the tutorial indicator checks
 
+    private int fillIndicatorCount = 0; // Counter for FillFourIndicators
+
     void Awake()
     {
         if (Instance == null)
@@ -128,6 +130,9 @@ public class TutorialManager : MonoBehaviour
                 break;
             case CompletionCondition.FillOneIndicator:
                 // Logic to handle FillOneIndicator can be added here
+                break;
+            case CompletionCondition.FillFourIndicators:
+                fillIndicatorCount = 0; // Reset the counter
                 break;
             case CompletionCondition.ClickButton:
                 tutorialButton.gameObject.SetActive(true); // Show the button
@@ -259,5 +264,15 @@ public class TutorialManager : MonoBehaviour
     private void OnFillOneIndicator(PlacementIndicator indicator)
     {
         CheckCompletionCondition(CompletionCondition.FillOneIndicator);
+
+        if (isTutorialActive && currentStepIndex < steps.Count &&
+            steps[currentStepIndex].completionCondition == CompletionCondition.FillFourIndicators)
+        {
+            fillIndicatorCount++;
+            if (fillIndicatorCount >= 4)
+            {
+                NextStep();
+            }
+        }
     }
 }

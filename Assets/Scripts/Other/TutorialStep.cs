@@ -24,5 +24,6 @@ public enum CompletionCondition
     FillOneIndicator,
     ClickButton,
     WaitforCascadeStart,
-    WaitForCascadeEnd
+    WaitForCascadeEnd,
+    FillFourIndicators
 }
