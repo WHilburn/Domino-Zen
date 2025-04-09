@@ -11,7 +11,7 @@ public class DominoResetManager : MonoBehaviour
     public float resetDuration = 1f;
     public Domino.DominoAnimation resetAnimation = Domino.DominoAnimation.Rotate;
     public int checkpointThreshold = 5; // Number of dominoes required for a checkpoint
-    public enum ResetState { Idle, ResetUpcoming, Resetting};
+    public enum ResetState {Idle, ResetUpcoming, Resetting};
     public ResetState currentState = ResetState.Idle; // Current state of the reset manager
 
     private void Start()
