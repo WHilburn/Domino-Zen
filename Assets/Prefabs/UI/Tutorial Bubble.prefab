@@ -212,36 +212,105 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   steps:
-  - text: Welcome to Domino Zen.
+  - text: 'Welcome to Domino Zen. Placing dominoes can be very relaxing and meditative.  '
     worldTarget: {fileID: 0}
-    enableButton: 1
-    controlsEnabled: 0
+    completionCondition: 5
+    placementEnabled: 0
+    flickEnables: 0
+    cameraEnabled: 0
+    visible: 1
   - text: The goal of the game is to complete each level by filing in the transparent
-      indicator slots.
+      indicator slots. Let's try it now.
     worldTarget: {fileID: 0}
-    enableButton: 1
-    controlsEnabled: 0
-  - text: Lets try now. Aim your mouse cursor at an indicator and press [SPACE] to
-      createa a domino.
+    completionCondition: 5
+    placementEnabled: 0
+    flickEnables: 0
+    cameraEnabled: 0
+    visible: 1
+  - text: Aim your mouse cursor at an indicator and press [SPACE] to create a domino.
     worldTarget: {fileID: 0}
-    enableButton: 1
-    controlsEnabled: 1
-  - text: Press [SPACE] again to release the domino.
+    completionCondition: 2
+    placementEnabled: 1
+    flickEnables: 0
+    cameraEnabled: 0
+    visible: 1
+  - text: Press [SPACE] again to release the domino. The Blue marker on the ground
+      shows where it will land.
     worldTarget: {fileID: 0}
-    enableButton: 1
-    controlsEnabled: 1
+    completionCondition: 4
+    placementEnabled: 1
+    flickEnables: 0
+    cameraEnabled: 0
+    visible: 1
+  - text: The game has a robust physics simulation, and it's easy to accidentally
+      knock over dominoes. Depending on the difficulty, the dominoes you've placed
+      can reset themselves after you knock them over.
+    worldTarget: {fileID: 0}
+    completionCondition: 5
+    placementEnabled: 0
+    flickEnables: 0
+    cameraEnabled: 0
+    visible: 1
   - text: Now fill in the rest of the indicators.
     worldTarget: {fileID: 0}
-    enableButton: 1
-    controlsEnabled: 1
-  - text: Now create one more domino and drag it into this one here to start a domino
-      chain.
+    completionCondition: 0
+    placementEnabled: 1
+    flickEnables: 0
+    cameraEnabled: 0
+    visible: 1
+  - text: Now point at this domino and press [F] to knock it over.
     worldTarget: {fileID: 0}
-    enableButton: 1
-    controlsEnabled: 1
+    completionCondition: 6
+    placementEnabled: 0
+    flickEnables: 1
+    cameraEnabled: 0
+    visible: 1
+  - text: 
+    worldTarget: {fileID: 0}
+    completionCondition: 7
+    placementEnabled: 0
+    flickEnables: 0
+    cameraEnabled: 1
+    visible: 0
+  - text: It looks like there are some dominoes missing here. Place the dominoes
+      along this curve, using [Q] and [E] to rotate your dominoes before placing.
+    worldTarget: {fileID: 0}
+    completionCondition: 8
+    placementEnabled: 1
+    flickEnables: 0
+    cameraEnabled: 1
+    visible: 1
+  - text: You can use [WASD] to move the camera, and when you aren't holding a domino,
+      [Q] and [E] move the camera up and down. Use [Right Mouse Button] to aim the
+      camera.
+    worldTarget: {fileID: 0}
+    completionCondition: 1
+    placementEnabled: 1
+    flickEnables: 0
+    cameraEnabled: 1
+    visible: 1
+  - text: Now let's start the chain again. Point at the domino and press [F] to flick.
+    worldTarget: {fileID: 0}
+    completionCondition: 6
+    placementEnabled: 0
+    flickEnables: 0
+    cameraEnabled: 0
+    visible: 1
+  - text: 
+    worldTarget: {fileID: 0}
+    completionCondition: 7
+    placementEnabled: 0
+    flickEnables: 0
+    cameraEnabled: 1
+    visible: 0
   tutorialButton: {fileID: 4619493251131868818}
   tutorialText: {fileID: 2794989598101973839}
+  arrowSpriteInstance: {fileID: 0}
   mainCamera: {fileID: 0}
+  starterCamera: {fileID: 0}
+  uiCanvas: {fileID: 0}
+  tutorialIndicatorCheck1: {fileID: 0}
+  tutorialIndicatorCheck2: {fileID: 0}
 --- !u!1 &7835726895372619727
 GameObject:
   m_ObjectHideFlags: 0

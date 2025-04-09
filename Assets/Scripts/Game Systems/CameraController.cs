@@ -78,7 +78,7 @@ public class CameraController : MonoBehaviour
             targetGroup.m_Targets[i] = new CinemachineTargetGroup.Target
             {
                 target = fallingDominoes[i],
-                weight = 1,
+                weight = Mathf.Pow(fallingDominoes[i].GetComponent<Rigidbody>().angularVelocity.magnitude,2),
                 radius = 3f
             };
         }
