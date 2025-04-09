@@ -5,7 +5,7 @@ public class DominoResetManager : MonoBehaviour
 {
     public static DominoResetManager Instance { get; private set; }
     public HashSet<Domino> fallenDominoes = new();
-    private HashSet<Domino> checkpointedDominoes = new(); // Dominoes locked at checkpoints
+    public HashSet<Domino> checkpointedDominoes = new(); // Dominoes locked at checkpoints
     private HashSet<Domino> waitingForCheckpoint = new(); // Dominoes that are waiting until the next checkpoint to lock
     public float resetDelay = 1f;
     public float resetDuration = 1f;
@@ -60,7 +60,7 @@ public class DominoResetManager : MonoBehaviour
         waitingForCheckpoint.Add(domino); // Add to waitingForCheckpoint set
         if (waitingForCheckpoint.Count % checkpointThreshold == 0)
         {
-            LockWaitingDominoes(); // Lock dominoes in waitingForCheckpoint set
+            CheckpointWaitingDominoes(); // Lock dominoes in waitingForCheckpoint set
             // Debug.Log("Checkpoint reached! Locked dominoes count: " + checkpointedDominoes.Count);
         }
         
@@ -91,17 +91,23 @@ public class DominoResetManager : MonoBehaviour
         }
     }
 
-    private void LockDomino(Domino domino)
+    private void CheckpointDomino(Domino domino)
     {
         domino.locked = true;
         checkpointedDominoes.Add(domino);
+
+        if (domino.placementIndicator != null)
+        {
+            Destroy(domino.placementIndicator.gameObject); // Delete the placementIndicator GameObject
+            domino.placementIndicator = null; // Clear the reference to the placementIndicator
+        }
     }
 
-    private void LockWaitingDominoes()
+    private void CheckpointWaitingDominoes()
     {
         foreach (var domino in waitingForCheckpoint)
         {
-            LockDomino(domino);
+            CheckpointDomino(domino);
         }
         waitingForCheckpoint.Clear(); // Clear the waitingForCheckpoint set
     }

@@ -49,7 +49,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     {
         if (DominoResetManager.Instance != null && DominoResetManager.Instance.currentState != DominoResetManager.ResetState.Idle)
         {
-            Debug.Log("Cannot place new dominoes while there are fallen dominoes.");
+            // Debug.Log("Cannot place new dominoes while there are fallen dominoes.");
             return;
         }
 

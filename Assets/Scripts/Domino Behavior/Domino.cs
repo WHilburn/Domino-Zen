@@ -255,17 +255,24 @@ public class Domino : DominoLike
 
     public IEnumerator TogglePhysics(bool value)
     {
+        // Stop any active DOTween animations
+        transform.DOKill();
+        
         if (value == true) yield return null; // Wait for the next frame to reenable physics
         rb.isKinematic = !value;
+
+        if (value == true) {
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
 
         BoxCollider boxCollider = GetComponent<BoxCollider>();
 
         boxCollider.enabled = value;
 
-        // Stop any active DOTween animations
-        transform.DOKill();
 
-        if (rb.velocity.magnitude < stillnessVelocityThreshold&&
+
+        if (rb.velocity.magnitude < stillnessVelocityThreshold &&
                  rb.angularVelocity.magnitude < stillnessRotationThreshold)
         {
             currentState = DominoState.Stationary;

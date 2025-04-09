@@ -33,6 +33,11 @@ public class PlacementIndicator : DominoLike
         if (soundManager == null) soundManager = FindObjectOfType<DominoSoundManager>(); // Get references
     }
 
+    void Oestroy()
+    {
+        DOTween.Kill(indicatorRenderer.material); // Kill any active tweens on the material        
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("DominoTag") && trackedDomino == null && currentState != IndicatorState.Filled)
@@ -131,9 +136,11 @@ public class PlacementIndicator : DominoLike
 
     private void PlaceDomino()
     {
-        if (DominoResetManager.Instance != null && DominoResetManager.Instance.currentState != DominoResetManager.ResetState.Idle)
+        if (DominoResetManager.Instance != null && 
+        DominoResetManager.Instance.currentState != DominoResetManager.ResetState.Idle && // Prevent placement if there are fallen dominoes and we're waiting for a reset or in the middle of resetting
+        !DominoResetManager.Instance.checkpointedDominoes.Contains(trackedDomino)) // Prevent placing a second time if the domino is checkpointed
         {
-            return; // Prevent placement if there are fallen dominoes and we're waiting for a reset or in the middle of resetting
+            return; 
         }
 
         // Set the domino's stable position and rotation

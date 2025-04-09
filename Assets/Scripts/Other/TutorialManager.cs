@@ -29,8 +29,6 @@ public class TutorialManager : MonoBehaviour
     public TutorialIndicatorCheck tutorialIndicatorCheck1;
     public TutorialIndicatorCheck tutorialIndicatorCheck2; // Reference to the tutorial indicator checks
 
-    private int fillIndicatorCount = 0; // Counter for FillFourIndicators
-
     void Awake()
     {
         if (Instance == null)
@@ -40,11 +38,12 @@ public class TutorialManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+            return;
         }
-        // tween the scale of the object from 0 to 1 over 0.5 seconds
+        
         transform.localScale = Vector3.zero;
         transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
-        arrowSpriteInstance.SetActive(false); // Hide the arrow sprite initially
+        arrowSpriteInstance?.SetActive(false); // Hide the arrow sprite initially
     }
 
     void Start()
@@ -54,14 +53,18 @@ public class TutorialManager : MonoBehaviour
             StartTutorial();
         }
 
-        // Subscribe to TutorialIndicatorCheck's events
+        SubscribeToEvents();
+    }
+
+    private void SubscribeToEvents()
+    {
         tutorialIndicatorCheck1.OnCompleteIndicatorRow.AddListener(OnCompleteIndicatorRow1);
         tutorialIndicatorCheck2.OnCompleteIndicatorRow.AddListener(OnCompleteIndicatorRow2);
+        tutorialIndicatorCheck2.OnFillFourSlots.AddListener(OnFillFourIndicators);
 
-        // Subscribe to other relevant events
         Domino.OnDominoCreated.AddListener(OnSpawnDomino);
         PlayerDominoPlacement.OnDominoReleased.AddListener(OnDropDomino);
-        PlacementIndicator.OnIndicatorFilled.AddListener(OnFillOneIndicator);
+        Domino.OnDominoPlacedCorrectly.AddListener(OnFillOneIndicator);
         CameraController.OnFreeLookCameraEnabled.AddListener(OnCascadeEnd);
         CameraController.OnFreeLookCameraDisabled.AddListener(OnCascadeStart);
     }
@@ -93,18 +96,7 @@ public class TutorialManager : MonoBehaviour
         PlayerDominoPlacement.placementEnabled = placementEnabled; // Update the PlayerDominoPlacement script
         visible = currentStep.visible;
 
-        if (currentStep.cameraEnabled)
-        {
-            starterCamera.Priority = 0; // Set the camera priority to 0
-            Debug.Log($"Starter camera priority set to {starterCamera.Priority}"); // Debug log to confirm
-            OnToggleCameraControls.Invoke(true); // Disable camera controls during the tutorial
-        }
-        else
-        {
-            starterCamera.Priority = 30; // Reset the camera priority
-            Debug.Log($"Starter camera priority set to {starterCamera.Priority}"); // Debug log to confirm
-            OnToggleCameraControls.Invoke(false); // Enable camera controls after the tutorial
-        }
+        SetCameraPriority(currentStep.cameraEnabled);
 
         if (currentStep.worldTarget != null)
         {
@@ -115,31 +107,21 @@ public class TutorialManager : MonoBehaviour
             ClearArrow();
         }
 
-        SubscribeToCompletionCondition(currentStep.completionCondition);
+        if (currentStep.completionCondition == CompletionCondition.ClickButton) ActivateButton();
     }
 
-    private void SubscribeToCompletionCondition(CompletionCondition condition)
+    private void SetCameraPriority(bool enable)
     {
-        switch (condition)
-        {
-            case CompletionCondition.SpawnADomino:
-                // Handled via OnSpawnDomino
-                break;
-            case CompletionCondition.DropADomino:
-                // Handled via OnDropDomino
-                break;
-            case CompletionCondition.FillOneIndicator:
-                // Logic to handle FillOneIndicator can be added here
-                break;
-            case CompletionCondition.FillFourIndicators:
-                fillIndicatorCount = 0; // Reset the counter
-                break;
-            case CompletionCondition.ClickButton:
-                tutorialButton.gameObject.SetActive(true); // Show the button
-                tutorialButton.onClick.RemoveAllListeners();
-                tutorialButton.onClick.AddListener(() => NextStep());
-                break;
-        }
+        starterCamera.Priority = enable ? 0 : 30;
+        Debug.Log($"Starter camera priority set to {starterCamera.Priority}");
+        OnToggleCameraControls.Invoke(enable);
+    }
+
+    private void ActivateButton()
+    {
+        tutorialButton.gameObject.SetActive(true); // Show the button
+        tutorialButton.onClick.RemoveAllListeners();
+        tutorialButton.onClick.AddListener(() => NextStep());
     }
 
     private void Update()
@@ -156,8 +138,7 @@ public class TutorialManager : MonoBehaviour
     {
         if (!isTutorialActive || currentStepIndex >= steps.Count) return;
 
-        var currentStep = steps[currentStepIndex];
-        if (currentStep.completionCondition == condition)
+        if (steps[currentStepIndex].completionCondition == condition)
         {
             NextStep();
         }
@@ -166,17 +147,9 @@ public class TutorialManager : MonoBehaviour
     private void NextStep()
     {
         currentStepIndex++;
-        tutorialButton.gameObject.SetActive(false); // Disable the button after clicking
+        tutorialButton.gameObject.SetActive(false);
         UpdateStep();
-        if (visible)
-        {
-            transform.DOScale(0.5f, 0.2f).SetEase(Ease.OutQuad).OnComplete(() =>
-                {transform.DOScale(1f, 0.2f).SetEase(Ease.OutQuad);});
-        }
-        else
-        {
-            transform.DOScale(0, 0.2f).SetEase(Ease.OutQuad);
-        }
+        AnimateTutorialVisibility(visible);
     }
 
     private void CompleteTutorial()
@@ -202,26 +175,17 @@ public class TutorialManager : MonoBehaviour
     {
         if (arrowSpriteInstance == null || target == null || uiCanvas == null) return;
 
-        // Convert target position to screen space
         Vector3 adjustedTargetPosition = target.position;
-        adjustedTargetPosition.y += .75f; // Adjust height for the arrow
+        adjustedTargetPosition.y += .75f;
         Vector3 targetScreenPosition = mainCamera.WorldToScreenPoint(adjustedTargetPosition);
 
-        arrowSpriteInstance.SetActive(true); // Show the arrow
-        // Position the arrow on the canvas
         RectTransform arrowRectTransform = arrowSpriteInstance.GetComponent<RectTransform>();
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             uiCanvas.GetComponent<RectTransform>(),
             targetScreenPosition,
             uiCanvas.worldCamera,
             out Vector2 localPoint);
-        arrowRectTransform.localPosition = localPoint;
-
-        // Apply bobbing animation
-        float bobbingOffset = Mathf.Sin(Time.time * bobbingSpeed) * bobbingHeight;
-        arrowRectTransform.localPosition += new Vector3(0, bobbingOffset, 0);
-
-        // Reset rotation since it's hovering
+        arrowRectTransform.localPosition = localPoint + new Vector3(0, Mathf.Sin(Time.time * bobbingSpeed) * bobbingHeight, 0);
         arrowRectTransform.rotation = Quaternion.identity;
     }
 
@@ -234,11 +198,26 @@ public class TutorialManager : MonoBehaviour
         currentTarget = null; // Reset the current target
     }
 
-    private void OnCompleteIndicatorRow1(TutorialIndicatorCheck check)
+    private void AnimateTutorialVisibility(bool isVisible)
+    {
+        if (isVisible)
+        {
+            transform.DOScale(0.5f, 0.2f).SetEase(Ease.OutQuad).OnComplete(() =>
+            {
+                transform.DOScale(1f, 0.2f).SetEase(Ease.OutQuad);
+            });
+        }
+        else
+        {
+            transform.DOScale(0, 0.2f).SetEase(Ease.OutQuad);
+        }
+    }
+
+    private void OnCompleteIndicatorRow1()
     {
         CheckCompletionCondition(CompletionCondition.CompleteIndicatorRow1);
     }
-    private void OnCompleteIndicatorRow2(TutorialIndicatorCheck check)
+    private void OnCompleteIndicatorRow2()
     {
         CheckCompletionCondition(CompletionCondition.CompleteIndicatorRow2);
     }
@@ -261,18 +240,12 @@ public class TutorialManager : MonoBehaviour
         CheckCompletionCondition(CompletionCondition.DropADomino);
     }
 
-    private void OnFillOneIndicator(PlacementIndicator indicator)
+    private void OnFillOneIndicator(Domino domino)
     {
         CheckCompletionCondition(CompletionCondition.FillOneIndicator);
-
-        if (isTutorialActive && currentStepIndex < steps.Count &&
-            steps[currentStepIndex].completionCondition == CompletionCondition.FillFourIndicators)
-        {
-            fillIndicatorCount++;
-            if (fillIndicatorCount >= 4)
-            {
-                NextStep();
-            }
-        }
+    }
+    private void OnFillFourIndicators()
+    {
+        CheckCompletionCondition(CompletionCondition.FillFourIndicators);
     }
 }
