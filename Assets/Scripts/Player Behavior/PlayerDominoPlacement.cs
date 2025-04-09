@@ -51,6 +51,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         {
             MoveHeldDomino();
             HandleRotation();
+            heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Held; // Encure the state is held
         }
 
         if (Input.GetKeyDown(KeyCode.Space) && placementEnabled)

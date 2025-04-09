@@ -118,7 +118,7 @@ public class DominoResetManager : MonoBehaviour
 
         foreach (var domino in fallenDominoes)
         {
-            if (!domino.stablePositionSet) //Delete dominos that don't have a stable position set
+            if (!domino.stablePositionSet && domino.currentState != Domino.DominoState.Held) //Delete dominos that don't have a stable position set
             {
                 domino.DespawnDomino();
                 continue;
