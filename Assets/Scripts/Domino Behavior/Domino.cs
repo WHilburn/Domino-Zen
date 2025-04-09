@@ -18,8 +18,8 @@ public class Domino : DominoLike
         Jiggle
     }
 
-    private static readonly float stillnessVelocityThreshold = 5f;  // Velocity threshold to consider "stationary"
-    private static readonly float stillnessRotationThreshold = 3f;  // Rotation threshold to consider "stationary"
+    private static readonly float stillnessVelocityThreshold = 8f;  // Velocity threshold to consider "stationary"
+    private static readonly float stillnessRotationThreshold = 6f;  // Rotation threshold to consider "stationary"
 
     public enum DominoState
     {

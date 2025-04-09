@@ -215,8 +215,8 @@ Rigidbody:
   m_GameObject: {fileID: 3709038208395034117}
   serializedVersion: 4
   m_Mass: 0.35
-  m_Drag: 0.05
-  m_AngularDrag: 0.05
+  m_Drag: 0.5
+  m_AngularDrag: 0.5
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -245,12 +245,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3328333be5ada4ed5b089b565a231cc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isMoving: 0
-  isHeld: 0
+  currentState: 0
   velocityMagnitude: 0
   musicMode: 1
   stablePositionSet: 0
+  placementIndicator: {fileID: 0}
   locked: 0
+  lastStablePosition: {x: 0, y: 0, z: 0}
+  lastStableRotation: {x: 0, y: 0, z: 0, w: 0}
   canSetNewStablePosition: 1
 --- !u!65 &8120456856630276370
 BoxCollider:

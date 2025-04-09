@@ -16,6 +16,7 @@ public class CameraController : MonoBehaviour
     private bool isTracking = false;
     private Dictionary<Transform, float> dominoTimers = new(); // Tracks time remaining for each domino in the target group
     private const float dominoLifetime = .25f; // Time before domino is removed from the target group
+    private HashSet<Transform> trackedDominoes = new(); // Tracks dominoes already added to the target group
 
     void Start()
     {
@@ -38,10 +39,11 @@ public class CameraController : MonoBehaviour
 
     private void HandleDominoFall(Domino domino)
     {
-        if (!dominoTimers.ContainsKey(domino.transform))
+        if (!dominoTimers.ContainsKey(domino.transform) && !trackedDominoes.Contains(domino.transform))
         {
             dominoTimers[domino.transform] = dominoLifetime;
             targetGroup.AddMember(domino.transform, 1f, 0.1f); // Add domino to the target group
+            trackedDominoes.Add(domino.transform); // Mark domino as tracked
         }
     }
 
@@ -53,6 +55,7 @@ public class CameraController : MonoBehaviour
     void Update()
     {
         UpdateDominoTimers();
+        DrawDebugLines(); // Draw debug lines to the target group
 
         if (DominoResetManager.Instance.currentState == DominoResetManager.ResetState.Resetting)
         {
@@ -116,6 +119,7 @@ public class CameraController : MonoBehaviour
         trackingCamera.Priority = 10;
         freeLookCamera.GetComponent<PlayerCameraController>().InitializeRotation();
         OnFreeLookCameraEnabled.Invoke();
+        trackedDominoes.Clear(); // Allow dominoes to be tracked again
     }
 
     private void EnableTrackingCamera()
@@ -125,5 +129,16 @@ public class CameraController : MonoBehaviour
         trackingCamera.Priority = 20;
         GetComponent<PlayerDominoPlacement>().ReleaseDomino();
         OnFreeLookCameraDisabled.Invoke();
+    }
+
+    private void DrawDebugLines()
+    {
+        foreach (var domino in dominoTimers.Keys)
+        {
+            if (domino != null)
+            {
+                Debug.DrawLine(domino.position, targetGroup.transform.position, Color.blue);
+            }
+        }
     }
 }
