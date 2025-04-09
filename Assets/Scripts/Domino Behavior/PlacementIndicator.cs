@@ -131,6 +131,11 @@ public class PlacementIndicator : DominoLike
 
     private void PlaceDomino()
     {
+        if (DominoResetManager.Instance != null && DominoResetManager.Instance.currentState != DominoResetManager.ResetState.Idle)
+        {
+            return; // Prevent placement if there are fallen dominoes and we're waiting for a reset or in the middle of resetting
+        }
+
         // Set the domino's stable position and rotation
         trackedDomino.SaveStablePosition(transform);
         // Reset the domino's position using the rotate reset animation

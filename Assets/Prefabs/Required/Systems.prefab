@@ -255,6 +255,7 @@ MonoBehaviour:
   verticalSpeed: 5
   damping: 10
   brain: {fileID: 2694507664943316547}
+  isCameraEnabled: 1
 --- !u!1 &4097544070133027933
 GameObject:
   m_ObjectHideFlags: 0
@@ -765,9 +766,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dominoPrefab: {fileID: 3709038208395034117, guid: 336bcad52e1c74c77ae1b4939e3a0feb, type: 3}
-  handSpritePrefab: {fileID: 4162454289322067126, guid: 6be3dbbe68191744c97acc42efc3f0e4, type: 3}
   hand3DPrefab: {fileID: 4323452443675221915, guid: c56510174be7a714bb3da481057232c0, type: 3}
-  use3DHand: 1
   followSpeed: 1
   maxHandSpeed: 5
   hoverOffset: 1.2
@@ -792,10 +791,6 @@ MonoBehaviour:
   trackingCamera: {fileID: 4208292920777081404}
   targetGroup: {fileID: 3285224719746526963}
   fallingDominoes: []
-  heightOffset: 15
-  cameraHeightBoost: 100
-  smoothTime: 1
-  prioritySystem: 1
 --- !u!114 &3351162346467075200
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -837,6 +832,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   allIndicators: []
+  gameDifficulty: 0
 --- !u!114 &6366756040542395597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -861,12 +857,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2be93d9b9ff6a4f6aa377926a6975c0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dominoes: []
-  resetDelay: 3
+  resetDelay: 1.5
   resetDuration: 1
   resetAnimation: 1
-  resetMode: 0
-  cascadingResetDelay: 0.01
+  checkpointThreshold: 5
 --- !u!114 &3075726223686852279
 MonoBehaviour:
   m_ObjectHideFlags: 0

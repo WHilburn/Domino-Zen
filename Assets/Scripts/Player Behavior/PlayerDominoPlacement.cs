@@ -47,11 +47,17 @@ public class PlayerDominoPlacement : MonoBehaviour
 
     void Update()
     {
+        if (DominoResetManager.Instance != null && DominoResetManager.Instance.currentState != DominoResetManager.ResetState.Idle)
+        {
+            Debug.Log("Cannot place new dominoes while there are fallen dominoes.");
+            return;
+        }
+
         if (heldDomino)
         {
             MoveHeldDomino();
             HandleRotation();
-            heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Held; // Encure the state is held
+            heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Held; // Ensure the state is held
         }
 
         if (Input.GetKeyDown(KeyCode.Space) && placementEnabled)

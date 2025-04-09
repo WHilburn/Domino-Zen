@@ -37,7 +37,6 @@ public class Domino : DominoLike
     public Vector3 lastStablePosition;
     public Quaternion lastStableRotation;
     private static float uprightThreshold = 0.99f; // How upright the domino must be (1 = perfectly upright)
-    //static float stabilityCheckDelay = 0.5f; // Delay between stability checks
     public bool canSetNewStablePosition = true; // Flag to prevent multiple stability checks
     public static UnityEvent<Domino> OnDominoFall = new(); // Domino calls this to register for reset, causing cascade sounds, etc
     public static UnityEvent<Domino> OnDominoStopMoving = new(); // Domino calls this to end cascade sounds
@@ -46,27 +45,16 @@ public class Domino : DominoLike
     public static UnityEvent<Domino> OnDominoDeleted = new(); // Calls this to notify systems of it's deletion
     public static UnityEvent<Domino, float, Vector3> OnDominoImpact = new(); // Calls this to make sounds
 
-    // private LineRenderer lineRenderer;// For debugging Domino's stable point
-
     void Start()
     {
         OnDominoCreated.Invoke(this); // Notify listeners of domino creation
         rb = GetComponent<Rigidbody>();
-
-        // Add and configure the LineRenderer ////////////////////////////////////////
-        // lineRenderer = gameObject.AddComponent<LineRenderer>();
-        // lineRenderer.startWidth = 0.05f;
-        // lineRenderer.endWidth = 0.05f;
-        // lineRenderer.material = new Material(Shader.Find("Sprites/Default")); // Use a default material
-        // lineRenderer.startColor = Color.red;
-        // lineRenderer.endColor = Color.red;
 
         if (currentState != DominoState.Held)
         {
             SnapToGround();
             SaveStablePosition();
         }
-        // InvokeRepeating(nameof(CheckStability), stabilityCheckDelay + Random.Range(0f, .1f), stabilityCheckDelay);
     }
 
     void Awake()
@@ -85,12 +73,6 @@ public class Domino : DominoLike
         {
             return;
         }
-
-        // if (lineRenderer != null && stablePositionSet)///////////
-        // {
-        //     lineRenderer.SetPosition(0, transform.position); // Start point: current position
-        //     lineRenderer.SetPosition(1, lastStablePosition); // End point: last stable position
-        // }
 
         if (rb != null)
         {
@@ -111,7 +93,6 @@ public class Domino : DominoLike
         }
         else if (!currentlyMoving && currentState == DominoState.Moving) // When we stop moving
         {
-            // CheckStability();
             currentState = DominoState.Stationary;
             OnDominoStopMoving.Invoke(this); // Notify listeners of domino stopping
         }
@@ -122,23 +103,10 @@ public class Domino : DominoLike
         }
     }
 
-    private void CheckStability()
+    public bool CheckUpright() //Check if a Domino is upright
     {
-        if (currentState != DominoState.Stationary ||
-            locked || 
-            !canSetNewStablePosition ||
-            rb.isKinematic || 
-            lastStablePosition == transform.position || 
-            rb.angularVelocity.magnitude > stillnessVelocityThreshold || 
-            rb.velocity.magnitude > stillnessVelocityThreshold)
-        {
-            return;
-        }
-
-        if (Vector3.Dot(transform.up, Vector3.up) > uprightThreshold)
-        {
-            SaveStablePosition();
-        }
+        if (Vector3.Dot(transform.up, Vector3.up) > uprightThreshold && rb.angularVelocity.magnitude < stillnessVelocityThreshold) return true;
+        return false;
     }
 
     public void DespawnDomino()
@@ -206,7 +174,7 @@ public class Domino : DominoLike
                 PerformRotate(resetDuration);
                 break;
             case DominoAnimation.Jump:
-                PerformJump();
+                PerformJump(resetDuration);
                 break;
             case DominoAnimation.Jiggle:
                 PerformJiggle();
@@ -231,27 +199,29 @@ public class Domino : DominoLike
         {
             transform.position = lastStablePosition;
             transform.rotation = lastStableRotation;
+            // DominoResetManager.Instance.currentState = DominoResetManager.ResetState.Idle;
             StartCoroutine(TogglePhysics(true));
         });
     }
 
-    private void PerformJump()
+    private void PerformJump(float resetDuration)
     {
         float jumpHeight = 1.5f;  // Height of the pop-up
-        float jumpDuration = 0.3f;  // Faster upward motion
-        float fallDuration = 0.15f; // Faster downward motion
-        float rotationDuration = 0.4f; // Smooth rotation time
+        float jumpDuration = 0.4f * resetDuration;  // Faster upward motion
+        float fallDuration = 0.2f * resetDuration; // Faster downward motion
+        float rotationDuration = 0.4f* resetDuration; // Smooth rotation time
         StartCoroutine(TogglePhysics(false));
         Sequence jumpSequence = DOTween.Sequence();
         jumpSequence.Append(transform.DOMoveY(lastStablePosition.y + jumpHeight, jumpDuration).SetEase(Ease.OutQuad));
         Vector3 randomFlip = new(Random.Range(0f, 720f), Random.Range(0f, 720f), Random.Range(0f, 720f));
-        jumpSequence.Join(transform.DORotate(randomFlip, jumpDuration, RotateMode.FastBeyond360).SetEase(Ease.OutQuad));
+        jumpSequence.Append(transform.DORotate(randomFlip, jumpDuration, RotateMode.FastBeyond360).SetEase(Ease.OutQuad));
         jumpSequence.Append(transform.DORotateQuaternion(lastStableRotation, rotationDuration).SetEase(Ease.OutQuad));
         jumpSequence.Append(transform.DOMove(lastStablePosition, fallDuration).SetEase(Ease.InQuad));
         jumpSequence.OnComplete(() =>
         {
             transform.position = lastStablePosition;
             transform.rotation = lastStableRotation;
+            // DominoResetManager.Instance.currentState = DominoResetManager.ResetState.Idle;
             StartCoroutine(TogglePhysics(true));
         });
         jumpSequence.Play();

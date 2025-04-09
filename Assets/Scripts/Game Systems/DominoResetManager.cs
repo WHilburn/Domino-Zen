@@ -7,10 +7,12 @@ public class DominoResetManager : MonoBehaviour
     public HashSet<Domino> fallenDominoes = new();
     private HashSet<Domino> checkpointedDominoes = new(); // Dominoes locked at checkpoints
     private HashSet<Domino> waitingForCheckpoint = new(); // Dominoes that are waiting until the next checkpoint to lock
-    public float resetDelay = 2f;
+    public float resetDelay = 1f;
     public float resetDuration = 1f;
     public Domino.DominoAnimation resetAnimation = Domino.DominoAnimation.Rotate;
     public int checkpointThreshold = 5; // Number of dominoes required for a checkpoint
+    public enum ResetState { Idle, ResetUpcoming, Resetting};
+    public ResetState currentState = ResetState.Idle; // Current state of the reset manager
 
     private void Start()
     {
@@ -73,8 +75,11 @@ public class DominoResetManager : MonoBehaviour
             fallenDominoes.Add(domino);
         }
 
-        CancelInvoke(nameof(ResetAllDominoes));
-        Invoke(nameof(ResetAllDominoes), resetDelay);
+        if (!domino.CheckUpright()){ //Only start a domino reset if the domino is not upright
+            CancelInvoke(nameof(ResetAllDominoes));
+            Invoke(nameof(ResetAllDominoes), resetDelay);
+            currentState = ResetState.ResetUpcoming; // Set the state to ResetUpcoming
+        }
     }
 
     private void RemoveDomino(Domino domino)
@@ -103,8 +108,7 @@ public class DominoResetManager : MonoBehaviour
 
     private void ResetAllDominoes()
     {
-        
-
+        if (fallenDominoes.Count == 0) return; // No dominoes to reset
         if (GameManager.Instance.gameDifficulty == GameManager.GameDifficulty.Hard)
         {
             Debug.Log("No dominoes will reset on Hard difficulty.");
@@ -112,9 +116,25 @@ public class DominoResetManager : MonoBehaviour
         }
         else Debug.Log("Resetting all dominoes. Count: " + fallenDominoes.Count);
 
-        if (fallenDominoes.Count < 1000) resetAnimation = Domino.DominoAnimation.Jump;
-        else if (fallenDominoes.Count < 2000) resetAnimation = Domino.DominoAnimation.Rotate;
-        else resetAnimation = Domino.DominoAnimation.Teleport;
+        if (fallenDominoes.Count < 1000)
+        {
+            currentState = ResetState.Resetting;
+            resetAnimation = Domino.DominoAnimation.Jump;
+        }
+        else if (fallenDominoes.Count < 2000)
+        {
+            resetAnimation = Domino.DominoAnimation.Rotate;
+            currentState = ResetState.Resetting;
+        } 
+        else
+        {
+            currentState = ResetState.Idle;
+            resetAnimation = Domino.DominoAnimation.Teleport;
+        } 
+        float resetDuration = 1f;
+        Invoke(nameof(ResetToIdle), resetDuration); // Reset the state to Idle after the reset duration
+        
+        PlayerDominoPlacement.Instance.DeleteHeldDomino();
 
         foreach (var domino in fallenDominoes)
         {
@@ -127,9 +147,14 @@ public class DominoResetManager : MonoBehaviour
             {
                 continue; 
             }
-            domino.AnimateDomino(resetAnimation);
+            domino.AnimateDomino(resetAnimation, resetDuration);
         }
         fallenDominoes.Clear();
+    }
+
+    private void ResetToIdle()
+    {
+        currentState = ResetState.Idle; // Set the state to Idle
     }
 
     private void Update()
