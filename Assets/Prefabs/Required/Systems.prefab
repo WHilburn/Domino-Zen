@@ -542,7 +542,7 @@ MonoBehaviour:
   m_BlendUpdateMethod: 1
   m_DefaultBlend:
     m_Style: 4
-    m_Time: 2
+    m_Time: 1
     m_CustomCurve:
       serializedVersion: 2
       m_Curve: []
@@ -861,6 +861,7 @@ MonoBehaviour:
   resetDuration: 1
   resetAnimation: 1
   checkpointThreshold: 5
+  currentState: 0
 --- !u!114 &3075726223686852279
 MonoBehaviour:
   m_ObjectHideFlags: 0

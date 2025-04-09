@@ -113,7 +113,6 @@ public class TutorialManager : MonoBehaviour
     private void SetCameraPriority(bool enable)
     {
         starterCamera.Priority = enable ? 0 : 30;
-        Debug.Log($"Starter camera priority set to {starterCamera.Priority}");
         OnToggleCameraControls.Invoke(enable);
     }
 

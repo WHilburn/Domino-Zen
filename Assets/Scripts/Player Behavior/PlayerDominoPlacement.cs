@@ -88,7 +88,6 @@ public class PlayerDominoPlacement : MonoBehaviour
     public void TogglePlacementControls(bool enable)
     {
         placementEnabled = enable;
-        Debug.Log($"Placement controls toggled: {placementEnabled}");
         if (!placementEnabled) DestroyHand(); // Destroy the hand when controls are disabled
     }
 
