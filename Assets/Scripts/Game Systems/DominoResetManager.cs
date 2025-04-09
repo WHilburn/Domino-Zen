@@ -98,7 +98,7 @@ public class DominoResetManager : MonoBehaviour
 
         if (domino.placementIndicator != null)
         {
-            Destroy(domino.placementIndicator.gameObject); // Delete the placementIndicator GameObject
+            domino.placementIndicator.gameObject.SetActive(false); // Hide the placement indicator
             domino.placementIndicator = null; // Clear the reference to the placementIndicator
         }
     }

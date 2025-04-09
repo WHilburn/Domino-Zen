@@ -185,7 +185,7 @@ public class TutorialManager : MonoBehaviour
             targetScreenPosition,
             uiCanvas.worldCamera,
             out Vector2 localPoint);
-        arrowRectTransform.localPosition = localPoint + new Vector3(0, Mathf.Sin(Time.time * bobbingSpeed) * bobbingHeight, 0);
+        arrowRectTransform.localPosition = (Vector3)localPoint + new Vector3(0, Mathf.Sin(Time.time * bobbingSpeed) * bobbingHeight, 0);
         arrowRectTransform.rotation = Quaternion.identity;
     }
 
