@@ -19,7 +19,7 @@ public class Domino : DominoLike
     }
 
     private static readonly float stillnessVelocityThreshold = 5f;  // Velocity threshold to consider "stationary"
-    private static readonly float stillnessRotationThreshold = 1f;  // Rotation threshold to consider "stationary"
+    private static readonly float stillnessRotationThreshold = 3f;  // Rotation threshold to consider "stationary"
 
     public enum DominoState
     {
@@ -177,13 +177,7 @@ public class Domino : DominoLike
         currentState = DominoState.Animating; // Set state to animating
         if (DOTween.IsTweening(transform)) return; // Prevent additional animations if a tween is active
 
-        bool savedSetting = canSetNewStablePosition;
-        canSetNewStablePosition = false; // Prevent multiple stability checks during animation
-
         PerformAnimation(animation, resetDuration);
-
-        canSetNewStablePosition = savedSetting; // Restore the ability to set new stable positions
-        currentState = DominoState.Stationary; // Reset state to stationary
     }
     #endregion
 
@@ -211,6 +205,7 @@ public class Domino : DominoLike
     {
         rb.transform.position = lastStablePosition;
         rb.transform.rotation = lastStableRotation;
+        currentState = DominoState.Stationary; // Reset state to stationary
         StartCoroutine(TogglePhysics(true));
     }
 
@@ -220,9 +215,7 @@ public class Domino : DominoLike
         rb.transform.DOMove(lastStablePosition, resetDuration);
         rb.transform.DORotateQuaternion(lastStableRotation, resetDuration).OnComplete(() =>
         {
-            transform.position = lastStablePosition;
-            transform.rotation = lastStableRotation;
-            StartCoroutine(TogglePhysics(true));
+            PerformTeleport();
         });
     }
 
@@ -248,9 +241,7 @@ public class Domino : DominoLike
     
         jumpSequence.OnComplete(() =>
         {
-            transform.position = lastStablePosition;
-            transform.rotation = lastStableRotation;
-            StartCoroutine(TogglePhysics(true));
+            PerformTeleport();
         });
         jumpSequence.Play();
     }
@@ -287,11 +278,11 @@ public class Domino : DominoLike
     private void OnCollisionEnter(Collision collision)
     {
         float impactForce = collision.relativeVelocity.magnitude;
-        if (impactForce < 0.5f || rb.isKinematic) return; // Ignore small impacts
+        if (impactForce < 0.5f || rb.isKinematic || currentState == DominoState.Animating) return; // Ignore small impacts
 
         OnDominoImpact.Invoke(this, impactForce, transform.position);
 
-        if (currentState != DominoState.Held)
+        if (currentState != DominoState.Held && collision.gameObject.CompareTag("DominoTag"))
         {
             if (currentState == DominoState.Stationary || currentState == DominoState.FillingIndicator)
             {

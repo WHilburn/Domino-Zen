@@ -10,10 +10,12 @@ public class CameraController : MonoBehaviour
     public CinemachineVirtualCamera freeLookCamera; // Player-controlled camera
     public CinemachineVirtualCamera trackingCamera; // Auto-framing camera
     public CinemachineTargetGroup targetGroup; // Group of falling dominoes
-    private bool isTracking = false;
-    public List<Transform> fallingDominoes = new();
     public static UnityEvent OnFreeLookCameraEnabled = new();
     public static UnityEvent OnFreeLookCameraDisabled = new();
+
+    private bool isTracking = false;
+    private Dictionary<Transform, float> dominoTimers = new(); // Tracks time remaining for each domino in the target group
+    private const float dominoLifetime = .5f; // Time before domino is removed from the target group
 
     void Start()
     {
@@ -23,7 +25,6 @@ public class CameraController : MonoBehaviour
             Destroy(gameObject);
 
         Domino.OnDominoFall.AddListener(HandleDominoFall);
-        Domino.OnDominoStopMoving.AddListener(HandleDominoStopMoving);
         Domino.OnDominoDeleted.AddListener(HandleDominoDeleted);
 
         EnableFreeLook(); // Start with player control
@@ -32,76 +33,84 @@ public class CameraController : MonoBehaviour
     void OnDestroy()
     {
         Domino.OnDominoFall.RemoveListener(HandleDominoFall);
-        Domino.OnDominoStopMoving.RemoveListener(HandleDominoStopMoving);
         Domino.OnDominoDeleted.RemoveListener(HandleDominoDeleted);
     }
 
     private void HandleDominoFall(Domino domino)
     {
-        if (!fallingDominoes.Contains(domino.transform))
+        if (!dominoTimers.ContainsKey(domino.transform))
         {
-            fallingDominoes.Add(domino.transform);
+            dominoTimers[domino.transform] = dominoLifetime;
+            targetGroup.AddMember(domino.transform, 1f, 0.1f); // Add domino to the target group
         }
-    }
-
-    private void HandleDominoStopMoving(Domino domino)
-    {
-        fallingDominoes.Remove(domino.transform);
     }
 
     private void HandleDominoDeleted(Domino domino)
     {
-        fallingDominoes.Remove(domino.transform);
+        RemoveDominoFromTargetGroup(domino.transform);
     }
 
     void Update()
     {
-        if (fallingDominoes.Count >= 2)
+        UpdateDominoTimers();
+
+        if (DominoResetManager.Instance.currentState == DominoResetManager.ResetState.Resetting)
         {
-            TrackDominoes();
+            EnableFreeLook();
+            return;
         }
-        else if (fallingDominoes.Count == 0)
+
+        if (dominoTimers.Count >= 2 && !isTracking)
         {
-            StopTracking();
+            EnableTrackingCamera();
+        }
+        else if (dominoTimers.Count == 0 && isTracking)
+        {
+            EnableFreeLook();
         }
     }
 
-    public void TrackDominoes()
+    private void UpdateDominoTimers()
     {
-        if (!isTracking) EnableTrackingCamera(); // Switch to tracking camera if not already tracking
-        isTracking = true;
+        var dominoesToRemove = new List<Transform>();
 
-        // Add dominoes to target group with smooth weight adjustments
-        targetGroup.m_Targets = new CinemachineTargetGroup.Target[fallingDominoes.Count];
-        for (int i = 0; i < fallingDominoes.Count; i++)
+        // Iterate over a copy of the keys to avoid modifying the collection during enumeration
+        foreach (var domino in new List<Transform>(dominoTimers.Keys))
         {
-            targetGroup.m_Targets[i] = new CinemachineTargetGroup.Target
+            dominoTimers[domino] -= Time.deltaTime;
+            if (dominoTimers[domino] <= 0f)
             {
-                target = fallingDominoes[i],
-                weight = Mathf.Pow(fallingDominoes[i].GetComponent<Rigidbody>().angularVelocity.magnitude,2),
-                radius = 3f
-            };
+                dominoesToRemove.Add(domino);
+            }
+        }
+
+        foreach (var domino in dominoesToRemove)
+        {
+            RemoveDominoFromTargetGroup(domino);
         }
     }
 
-    public void StopTracking()
+    private void RemoveDominoFromTargetGroup(Transform domino)
     {
-        if (!isTracking) return;
-        isTracking = false;
-        EnableFreeLook();
+        if (dominoTimers.ContainsKey(domino))
+        {
+            dominoTimers.Remove(domino);
+            targetGroup.RemoveMember(domino); // Remove domino from the target group
+        }
     }
+
     private void EnableFreeLook()
     {
-        // Debug.Log("Enabling FreeLook Camera");
+        isTracking = false;
         freeLookCamera.Priority = 20;
         trackingCamera.Priority = 10;
         freeLookCamera.GetComponent<PlayerCameraController>().InitializeRotation();
-        OnFreeLookCameraEnabled.Invoke(); // Invoke the event when free look camera is enabled
+        OnFreeLookCameraEnabled.Invoke();
     }
 
     private void EnableTrackingCamera()
     {
-        // Debug.Log("Enabling Tracking Camera");
+        isTracking = true;
         freeLookCamera.Priority = 10;
         trackingCamera.Priority = 20;
         GetComponent<PlayerDominoPlacement>().ReleaseDomino();
