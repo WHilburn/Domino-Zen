@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
     public List<PlacementIndicator> allIndicators;  // List of all dominoes in the scene
     private bool physicsEnabled = true; // Whether domino physics are enabled
+    public bool debugMode = true; // Debug mode toggle
 
     public enum GameDifficulty
     {
@@ -40,6 +41,18 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.P))
         {
             ToggleDominoPhysics();
+        }
+
+        if (debugMode)
+        {
+            for (int i = 0; i <= 9; i++)
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha0 + i))
+                {
+                    Time.timeScale = i == 0 ? 1f : i * 0.1f; // Set game speed
+                    Debug.Log($"Game speed set to {Time.timeScale}");
+                }
+            }
         }
     }
 

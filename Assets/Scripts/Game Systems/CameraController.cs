@@ -15,7 +15,7 @@ public class CameraController : MonoBehaviour
 
     private bool isTracking = false;
     private Dictionary<Transform, float> dominoTimers = new(); // Tracks time remaining for each domino in the target group
-    private const float dominoLifetime = .5f; // Time before domino is removed from the target group
+    private const float dominoLifetime = .25f; // Time before domino is removed from the target group
 
     void Start()
     {
@@ -74,10 +74,20 @@ public class CameraController : MonoBehaviour
     {
         var dominoesToRemove = new List<Transform>();
 
-        // Iterate over a copy of the keys to avoid modifying the collection during enumeration
         foreach (var domino in new List<Transform>(dominoTimers.Keys))
         {
             dominoTimers[domino] -= Time.deltaTime;
+
+            // Calculate weight based on remaining time
+            float elapsedTime = dominoLifetime - dominoTimers[domino];
+            float weight = Mathf.Clamp01(elapsedTime / (dominoLifetime / 2)); // Ramp up
+            if (dominoTimers[domino] < dominoLifetime / 2)
+            {
+                weight = Mathf.Clamp01(dominoTimers[domino] / (dominoLifetime / 2)); // Fade out
+            }
+
+            targetGroup.m_Targets[targetGroup.FindMember(domino)].weight = weight;
+
             if (dominoTimers[domino] <= 0f)
             {
                 dominoesToRemove.Add(domino);
