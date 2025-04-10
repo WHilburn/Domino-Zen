@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class InGameUI : MonoBehaviour
@@ -12,6 +13,21 @@ public class InGameUI : MonoBehaviour
 
     void Awake()
     {
+        // Ensure only one instance of InGameUI exists
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+
+        // Ensure there is an Event System in the scene
+        if (FindObjectOfType<EventSystem>() == null)
+        {
+            GameObject eventSystem = new GameObject("EventSystem");
+            eventSystem.AddComponent<EventSystem>();
+            eventSystem.AddComponent<StandaloneInputModule>();
+        }
         dominoCount = 0; // Initialize domino count
         indicatorCount = 0; // Initialize indicator count
     }
