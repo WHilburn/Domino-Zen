@@ -11,14 +11,14 @@ public class DominoSpawner : EditorWindow
     private Direction curveDirection = Direction.Right;
 
     private int spawnCount = 5; // Total dominoes, or number of rows in triangle
-    private float forwardSpacing = 0.4f;
+    private float forwardSpacing = 0.35f;
     private float rowSpacing = 0.6f;
     private float curveAngle = 90f; // Angle of curve (5° - 360°)
     private float spiralSpacing = 0.3f; // Shrinking radius spacing for spiral
 
     private bool gradientMode = false;
     private bool rainbowMode = false; // Toggle for Rainbow Mode
-    private Color startColor = Color.red;
+    private Color startColor = Color.white;
     private Color endColor = Color.blue;
     private int colorCycles = 1;
     private bool colorBounce = false;
@@ -49,6 +49,7 @@ public class DominoSpawner : EditorWindow
         previewMode = EditorGUILayout.Toggle("Preview Mode", previewMode);
         dominoPrefab = (GameObject)EditorGUILayout.ObjectField("Domino Prefab", dominoPrefab, typeof(GameObject), false);
         dominoMaterialList = (DominoMaterialList)EditorGUILayout.ObjectField("Domino Material", dominoMaterialList, typeof(DominoMaterialList), false);
+        indicatorPrefab = (GameObject)EditorGUILayout.ObjectField("Indicator Prefab", indicatorPrefab, typeof(GameObject), false);
         musicMode = EditorGUILayout.Toggle("Music Mode", musicMode);
         selectedFormation = (FormationType)EditorGUILayout.EnumPopup("Formation Type", selectedFormation);
         forwardSpacing = EditorGUILayout.Slider("Forward Spacing", forwardSpacing, .2f, .6f);
@@ -136,12 +137,6 @@ public class DominoSpawner : EditorWindow
     private void SpawnDominoes()
     {
         RemovePreviewCubes();
-        
-        if (dominoPrefab == null)
-        {
-            dominoPrefab = ResourceNames.Instance.dominoPrefab;
-            return;
-        }
 
         GameObject selected = Selection.activeGameObject;
         if (selected == null || !selected.CompareTag("DominoTag"))
@@ -196,12 +191,6 @@ public class DominoSpawner : EditorWindow
     {
         RemovePreviewCubes();
 
-        if (indicatorPrefab == null)
-        {
-            indicatorPrefab = ResourceNames.Instance.indicatorPrefab;
-            return;
-        }
-
         GameObject selected = Selection.activeGameObject;
         if (selected == null || !selected.CompareTag("DominoTag"))
         {
@@ -241,8 +230,7 @@ public class DominoSpawner : EditorWindow
         foreach (var (position, rotation) in spawnData)
         {
             GameObject newIndicator = (GameObject)PrefabUtility.InstantiatePrefab(indicatorPrefab);
-            newIndicator.transform.position = position;
-            newIndicator.transform.rotation = rotation;
+            newIndicator.transform.SetPositionAndRotation(position, rotation);
             newIndicator.transform.SetParent(parent.transform);
 
             Undo.RegisterCreatedObjectUndo(newIndicator, "Spawn Indicator");
@@ -304,8 +292,7 @@ public class DominoSpawner : EditorWindow
         foreach ((Vector3 pos, Quaternion rot) in previewPositions)
         {
             GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.transform.position = pos;
-            cube.transform.rotation = rot;
+            cube.transform.SetPositionAndRotation(pos, rot);
             cube.transform.localScale = new Vector3(.48f, .98f, .13f); // Match approximate domino shape
             cube.name = "PreviewCube";
             cube.hideFlags = HideFlags.HideAndDontSave; // Hide from hierarchy

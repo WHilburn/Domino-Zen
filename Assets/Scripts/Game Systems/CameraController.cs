@@ -25,6 +25,17 @@ public class CameraController : MonoBehaviour
         else
             Destroy(gameObject);
 
+        // Ensure the tracking camera has a track assigned
+        var trackedDolly = trackingCamera.GetCinemachineComponent<CinemachineTrackedDolly>();
+        if (trackedDolly != null && trackedDolly.m_Path == null)
+        {
+            trackedDolly.m_Path = FindObjectOfType<CinemachineSmoothPath>();
+            if (trackedDolly.m_Path == null)
+            {
+                Debug.LogWarning("No track assigned to the tracking camera's Tracked Dolly component, and no track was found in the scene.");
+            }
+        }
+
         Domino.OnDominoFall.AddListener(HandleDominoFall);
         Domino.OnDominoDeleted.AddListener(HandleDominoDeleted);
 
