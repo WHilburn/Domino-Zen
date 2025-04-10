@@ -14,16 +14,13 @@ public class ResourceNames : MonoBehaviour
     public GameObject dominoPrefab;
     public GameObject indicatorPrefab;
 
-    private void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else if (Instance != this)
-        {
-            DestroyImmediate(gameObject); // Ensure only one instance exists
-        }
-    }
+    // private void Awake()
+    // {
+    //     if (Instance != null && Instance != this)
+    //     {
+    //         Destroy(Instance.gameObject); // Destroy the previous instance if it exists
+    //     }
+    //     Instance = this;
+    // }
 }
 

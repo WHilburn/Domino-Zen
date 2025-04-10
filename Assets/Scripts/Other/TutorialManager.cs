@@ -31,15 +31,11 @@ public class TutorialManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null)
+        if (Instance != null && Instance != this)
         {
-            Instance = this;
+            Destroy(Instance.gameObject); // Destroy the previous instance if it exists
         }
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
+        Instance = this;
         
         transform.localScale = Vector3.zero;
         transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);

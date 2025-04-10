@@ -20,10 +20,11 @@ public class CameraController : MonoBehaviour
 
     void Start()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(gameObject);
+        if (Instance != null && Instance != this)
+        {
+            Destroy(Instance.gameObject); // Destroy the previous instance if it exists
+        }
+        Instance = this;
 
         // Ensure the tracking camera has a track assigned
         var trackedDolly = trackingCamera.GetCinemachineComponent<CinemachineTrackedDolly>();

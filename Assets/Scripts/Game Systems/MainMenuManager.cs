@@ -55,6 +55,7 @@ public class MainMenuManager : MonoBehaviour
     
     private void Start()
     {
+        
         // Set the main menu camera as the default
         SetActiveCamera(mainMenuCamera);
         DOTween.defaultRecyclable = true;

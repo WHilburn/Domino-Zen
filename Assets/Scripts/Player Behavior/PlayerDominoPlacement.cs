@@ -40,7 +40,7 @@ public class PlayerDominoPlacement : MonoBehaviour
             Destroy(Instance.gameObject); // Destroy the previous instance if it exists
         }
         Instance = this;
-        activeCamera = FindFirstObjectByType<Camera>();
+        // activeCamera = FindFirstObjectByType<Camera>();
         soundManager = FindObjectOfType<DominoSoundManager>(); // Get reference to the SoundManager
         TutorialManager.OnTogglePlacementControls.AddListener(TogglePlacementControls); // Subscribe to the event
     }
