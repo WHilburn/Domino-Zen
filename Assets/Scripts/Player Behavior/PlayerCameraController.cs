@@ -15,6 +15,7 @@ public class PlayerCameraController : MonoBehaviour
     private float currentRotationY = 0f;
     public CinemachineBrain brain;
     public bool isCameraEnabled = true; // Flag to enable/disable camera controls
+    private bool windowFocused = true; // Flag to check if the window is focused
 
     void Start()
     {
@@ -40,10 +41,14 @@ public class PlayerCameraController : MonoBehaviour
     }
     private void OnApplicationFocus(bool hasFocus)
     {
+        windowFocused = hasFocus; // Update the flag based on the application focus state
         if (hasFocus)
         {
             InitializeRotation();
             brain = FindObjectOfType<CinemachineBrain>();
+
+            // Reset mouse input deltas to prevent snapping
+            Input.ResetInputAxes();
         }
     }
 
@@ -54,7 +59,8 @@ public class PlayerCameraController : MonoBehaviour
             brain == null ||
             brain.ActiveVirtualCamera == null || 
             brain.ActiveVirtualCamera.VirtualCameraGameObject != gameObject || 
-            brain.IsBlending)
+            brain.IsBlending ||
+            !windowFocused) // Check if the window is focused
         {
             return;
         }
