@@ -18,13 +18,10 @@ public class PlayerCameraController : MonoBehaviour
 
     void Start()
     {
-        // Ensure only one instance of InGameUI exists
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
-            return;
+            Destroy(Instance.gameObject); // Destroy the previous instance if it exists
         }
-        Instance = this;
         Instance = this;
         InitializeRotation();
         brain = FindObjectOfType<CinemachineBrain>();

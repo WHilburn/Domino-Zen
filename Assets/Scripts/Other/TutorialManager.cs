@@ -31,13 +31,15 @@ public class TutorialManager : MonoBehaviour
 
     void Awake()
     {
-        // Ensure only one instance of InGameUI exists
-        if (Instance != null && Instance != this)
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
         {
             Destroy(gameObject);
             return;
         }
-        Instance = this;
         
         transform.localScale = Vector3.zero;
         transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);

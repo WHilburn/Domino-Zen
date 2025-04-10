@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 
 public class CameraController : MonoBehaviour
 {
@@ -21,18 +20,10 @@ public class CameraController : MonoBehaviour
 
     void Start()
     {
-        if (SceneManager.GetActiveScene().name == "Main Menu")
-        {
-            enabled = false; // Destroy this object if in the main menu
-            return;
-        }
-        // Ensure only one instance of InGameUI exists
-        if (Instance != null && Instance != this)
-        {
+        if (Instance == null)
+            Instance = this;
+        else
             Destroy(gameObject);
-            return;
-        }
-        Instance = this;
 
         Domino.OnDominoFall.AddListener(HandleDominoFall);
         Domino.OnDominoDeleted.AddListener(HandleDominoDeleted);

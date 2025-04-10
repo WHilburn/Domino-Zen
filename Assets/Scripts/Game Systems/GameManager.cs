@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
-using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     public List<PlacementIndicator> allIndicators;  // List of all dominoes in the scene
+    private bool physicsEnabled = true; // Whether domino physics are enabled
     public bool debugMode = true; // Debug mode toggle
 
     public enum GameDifficulty
@@ -23,36 +23,25 @@ public class GameManager : MonoBehaviour
         DOTween.defaultRecyclable = true; // Enable DOTween recycling
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject); // Destroy the previous instance if it exists
+            Destroy(Instance.gameObject); // Destroy the previous instance if it exists
         }
         Instance = this;
         foreach (var indicator in FindObjectsOfType<PlacementIndicator>())
         {
             allIndicators.Add(indicator);
         }
-        // DontDestroyOnLoad(gameObject);
-
-        string currentSceneName = SceneManager.GetActiveScene().name;
-        bool isMainMenu = currentSceneName == "Main Menu";
-        Debug.Log($"Current scene: {currentSceneName}");
-        Debug.Log($"Is Main Menu: {isMainMenu}");
-
-        // Enable/disable scripts based on the scene
-        var dominoResetManager = GetComponent<DominoResetManager>();
-        var playerDominoPlacement = GetComponent<PlayerDominoPlacement>();
-        var cameraController = GetComponent<CameraController>();
-
-        if (dominoResetManager != null) dominoResetManager.enabled = !isMainMenu;
-        if (playerDominoPlacement != null) playerDominoPlacement.enabled = !isMainMenu;
-        if (cameraController != null) cameraController.enabled = !isMainMenu;
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.T))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
         }   
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            ToggleDominoPhysics();
+        }
 
         if (debugMode)
         {
@@ -82,6 +71,34 @@ public class GameManager : MonoBehaviour
         if (allIndicatorsFilled)
         {
             Debug.Log("***********All indicators have been filled!*************");
+        }
+    }
+
+    private void ToggleDominoPhysics()
+    {
+        physicsEnabled = !physicsEnabled; // Flip state
+        Debug.Log($"Domino physics is now {(physicsEnabled ? "ENABLED" : "DISABLED")}");
+        
+        // Find all dominoes (assumes they have a "Domino" tag or a common component)
+        GameObject[] dominoes = GameObject.FindGameObjectsWithTag("DominoTag");
+
+        foreach (GameObject domino in dominoes)
+        {
+            Rigidbody rb = domino.GetComponent<Rigidbody>();
+            MonoBehaviour[] scripts = domino.GetComponents<MonoBehaviour>();
+            BoxCollider collider = domino.GetComponent<BoxCollider>();
+
+            if (rb != null)
+            {
+                rb.isKinematic = !physicsEnabled; // Toggle physics
+                rb.useGravity = physicsEnabled; // Ensure gravity behaves correctly
+                collider.enabled = physicsEnabled;
+            }
+
+            foreach (MonoBehaviour script in scripts)
+            {
+                script.enabled = physicsEnabled; // Toggle all scripts
+            }
         }
     }
 }
