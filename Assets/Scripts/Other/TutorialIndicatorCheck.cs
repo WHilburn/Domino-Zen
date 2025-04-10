@@ -36,13 +36,12 @@ public class TutorialIndicatorCheck : MonoBehaviour
             if (filledCount == 4)
             {
                 OnFillFourSlots.Invoke(); // Invoke the event when four indicators are filled
-                Debug.Log("Four indicators filled!");
+
             }
         }
         if (allIndicatorsFilled)
         {
             OnCompleteIndicatorRow.Invoke(); // Invoke the event when all indicators are filled
-            Debug.Log("All indicators filled!");
         }
     }
 }

@@ -136,9 +136,10 @@ public class PlacementIndicator : DominoLike
 
     private void PlaceDomino()
     {
-        if (DominoResetManager.Instance != null && 
+        if ((trackedDomino.stablePositionSet) || //Dont allow domino to be placed if it already has a stable position set
+        DominoResetManager.Instance != null && 
         DominoResetManager.Instance.currentState != DominoResetManager.ResetState.Idle && // Prevent placement if there are fallen dominoes and we're waiting for a reset or in the middle of resetting
-        !DominoResetManager.Instance.checkpointedDominoes.Contains(trackedDomino)) // Prevent placing a second time if the domino is checkpointed
+        !DominoResetManager.Instance.checkpointedDominoes.Contains(trackedDomino))// Prevent placing a second time if the domino is checkpointed
         {
             return; 
         }
