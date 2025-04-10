@@ -123,12 +123,18 @@ public class DominoRain : MonoBehaviour {
         mainMenuManager.CompleteSceneTransitions(); // Call the method to complete scene transitions
         
         // Wait for a short delay (optional)
+        foreach (Domino domino in FindObjectsOfType<Domino>()) {
+            Destroy(domino.gameObject); // Destroy the dominoes
+        }
         yield return new WaitForSeconds(0.5f);
         StopCoroutine(RainDominoes());
         elapsedTime = Mathf.Infinity; // Stop the rain effect
 
-        // Slide out to the right
-        yield return rectTransform.DOAnchorPos(new Vector2(Screen.width, 0), bigDominoSlideDuration).SetEase(Ease.InOutQuad).WaitForCompletion();
+        // Shrink and spin the big domino towards the middle of the screen
+        Sequence shrinkAndSpin = DOTween.Sequence();
+        shrinkAndSpin.Join(rectTransform.DOScale(Vector3.zero, bigDominoSlideDuration).SetEase(Ease.InOutQuad));
+        shrinkAndSpin.Join(rectTransform.DORotate(new Vector3(0, 0, 360 * 4), bigDominoSlideDuration, RotateMode.FastBeyond360));
+        yield return shrinkAndSpin.WaitForCompletion();
 
         // Destroy the big domino
         Destroy(bigDomino);
