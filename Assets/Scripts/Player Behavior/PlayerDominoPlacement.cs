@@ -144,6 +144,8 @@ public class PlayerDominoPlacement : MonoBehaviour
     void PickUpDomino(GameObject domino)
     {
         heldDomino = domino;
+        // Preserve the existing rotation of the domino
+        savedRotation = heldDomino.transform.rotation;
         InitializeHeldDomino();
 
         if (IsDominoFalling())
