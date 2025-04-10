@@ -90,6 +90,7 @@ public class TutorialManager : MonoBehaviour
         placementEnabled = currentStep.placementEnabled;
         OnTogglePlacementControls.Invoke(placementEnabled);
         PlayerDominoPlacement.placementEnabled = placementEnabled; // Update the PlayerDominoPlacement script
+        PlayerDominoPlacement.Instance.placementLimited = currentStep.limitedPlacement;
         visible = currentStep.visible;
 
         SetCameraPriority(currentStep.cameraEnabled);

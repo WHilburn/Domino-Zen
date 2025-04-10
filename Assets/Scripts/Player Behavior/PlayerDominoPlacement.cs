@@ -32,6 +32,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     public static UnityEvent<Domino> OnDominoReleased = new();
     public static bool placementEnabled = true; // Flag to enable/disable placement controls
     public static bool flickEnabled = true;
+    public bool placementLimited = false; // Flag to limit placement to a specific area
 
     void Start()
     {
@@ -53,6 +54,11 @@ public class PlayerDominoPlacement : MonoBehaviour
             return;
         }
 
+        if (placementLimited && !IsMousePointingAtTutorialBook())
+        {
+            return; // Prevent actions if placement is limited and not pointing at the "Tutorial Book"
+        }
+
         if (heldDomino)
         {
             MoveHeldDomino();
@@ -70,8 +76,7 @@ public class PlayerDominoPlacement : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0) && placementEnabled) // Left Click
         {
-            if (heldDomino == null)
-                TryPickUpDomino();
+            TryPickUpDomino(); // Allow picking up dominoes regardless of placementLimited
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -93,7 +98,7 @@ public class PlayerDominoPlacement : MonoBehaviour
 
     void SpawnDomino()
     {
-        if (!IsCameraActive()) return;
+        if (!IsCameraActive() || (placementLimited && !IsMousePointingAtTutorialBook())) return;
 
         Vector3 spawnPos = GetMouseWorldPosition();
 
@@ -426,5 +431,17 @@ public class PlayerDominoPlacement : MonoBehaviour
             // Apply the force at the holdPoint in the calculated direction
             rb.AddForceAtPosition(forceDirection * 1f, worldHoldPoint, ForceMode.Impulse);
         }
+    }
+
+    // Helper method to check if the mouse is pointing at the "Tutorial Book"
+    private bool IsMousePointingAtTutorialBook()
+    {
+        Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
+        int layerMask = LayerMask.GetMask("EnvironmentLayer"); // Ignore dominoes in the raycast
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask))
+        {
+            return hit.collider.gameObject.name == "Tutorial Book";
+        }
+        return false;
     }
 }
