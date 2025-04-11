@@ -371,8 +371,8 @@ MonoBehaviour:
   lockSpritePrefab: {fileID: 4181785002189258841, guid: e065b6617a4063e44a89dec531f78b67, type: 3}
   uiCanvas: {fileID: 3644463334577794610}
   glowOutlineMaterial: {fileID: 2100000, guid: 1326983e1cc673647829a031ae50b077, type: 2}
-  placementDecalMaterial: {fileID: 2100000, guid: 0e6f54b953d844ae4ab2980a5ce7ae9c, type: 2}
-  placementDecalMaterialRed: {fileID: 0}
+  placementDecalMaterial: {fileID: 2100000, guid: ba3a5c75e3c5dfb44a909288ed06bc56, type: 2}
+  placementDecalMaterialRed: {fileID: 2100000, guid: 2ed7dc9aa62f5c642b5f027309e50ba6, type: 2}
   decalSize: {x: 0.51028, y: 0.01, z: 0.13904}
   decalPivot: {x: 0, y: 0, z: 0}
 --- !u!114 &5360279869383916395
@@ -416,6 +416,7 @@ MonoBehaviour:
   dominoPianoSounds: {fileID: 11400000, guid: ea7b78dcee7b70141a4ed3e24a359220, type: 2}
   dominoClickSounds: {fileID: 11400000, guid: b75dc4c91cf6ef244897d08b0a63e357, type: 2}
   dominoLockedSound: {fileID: 8300000, guid: 6dca3b665291354479723de89309750a, type: 3}
+  dominoObstructedSound: {fileID: 8300000, guid: c03fc4454ca5a9a43b7843176127bb66, type: 3}
   indicatorConfirmSound: {fileID: 8300000, guid: cd5b9526b998a46deaa89641b063ef9f, type: 3}
   audioSourcePoolSize: 128
 --- !u!114 &7929551841837749930
@@ -826,6 +827,10 @@ PrefabInstance:
       propertyPath: canvas
       value: 
       objectReference: {fileID: 3644463334577794610}
+    - target: {fileID: 2167814028722950021, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
+      propertyPath: mainCamera
+      value: 
+      objectReference: {fileID: 7643491476663183632}
     - target: {fileID: 2167814028722950021, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
       propertyPath: floatingTextPrefab
       value: 

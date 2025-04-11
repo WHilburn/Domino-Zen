@@ -32,6 +32,7 @@ public class DominoSoundManager : MonoBehaviour
     public DominoSoundList dominoClickSounds;
 
     public AudioClip dominoLockedSound;
+    public AudioClip dominoObstructedSound;
     public AudioClip indicatorConfirmSound;
 
     [Header("AudioSource Pool Settings")]

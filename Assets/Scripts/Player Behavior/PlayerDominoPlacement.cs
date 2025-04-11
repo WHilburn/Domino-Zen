@@ -131,7 +131,7 @@ public class PlayerDominoPlacement : MonoBehaviour
                 existingDomino.AnimateDomino(Domino.DominoAnimation.Jiggle); // Play jiggle animation
                 placementDecal.material = placementDecalMaterialRed; // Change decal color to red
                 InGameUI.Instance.CreateFloatingText("Obstructed", spawnPos, .75f, 1f, true); // Show floating text
-                soundManager?.PlayArbitrarySound(soundManager.dominoLockedSound, 1, 1, spawnPos);
+                soundManager?.PlayArbitrarySound(soundManager.dominoObstructedSound, 1, 1, spawnPos);
                 //Change the color back to blue after 1 second
                 StartCoroutine(ResetDecalColor(.5f, placementDecalMaterial));
                 return; // Prevent spawning
