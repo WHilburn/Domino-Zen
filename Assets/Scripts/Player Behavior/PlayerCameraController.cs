@@ -54,6 +54,9 @@ public class PlayerCameraController : MonoBehaviour
 
     void Update()
     {
+        // Reset moveDirection to prevent unintended movement
+        moveDirection = Vector3.zero;
+
         // Check if the active virtual camera is null, a different camera, or blending
         if (!isCameraEnabled ||
             brain == null ||
@@ -73,7 +76,15 @@ public class PlayerCameraController : MonoBehaviour
         ApplyMovement(currentMoveSpeed);
 
         // Handle camera rotation
-        if (Input.GetMouseButton(1)) HandleCameraRotation();
+        if (Input.GetMouseButton(1)) 
+        {
+            HandleCameraRotation();
+        }
+        else
+        {
+            // Stabilize rotation when the right mouse button is released
+            StabilizeRotation();
+        }
     }
 
     public void InitializeRotation()
@@ -125,9 +136,13 @@ public class PlayerCameraController : MonoBehaviour
 
     private void ApplyMovement(float currentMoveSpeed)
     {
-        // Compute new position with collision handling
-        Vector3 desiredPosition = transform.position + moveDirection * currentMoveSpeed * Time.deltaTime;
-        transform.position = HandleCollisions(transform.position, desiredPosition);
+        // Only apply movement if there is valid input
+        if (moveDirection.sqrMagnitude > Mathf.Epsilon)
+        {
+            // Compute new position with collision handling
+            Vector3 desiredPosition = transform.position + moveDirection * currentMoveSpeed * Time.deltaTime;
+            transform.position = HandleCollisions(transform.position, desiredPosition);
+        }
     }
 
     private void HandleCameraRotation()
@@ -135,10 +150,21 @@ public class PlayerCameraController : MonoBehaviour
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
 
-        currentRotationX -= mouseY * lookSpeed;
-        currentRotationY += mouseX * lookSpeed;
-        currentRotationX = Mathf.Clamp(currentRotationX, -80f, 80f);
+        // Only apply rotation if there is actual input
+        if (Mathf.Abs(mouseX) > Mathf.Epsilon || Mathf.Abs(mouseY) > Mathf.Epsilon)
+        {
+            currentRotationX -= mouseY * lookSpeed;
+            currentRotationY += mouseX * lookSpeed;
+            currentRotationX = Mathf.Clamp(currentRotationX, -80f, 80f);
 
+            transform.rotation = Quaternion.Euler(currentRotationX, currentRotationY, 0);
+        }
+    }
+
+    private void StabilizeRotation()
+    {
+        // Ensure no residual rotation occurs by clamping or resetting values
+        currentRotationX = Mathf.Clamp(currentRotationX, -80f, 80f);
         transform.rotation = Quaternion.Euler(currentRotationX, currentRotationY, 0);
     }
 
@@ -147,6 +173,7 @@ public class PlayerCameraController : MonoBehaviour
         Vector3 movementVector = targetPos - currentPos;
         float distance = movementVector.magnitude;
 
+        // Avoid unnecessary calculations for very small movements
         if (distance < 0.001f) return currentPos;
 
         RaycastHit hit;

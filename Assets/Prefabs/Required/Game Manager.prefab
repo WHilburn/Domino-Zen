@@ -395,6 +395,7 @@ MonoBehaviour:
   activeCamera: {fileID: 7643491476663183632}
   lockSpritePrefab: {fileID: 4181785002189258841, guid: e065b6617a4063e44a89dec531f78b67, type: 3}
   uiCanvas: {fileID: 3644463334577794610}
+  glowOutlineMaterial: {fileID: 2100000, guid: 1326983e1cc673647829a031ae50b077, type: 2}
 --- !u!114 &5360279869383916395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -527,7 +528,7 @@ Transform:
   m_GameObject: {fileID: 6624626560819186173}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6.169923, y: 6.530122, z: 0.3269186}
+  m_LocalPosition: {x: 6.1699705, y: 6.5301385, z: 0.32696056}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -577,8 +578,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6956217463858373830}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.1468124, y: 0.060329966, z: -0.039647844, w: -0.9865264}
-  m_LocalPosition: {x: 0.99736714, y: 4.76533, z: -6.5686703}
+  m_LocalRotation: {x: 0.04208256, y: -0.053589933, z: 0.023782272, w: -0.9973924}
+  m_LocalPosition: {x: -59.672962, y: -0.644577, z: -5.2134857}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class PlayerDominoPlacement : MonoBehaviour
 {
@@ -33,6 +34,9 @@ public class PlayerDominoPlacement : MonoBehaviour
     public static bool placementEnabled = true; // Flag to enable/disable placement controls
     public static bool flickEnabled = true;
     public static bool placementLimited = false; // Flag to limit placement to a specific area
+    public Material glowOutlineMaterial; // Reference to the glow outline material
+    private Domino hoveredDomino; // Currently hovered domino
+    private Dictionary<Renderer, Material[]> originalMaterials = new(); // Store original materials for each renderer
 
     void Start()
     {
@@ -88,6 +92,8 @@ public class PlayerDominoPlacement : MonoBehaviour
         {
             TryFlickDomino();
         }
+
+        HandleMouseHover();
     }
 
     public void TogglePlacementControls(bool enable)
@@ -294,6 +300,8 @@ public class PlayerDominoPlacement : MonoBehaviour
 
     private void InitializeHeldDomino()
     {
+        RemoveGlowOutline(); // Remove glow outline
+
         heldDomino.layer = LayerMask.NameToLayer("Ignore Raycast");
         heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Held;
         decalProjector = heldDomino.GetComponent<DecalProjector>();
@@ -443,5 +451,79 @@ public class PlayerDominoPlacement : MonoBehaviour
             return hit.collider.gameObject.name == "Tutorial Book";
         }
         return false;
+    }
+
+    private void HandleMouseHover()
+    {
+        if (heldDomino != null || !IsCameraActive())
+        {
+            RemoveGlowOutline(); // Remove glow outline if holding a domino
+            return; // Skip hover handling if holding a domino
+        }
+
+        Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            Domino domino = hit.collider.GetComponent<Domino>();
+            if (domino != null)
+            {
+                if (domino != hoveredDomino) ApplyGlowOutline(domino);
+            }
+            else RemoveGlowOutline();
+        }
+        else if (hoveredDomino != null)
+        {
+            RemoveGlowOutline();
+        }
+    }
+
+    private void ApplyGlowOutline(Domino domino)
+    {
+        RemoveGlowOutline(); // Remove glow from the previously hovered domino
+
+        hoveredDomino = domino;
+        Renderer[] renderers = domino.GetComponentsInChildren<Renderer>();
+
+        foreach (Renderer renderer in renderers)
+        {
+            originalMaterials[renderer] = renderer.materials; // Store original materials
+            List<Material> materials = new(renderer.materials);
+            materials.Add(glowOutlineMaterial); // Add the glow outline material
+            renderer.materials = materials.ToArray();
+        }
+
+        // Get the color from the DominoSkin component
+        DominoSkin dominoSkin = domino.GetComponent<DominoSkin>();
+        Color outlineColor = Color.blue; // Default to blue if no color is found
+        if (dominoSkin != null)
+        {
+            Color dominoColor = dominoSkin.colorOverride;
+            if (dominoColor != Color.white)
+            {
+                // Calculate the complementary color
+                outlineColor = new Color(1f - dominoColor.r, 1f - dominoColor.g, 1f - dominoColor.b);
+            }
+        }
+
+        // Set glow material properties
+        glowOutlineMaterial.SetFloat("_Scale", 1.06f);
+        glowOutlineMaterial.SetColor("_Color", outlineColor);
+    }
+
+    private void RemoveGlowOutline()
+    {
+        if (hoveredDomino == null) return;
+
+        Renderer[] renderers = hoveredDomino.GetComponentsInChildren<Renderer>();
+        foreach (Renderer renderer in renderers)
+        {
+            if (originalMaterials.TryGetValue(renderer, out Material[] materials))
+            {
+                renderer.materials = materials; // Restore original materials
+            }
+        }
+
+        originalMaterials.Clear();
+        hoveredDomino = null;
     }
 }
