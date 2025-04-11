@@ -60,6 +60,17 @@ public class Domino : DominoLike
         OnDominoCreated.Invoke(this); // Notify listeners of domino creation
         rb = GetComponent<Rigidbody>();
 
+        // Check for collisions with other dominoes at the origin position
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 0.05f); // Small radius around the origin
+        foreach (var collider in colliders)
+        {
+            if (collider.gameObject != gameObject && collider.CompareTag("DominoTag"))
+            {
+                Debug.LogWarning($"Domino {name} is colliding on start with another domino: {collider.name}");
+                DestroyImmediate(gameObject); // Destroy this domino if it collides with another one
+            }
+        }
+
         if (currentState != DominoState.Held)
         {
             SnapToGround();

@@ -32,7 +32,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     public static UnityEvent<Domino> OnDominoReleased = new();
     public static bool placementEnabled = true; // Flag to enable/disable placement controls
     public static bool flickEnabled = true;
-    public bool placementLimited = false; // Flag to limit placement to a specific area
+    public static bool placementLimited = false; // Flag to limit placement to a specific area
 
     void Start()
     {
