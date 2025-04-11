@@ -217,7 +217,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2382531695439063595}
-  - component: {fileID: 2877300299970611904}
   - component: {fileID: 8210850042450747643}
   - component: {fileID: 194840240803947830}
   - component: {fileID: 5360279869383916395}
@@ -253,30 +252,6 @@ Transform:
   - {fileID: 5686606707969096515}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 26.335, y: 132.874, z: -0.01}
---- !u!114 &2877300299970611904
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3924810530154355391}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0777d029ed3dffa4692f417d4aba19ca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: 31d0dcc6f2dd4e4408d18036a2c93862, type: 2}
-  m_DrawDistance: 1000
-  m_FadeScale: 0.9
-  m_StartAngleFade: 180
-  m_EndAngleFade: 180
-  m_UVScale: {x: 1, y: 1}
-  m_UVBias: {x: 0, y: 0}
-  m_DecalLayerMask: 1
-  m_ScaleMode: 0
-  m_Offset: {x: 0, y: 0, z: 0.5}
-  m_Size: {x: 1, y: 1, z: 1}
-  m_FadeFactor: 1
 --- !u!82 &8210850042450747643
 AudioSource:
   m_ObjectHideFlags: 0
@@ -396,6 +371,9 @@ MonoBehaviour:
   lockSpritePrefab: {fileID: 4181785002189258841, guid: e065b6617a4063e44a89dec531f78b67, type: 3}
   uiCanvas: {fileID: 3644463334577794610}
   glowOutlineMaterial: {fileID: 2100000, guid: 1326983e1cc673647829a031ae50b077, type: 2}
+  placementDecalMaterial: {fileID: 2100000, guid: 0e6f54b953d844ae4ab2980a5ce7ae9c, type: 2}
+  decalSize: {x: 0.51028, y: 0.01, z: 0.13904}
+  decalPivot: {x: 0, y: 0, z: 0}
 --- !u!114 &5360279869383916395
 MonoBehaviour:
   m_ObjectHideFlags: 0

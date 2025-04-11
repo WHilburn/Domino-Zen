@@ -37,6 +37,10 @@ public class PlayerDominoPlacement : MonoBehaviour
     public Material glowOutlineMaterial; // Reference to the glow outline material
     private Domino hoveredDomino; // Currently hovered domino
     private Dictionary<Renderer, Material[]> originalMaterials = new(); // Store original materials for each renderer
+    private DecalProjector placementDecal; // Decal for the hollow rectangle
+    public Material placementDecalMaterial; // Material for the hollow rectangle decal
+    public Vector3 decalSize = new Vector3(1f, 1f, 1f); // Size of the decal
+    public Vector3 decalPivot = new Vector3(0f, 0f, -1f); // Pivot point of the decal
 
     void Start()
     {
@@ -48,6 +52,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         // activeCamera = FindFirstObjectByType<Camera>();
         soundManager = FindObjectOfType<DominoSoundManager>(); // Get reference to the SoundManager
         TutorialManager.OnTogglePlacementControls.AddListener(TogglePlacementControls); // Subscribe to the event
+        CreatePlacementDecal(); // Initialize the placement decal
     }
 
     void Update()
@@ -94,6 +99,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         }
 
         HandleMouseHover();
+        UpdatePlacementDecal(); // Update the placement decal position and visibility
     }
 
     public void TogglePlacementControls(bool enable)
@@ -525,5 +531,49 @@ public class PlayerDominoPlacement : MonoBehaviour
 
         originalMaterials.Clear();
         hoveredDomino = null;
+    }
+
+    private void CreatePlacementDecal()
+    {
+        GameObject decalObject = new GameObject("PlacementDecal");
+        placementDecal = decalObject.AddComponent<DecalProjector>();
+        placementDecal.material = placementDecalMaterial;
+        placementDecal.size = decalSize;
+        placementDecal.enabled = false; // Initially hidden
+        placementDecal.pivot = decalPivot;
+    }
+
+    private void UpdatePlacementDecal()
+    {
+        if (heldDomino != null || !placementEnabled || !IsCameraActive())
+        {
+            placementDecal.enabled = false; // Hide the decal if conditions are not met
+            return;
+        }
+
+        Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
+        int environmentLayerMask = LayerMask.GetMask("EnvironmentLayer");
+
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, environmentLayerMask))
+        {
+            Vector3 mousePosition = hit.point;
+
+            // Check if the mouse position is within the valid range
+            if (Vector3.Distance(activeCamera.transform.position, mousePosition) > maxDistance)
+            {
+                placementDecal.enabled = false; // Hide the decal if out of range
+                return;
+            }
+
+            placementDecal.transform.position = mousePosition;
+            placementDecal.transform.rotation = savedRotation; // Align with savedRotation
+            placementDecal.size = decalSize;
+            placementDecal.pivot = decalPivot;
+            placementDecal.enabled = true; // Show the decal
+        }
+        else
+        {
+            placementDecal.enabled = false; // Hide the decal if no valid surface is hit
+        }
     }
 }
