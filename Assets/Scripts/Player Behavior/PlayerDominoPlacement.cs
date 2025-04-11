@@ -74,7 +74,7 @@ public class PlayerDominoPlacement : MonoBehaviour
                 ReleaseDomino();
         }
 
-        if (Input.GetMouseButtonDown(0) && placementEnabled) // Left Click
+        if (Input.GetMouseButtonDown(0) && heldDomino == null && placementEnabled) // Left Click
         {
             TryPickUpDomino(); // Allow picking up dominoes regardless of placementLimited
         }
