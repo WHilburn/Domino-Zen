@@ -45,6 +45,8 @@ public class PlayerDominoPlacement : MonoBehaviour
     public Vector3 decalSize = new Vector3(1f, 1f, 1f); // Size of the decal
     public Vector3 decalPivot = new Vector3(0f, 0f, -1f); // Pivot point of the decal
 
+    private Domino obstruction;
+
     void Start()
     {
         if (Instance != null && Instance != this)
@@ -77,6 +79,8 @@ public class PlayerDominoPlacement : MonoBehaviour
             HandleRotation();
             heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Held; // Ensure the state is held
         }
+
+        obstruction = checkForObstruction(); // Check for obstructions
 
         if (Input.GetKeyDown(KeyCode.Space) && placementEnabled)
         {
@@ -112,6 +116,25 @@ public class PlayerDominoPlacement : MonoBehaviour
         if (!placementEnabled) DestroyHand(); // Destroy the hand when controls are disabled
     }
 
+    private Domino checkForObstruction()
+    {
+        if (heldDomino != null) return null; // No obstruction check if domino is held
+
+        Vector3 checkPosition = GetMouseWorldPosition();
+        Collider[] colliders = Physics.OverlapBox(checkPosition, new Vector3(0.255f, 0.5f, 0.065f), savedRotation);
+        foreach (Collider collider in colliders)
+        {
+            Domino existingDomino = collider.GetComponent<Domino>();
+            if (existingDomino != null && existingDomino != heldDomino)
+            {
+                placementDecal.material = placementDecalMaterialRed;
+                return existingDomino; // Obstruction detected
+            }
+        }
+        placementDecal.material = placementDecalMaterial;
+        return null; // No obstruction detected
+    }
+
     void SpawnDomino()
     {
         if (!IsCameraActive() || (placementLimited && !IsMousePointingAtTutorialBook())) return;
@@ -122,20 +145,12 @@ public class PlayerDominoPlacement : MonoBehaviour
         if (Vector3.Distance(activeCamera.transform.position, spawnPos) > maxDistance) return;
 
         // Check for collisions with existing dominoes
-        Collider[] colliders = Physics.OverlapBox(spawnPos, new Vector3(0.255f, 0.5f, 0.065f), savedRotation);
-        foreach (Collider collider in colliders)
+        if (obstruction != null && obstruction != heldDomino)
         {
-            Domino existingDomino = collider.GetComponent<Domino>();
-            if (existingDomino != null)
-            {
-                existingDomino.AnimateDomino(Domino.DominoAnimation.Jiggle); // Play jiggle animation
-                placementDecal.material = placementDecalMaterialRed; // Change decal color to red
-                InGameUI.Instance.CreateFloatingText("Obstructed", spawnPos, .75f, 1f, true); // Show floating text
-                soundManager?.PlayArbitrarySound(soundManager.dominoObstructedSound, 1, 1, spawnPos);
-                //Change the color back to blue after 1 second
-                StartCoroutine(ResetDecalColor(.5f, placementDecalMaterial));
-                return; // Prevent spawning
-            }
+            obstruction.AnimateDomino(Domino.DominoAnimation.Jiggle); // Play jiggle animation
+            InGameUI.Instance.CreateFloatingText("Obstructed", spawnPos, .75f, 1f, true); // Show floating text
+            soundManager?.PlayArbitrarySound(soundManager.dominoObstructedSound, 1, 1, spawnPos);
+            return; // Prevent spawning
         }
 
         Quaternion spawnRotation = savedRotation;

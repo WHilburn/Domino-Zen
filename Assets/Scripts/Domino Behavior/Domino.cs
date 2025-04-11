@@ -288,22 +288,22 @@ public class Domino : DominoLike
     #endregion
 
     #region Physics Management
-    public IEnumerator TogglePhysics(bool value)
+    public IEnumerator TogglePhysics(bool on)
     {
         // Stop any active DOTween animations
         transform.DOKill();
 
-        if (value) yield return null; // Wait for the next frame to reenable physics
-        rb.isKinematic = !value;
+        if (on) yield return null; // Wait for the next frame to reenable physics
+        rb.isKinematic = !on;
 
-        if (value)
+        if (on)
         {
             rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
         }
 
         BoxCollider boxCollider = GetComponent<BoxCollider>();
-        boxCollider.enabled = value;
+        boxCollider.isTrigger = !on;
 
         if (!IsDominoMoving() && currentState != DominoState.Animating)
         {

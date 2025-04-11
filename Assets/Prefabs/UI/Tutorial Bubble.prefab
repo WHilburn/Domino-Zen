@@ -133,6 +133,7 @@ GameObject:
   - component: {fileID: 1835070793838388219}
   - component: {fileID: 7538055600260945103}
   - component: {fileID: 4051060758305266451}
+  - component: {fileID: 4272503792346492768}
   m_Layer: 5
   m_Name: Tutorial Bubble
   m_TagString: Untagged
@@ -219,6 +220,7 @@ MonoBehaviour:
     flickEnables: 0
     cameraEnabled: 0
     visible: 1
+    limitedPlacement: 1
   - text: The goal of the game is to complete each level by filing in the transparent
       indicator slots. Let's try it now.
     worldTarget: {fileID: 0}
@@ -227,6 +229,7 @@ MonoBehaviour:
     flickEnables: 0
     cameraEnabled: 0
     visible: 1
+    limitedPlacement: 1
   - text: Aim your mouse cursor at an indicator and press [SPACE] to create a domino.
     worldTarget: {fileID: 0}
     completionCondition: 2
@@ -234,6 +237,7 @@ MonoBehaviour:
     flickEnables: 0
     cameraEnabled: 0
     visible: 1
+    limitedPlacement: 1
   - text: Press [SPACE] again to release the domino. The Blue marker on the ground
       shows where it will land.
     worldTarget: {fileID: 0}
@@ -242,6 +246,7 @@ MonoBehaviour:
     flickEnables: 0
     cameraEnabled: 0
     visible: 1
+    limitedPlacement: 1
   - text: The game has a robust physics simulation, and it's easy to accidentally
       knock over dominoes. Depending on the difficulty, the dominoes you've placed
       can reset themselves after you knock them over.
@@ -251,6 +256,7 @@ MonoBehaviour:
     flickEnables: 0
     cameraEnabled: 0
     visible: 1
+    limitedPlacement: 1
   - text: Now fill in the rest of the indicators.
     worldTarget: {fileID: 0}
     completionCondition: 0
@@ -258,6 +264,7 @@ MonoBehaviour:
     flickEnables: 0
     cameraEnabled: 0
     visible: 1
+    limitedPlacement: 1
   - text: Now point at this domino and press [F] to knock it over.
     worldTarget: {fileID: 0}
     completionCondition: 6
@@ -265,6 +272,7 @@ MonoBehaviour:
     flickEnables: 1
     cameraEnabled: 0
     visible: 1
+    limitedPlacement: 1
   - text: 
     worldTarget: {fileID: 0}
     completionCondition: 7
@@ -272,6 +280,7 @@ MonoBehaviour:
     flickEnables: 0
     cameraEnabled: 1
     visible: 0
+    limitedPlacement: 1
   - text: It looks like there are some dominoes missing here. Place the dominoes
       along this curve, using [Q] and [E] to rotate your dominoes before placing.
     worldTarget: {fileID: 0}
@@ -280,6 +289,7 @@ MonoBehaviour:
     flickEnables: 0
     cameraEnabled: 1
     visible: 1
+    limitedPlacement: 0
   - text: You can use [WASD] to move the camera, and when you aren't holding a domino,
       [Q] and [E] move the camera up and down. Use [Right Mouse Button] to aim the
       camera.
@@ -289,6 +299,7 @@ MonoBehaviour:
     flickEnables: 0
     cameraEnabled: 1
     visible: 1
+    limitedPlacement: 0
   - text: Now let's start the chain again. Point at the domino and press [F] to flick.
     worldTarget: {fileID: 0}
     completionCondition: 6
@@ -296,6 +307,7 @@ MonoBehaviour:
     flickEnables: 0
     cameraEnabled: 0
     visible: 1
+    limitedPlacement: 0
   - text: 
     worldTarget: {fileID: 0}
     completionCondition: 7
@@ -303,14 +315,111 @@ MonoBehaviour:
     flickEnables: 0
     cameraEnabled: 1
     visible: 0
+    limitedPlacement: 1
   tutorialButton: {fileID: 4619493251131868818}
   tutorialText: {fileID: 2794989598101973839}
-  arrowSpriteInstance: {fileID: 0}
+  arrowSpritePrefab: {fileID: 2240662356641158566, guid: 6e9bd06f2cd9c764880470193be6ec4d, type: 3}
   mainCamera: {fileID: 0}
   starterCamera: {fileID: 0}
   uiCanvas: {fileID: 0}
   tutorialIndicatorCheck1: {fileID: 0}
   tutorialIndicatorCheck2: {fileID: 0}
+--- !u!82 &4272503792346492768
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7026973819435454448}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 7994ae34c6510474bafed3a179f994ba, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 83
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &7835726895372619727
 GameObject:
   m_ObjectHideFlags: 0

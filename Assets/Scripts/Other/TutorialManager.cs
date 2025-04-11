@@ -32,6 +32,8 @@ public class TutorialManager : MonoBehaviour
     private List<GameObject> activeArrows = new(); // List to track active arrow instances
     private Dictionary<GameObject, Transform> arrowTargets = new(); // Map arrows to their target transforms
 
+    private AudioSource audioSource; // Reference to the audio source for playing sounds
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -42,6 +44,7 @@ public class TutorialManager : MonoBehaviour
         
         transform.localScale = Vector3.zero;
         transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
+        audioSource = GetComponent<AudioSource>(); // Get the AudioSource component
     }
 
     void Start()
@@ -94,6 +97,7 @@ public class TutorialManager : MonoBehaviour
         PlayerDominoPlacement.placementEnabled = placementEnabled; // Update the PlayerDominoPlacement script
         PlayerDominoPlacement.placementLimited = currentStep.limitedPlacement;
         visible = currentStep.visible;
+        if (visible) audioSource.Play(); // Play the pop-up audio
 
         SetCameraPriority(currentStep.cameraEnabled);
 
