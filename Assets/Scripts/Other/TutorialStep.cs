@@ -5,7 +5,7 @@ using UnityEngine;
 public class TutorialStep
 {
     public string text;
-    public Transform worldTarget; // What the arrow UI should point to
+    public GameObject worldTarget; // What the arrow UI should point to
     public CompletionCondition completionCondition; // Enum to define completion condition
     public bool placementEnabled = true; // Flag to enable/disable controls
     public bool flickEnables = true; // Flag to enable/disable flicks

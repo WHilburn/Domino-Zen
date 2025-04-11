@@ -14,7 +14,7 @@ public class TutorialManager : MonoBehaviour
     public List<TutorialStep> steps;
     public Button tutorialButton;
     public TextMeshProUGUI tutorialText; // Reference to the UI Text element
-    public GameObject arrowSpriteInstance; // Instance of the arrow sprite
+    public GameObject arrowSpritePrefab; // Instance of the arrow sprite
     private float bobbingSpeed = 3f; // Speed of the bobbing animation
     private float bobbingHeight = 10f; // Height of the bobbing animation
     private bool placementEnabled = false; // Flag to enable/disable controls
@@ -29,6 +29,9 @@ public class TutorialManager : MonoBehaviour
     public TutorialIndicatorCheck tutorialIndicatorCheck1;
     public TutorialIndicatorCheck tutorialIndicatorCheck2; // Reference to the tutorial indicator checks
 
+    private List<GameObject> activeArrows = new(); // List to track active arrow instances
+    private Dictionary<GameObject, Transform> arrowTargets = new(); // Map arrows to their target transforms
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -39,7 +42,6 @@ public class TutorialManager : MonoBehaviour
         
         transform.localScale = Vector3.zero;
         transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
-        arrowSpriteInstance?.SetActive(false); // Hide the arrow sprite initially
     }
 
     void Start()
@@ -101,7 +103,7 @@ public class TutorialManager : MonoBehaviour
         }
         else
         {
-            ClearArrow();
+            ClearArrows();
         }
 
         if (currentStep.completionCondition == CompletionCondition.ClickButton) ActivateButton();
@@ -123,10 +125,14 @@ public class TutorialManager : MonoBehaviour
     private void Update()
     {
         if (!isTutorialActive || currentStepIndex >= steps.Count) return;
-        // Update arrow position if a target is set
-        if (currentTarget != null)
+
+        // Update arrow positions
+        foreach (var arrow in activeArrows)
         {
-            UpdateArrowPosition(currentTarget);
+            if (arrow != null && arrowTargets.TryGetValue(arrow, out var target))
+            {
+                UpdateArrowPosition(arrow, target);
+            }
         }
     }
 
@@ -151,31 +157,58 @@ public class TutorialManager : MonoBehaviour
     private void CompleteTutorial()
     {
         isTutorialActive = false;
-        ClearArrow();
+        ClearArrows();
         tutorialText.text = string.Empty;
         tutorialButton.gameObject.SetActive(false);
         OnTogglePlacementControls.Invoke(true); // Re-enable controls after tutorial
         transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InBack).OnComplete(() => gameObject.SetActive(false));
     }
 
-    private void DrawArrowToTarget(Transform target)
+    private void DrawArrowToTarget(GameObject target)
     {
-        if (uiCanvas == null) return;
-        arrowSpriteInstance.SetActive(true);
+        ClearArrows(); // Clear any existing arrows
 
-        currentTarget = target; // Set the current target
-        UpdateArrowPosition(target);
+        if (uiCanvas == null || target == null) return;
+
+        var indicators = target.GetComponentsInChildren<PlacementIndicator>();
+        if (indicators.Length > 0)
+        {
+            foreach (var indicator in indicators)
+            {
+                if (indicator.currentState != PlacementIndicator.IndicatorState.Filled) // Only add arrows for unfilled indicators
+                {
+                    var arrowInstance = Instantiate(arrowSpritePrefab, uiCanvas.transform);
+                    activeArrows.Add(arrowInstance);
+                    arrowTargets[arrowInstance] = indicator.transform; // Track the target transform
+                    UpdateArrowPosition(arrowInstance, indicator.transform);
+
+                    // Listen to the static OnIndicatorFilled event
+                    PlacementIndicator.OnIndicatorFilled.AddListener((filledIndicator) =>
+                    {
+                        if (filledIndicator == indicator) RemoveArrow(arrowInstance);
+                    });
+                }
+            }
+        }
+        else
+        {
+            // Fallback: Single arrow pointing to the target's transform
+            var arrowInstance = Instantiate(arrowSpritePrefab, uiCanvas.transform);
+            activeArrows.Add(arrowInstance);
+            arrowTargets[arrowInstance] = target.transform; // Track the target transform
+            UpdateArrowPosition(arrowInstance, target.transform);
+        }
     }
 
-    private void UpdateArrowPosition(Transform target)
+    private void UpdateArrowPosition(GameObject arrowInstance, Transform target)
     {
-        if (arrowSpriteInstance == null || target == null || uiCanvas == null) return;
+        if (arrowInstance == null || target == null || uiCanvas == null) return;
 
         Vector3 adjustedTargetPosition = target.position;
         adjustedTargetPosition.y += .75f;
         Vector3 targetScreenPosition = mainCamera.WorldToScreenPoint(adjustedTargetPosition);
 
-        RectTransform arrowRectTransform = arrowSpriteInstance.GetComponent<RectTransform>();
+        RectTransform arrowRectTransform = arrowInstance.GetComponent<RectTransform>();
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             uiCanvas.GetComponent<RectTransform>(),
             targetScreenPosition,
@@ -185,13 +218,24 @@ public class TutorialManager : MonoBehaviour
         arrowRectTransform.rotation = Quaternion.identity;
     }
 
-    private void ClearArrow()
+    private void RemoveArrow(GameObject arrowInstance)
     {
-        if (arrowSpriteInstance != null)
+        if (arrowInstance != null)
         {
-            arrowSpriteInstance.SetActive(false);
+            activeArrows.Remove(arrowInstance);
+            arrowTargets.Remove(arrowInstance); // Remove from the target tracking
+            Destroy(arrowInstance);
         }
-        currentTarget = null; // Reset the current target
+    }
+
+    private void ClearArrows()
+    {
+        foreach (var arrow in activeArrows)
+        {
+            if (arrow != null) Destroy(arrow);
+        }
+        activeArrows.Clear();
+        arrowTargets.Clear(); // Clear the target tracking
     }
 
     private void AnimateTutorialVisibility(bool isVisible)
