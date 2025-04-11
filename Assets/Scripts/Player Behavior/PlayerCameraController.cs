@@ -118,17 +118,17 @@ public class PlayerCameraController : MonoBehaviour
 
     private void HandleVerticalMovement()
     {
-        if(PlayerDominoPlacement.heldDomino != null) return; // Prevent camera movement while holding a domino
+        // if(PlayerDominoPlacement.heldDomino != null) return; // Prevent camera movement while holding a domino
 
-        // Vertical movement (Q/E keys & mouse scroll wheel)
-        if (Input.GetKey(KeyCode.Q)) targetVerticalVelocity = -verticalSpeed / 20f;
-        else if (Input.GetKey(KeyCode.E)) targetVerticalVelocity = verticalSpeed / 20f;
+        // Vertical movement (R/F keys & mouse scroll wheel)
+        if (Input.GetKey(KeyCode.R)) targetVerticalVelocity = -verticalSpeed / 20f;
+        else if (Input.GetKey(KeyCode.F)) targetVerticalVelocity = verticalSpeed / 20f;
         else targetVerticalVelocity = Mathf.Lerp(targetVerticalVelocity, 0f, Time.deltaTime * damping); // Gradual stop
 
         // Apply mouse scroll with smooth interpolation
-        float scrollInput = Input.GetAxis("Mouse ScrollWheel") * verticalSpeed;
-        targetVerticalVelocity += scrollInput;
-        targetVerticalVelocity = Mathf.Lerp(targetVerticalVelocity, 0f, Time.deltaTime * damping);
+        // float scrollInput = Input.GetAxis("Mouse ScrollWheel") * verticalSpeed;
+        // targetVerticalVelocity += scrollInput;
+        // targetVerticalVelocity = Mathf.Lerp(targetVerticalVelocity, 0f, Time.deltaTime * damping);
 
         // Add vertical movement smoothly
         moveDirection += Vector3.up * targetVerticalVelocity;

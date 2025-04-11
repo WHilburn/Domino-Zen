@@ -100,6 +100,7 @@ public class PlayerDominoPlacement : MonoBehaviour
 
         HandleMouseHover();
         UpdatePlacementDecal(); // Update the placement decal position and visibility
+        HandleRotation(); // Handle rotation even when no domino is held
     }
 
     public void TogglePlacementControls(bool enable)
@@ -116,6 +117,18 @@ public class PlayerDominoPlacement : MonoBehaviour
 
         // Prevent spawning if the position is further than 15 units from the camera
         if (Vector3.Distance(activeCamera.transform.position, spawnPos) > maxDistance) return;
+
+        // Check for collisions with existing dominoes
+        Collider[] colliders = Physics.OverlapBox(spawnPos, new Vector3(0.255f, 0.5f, 0.065f), savedRotation);
+        foreach (Collider collider in colliders)
+        {
+            Domino existingDomino = collider.GetComponent<Domino>();
+            if (existingDomino != null)
+            {
+                existingDomino.AnimateDomino(Domino.DominoAnimation.Jiggle); // Play jiggle animation
+                return; // Prevent spawning
+            }
+        }
 
         Quaternion spawnRotation = savedRotation;
 
@@ -247,18 +260,21 @@ public class PlayerDominoPlacement : MonoBehaviour
 
     void HandleRotation()
     {
-        if (heldRb == null) return; // Ensure the rigidbody exists
+        float rotationDelta = 0f;
 
-        if (hand3DInstance != null)
+        if (Input.GetKey(KeyCode.Q))
+            rotationDelta = -rotationSpeed * Time.deltaTime * 10f;
+
+        if (Input.GetKey(KeyCode.E))
+            rotationDelta = rotationSpeed * Time.deltaTime * 10f;
+
+        if (Input.mouseScrollDelta.y != 0)
+            rotationDelta += Input.mouseScrollDelta.y * rotationSpeed * Time.deltaTime * 30f;
+
+        savedRotation *= Quaternion.Euler(0f, rotationDelta, 0f); // Update savedRotation
+
+        if (heldRb != null && hand3DInstance != null)
         {
-            float rotationDelta = 0f;
-
-            if (Input.GetKey(KeyCode.Q))
-                rotationDelta = -rotationSpeed * Time.deltaTime * 10f;
-
-            if (Input.GetKey(KeyCode.E))
-                rotationDelta = rotationSpeed * Time.deltaTime * 10f;
-
             hand3DInstance.transform.Rotate(Vector3.up, rotationDelta, Space.World);
 
             // Apply torque to the domino to match its Y-axis rotation to the hand
@@ -567,8 +583,6 @@ public class PlayerDominoPlacement : MonoBehaviour
 
             placementDecal.transform.position = mousePosition;
             placementDecal.transform.rotation = savedRotation; // Align with savedRotation
-            placementDecal.size = decalSize;
-            placementDecal.pivot = decalPivot;
             placementDecal.enabled = true; // Show the decal
         }
         else

@@ -40,4 +40,19 @@ public abstract class DominoLike : MonoBehaviour
         yield return null; // Wait for the next frame
         rb.isKinematic = wasKinematic; // Restore the original kinematic state
     }
+
+    protected bool CheckAndResolveOverlap()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 0.05f); // Tiny point at the origin
+        foreach (Collider collider in colliders)
+        {
+            if (collider.gameObject != gameObject && collider.GetComponent(GetType()) != null)
+            {
+                Debug.LogWarning(gameObject.name + " detected an overlap with " + collider.gameObject.name + " at " + collider.transform.position + ". This object will self destruct in 3...2...1...*poof*", this);
+                DestroyImmediate(gameObject); // Delete the object
+                return true;
+            }
+        }
+        return false;
+    }
 }

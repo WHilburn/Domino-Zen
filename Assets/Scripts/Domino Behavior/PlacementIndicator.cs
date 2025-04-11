@@ -29,13 +29,9 @@ public class PlacementIndicator : DominoLike
     {
         indicatorRenderer = GetComponent<Renderer>();
         placementCollider = GetComponent<BoxCollider>();
+        CheckAndResolveOverlap(); // Check for overlaps with other indicators
         SnapToGround();
         if (soundManager == null) soundManager = FindObjectOfType<DominoSoundManager>(); // Get references
-    }
-
-    void Oestroy()
-    {
-        DOTween.Kill(indicatorRenderer.material); // Kill any active tweens on the material        
     }
 
     private void OnTriggerEnter(Collider other)

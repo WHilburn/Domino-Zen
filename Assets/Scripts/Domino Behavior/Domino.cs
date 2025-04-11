@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine.Events;
+using Unity.VisualScripting;
 
 [SelectionBase]
 public class Domino : DominoLike
@@ -18,7 +19,7 @@ public class Domino : DominoLike
         Jiggle
     }
 
-    private static readonly float stillnessVelocityThreshold = 8f;  // Velocity threshold to consider "stationary"
+    private static readonly float stillnessVelocityThreshold = 6f;  // Velocity threshold to consider "stationary"
     private static readonly float stillnessRotationThreshold = 6f;  // Rotation threshold to consider "stationary"
 
     public enum DominoState
@@ -31,8 +32,6 @@ public class Domino : DominoLike
     }
 
     public DominoState currentState = DominoState.Stationary;
-    [HideInInspector]
-    public float velocityMagnitude;
     public bool musicMode = true;
     [HideInInspector]
     public bool stablePositionSet = false;
@@ -59,19 +58,9 @@ public class Domino : DominoLike
     {
         OnDominoCreated.Invoke(this); // Notify listeners of domino creation
         rb = GetComponent<Rigidbody>();
+         // Check for overlaps with other dominoes
 
-        // Check for collisions with other dominoes at the origin position
-        Collider[] colliders = Physics.OverlapSphere(transform.position, 0.05f); // Small radius around the origin
-        foreach (var collider in colliders)
-        {
-            if (collider.gameObject != gameObject && collider.CompareTag("DominoTag"))
-            {
-                Debug.LogWarning($"Domino {name} is colliding on start with another domino: {collider.name}");
-                DestroyImmediate(gameObject); // Destroy this domino if it collides with another one
-            }
-        }
-
-        if (currentState != DominoState.Held)
+        if (!CheckAndResolveOverlap() && currentState != DominoState.Held)
         {
             SnapToGround();
             SaveStablePosition();
@@ -95,23 +84,14 @@ public class Domino : DominoLike
             return;
         }
 
-        UpdateVelocityMagnitude();
         HandleMovementState();
         HandlePlacementIndicatorState();
-
         // Draw a debug line from the domino to its last stable position
         Debug.DrawLine(transform.position, lastStablePosition, Color.red);
     }
     #endregion
 
     #region State Management
-    private void UpdateVelocityMagnitude()
-    {
-        if (rb != null)
-        {
-            velocityMagnitude = rb.angularVelocity.magnitude;
-        }
-    }
 
     private void HandleMovementState()
     {
@@ -157,6 +137,7 @@ public class Domino : DominoLike
 
     public void DespawnDomino()
     {
+        currentState = DominoState.Animating; // Set state to animating
         StartCoroutine(TogglePhysics(false)); // Disable collisions with other dominoes
 
         // Scale the domino down to zero
@@ -245,7 +226,7 @@ public class Domino : DominoLike
         Vector3 randomFlip = new Vector3(Random.Range(0f, 720f),Random.Range(0f, 720f),Random.Range(0f, 720f));
 
         StartCoroutine(TogglePhysics(false));
-        Sequence jumpSequence = DOTween.Sequence();
+        DG.Tweening.Sequence jumpSequence = DOTween.Sequence();
         jumpSequence.Append(transform.DOMove(jumpPeak, jumpDuration).SetEase(Ease.OutQuad));
         jumpSequence.Join(transform.DORotate(randomFlip, jumpDuration, RotateMode.FastBeyond360).SetEase(Ease.OutQuad));
         jumpSequence.Append(transform.DORotateQuaternion(lastStableRotation, rotationDuration).SetEase(Ease.OutQuad));
@@ -263,11 +244,12 @@ public class Domino : DominoLike
         float jiggleDuration = 0.2f;
         float noiseIntensity = 0.1f; // Intensity of the jiggle movement
         Vector3 originalPosition = lastStablePosition;
-
+        if (!stablePositionSet) originalPosition = transform.position; // If no stable position, use current position
+        
         StartCoroutine(TogglePhysics(false));
 
         // Create a sequence for the jiggle animation
-        Sequence jiggleSequence = DOTween.Sequence();
+        DG.Tweening.Sequence jiggleSequence = DOTween.Sequence();
 
         // Add jiggle movement in a direction relative to the domino's current facing
         Vector3 rightDirection = transform.right * noiseIntensity; // Right relative to the domino's facing
