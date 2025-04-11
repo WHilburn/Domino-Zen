@@ -115,9 +115,10 @@ public class Domino : DominoLike
 
     private void HandleMovementState()
     {
+        if (currentState == DominoState.Animating) return; // Skip state updates if animating
         bool currentlyMoving = IsDominoMoving();
 
-        if (currentlyMoving && currentState != DominoState.Moving && currentState != DominoState.Animating)
+        if (currentlyMoving && currentState != DominoState.Moving) // When it starts moving
         {
             if (currentState == DominoState.Stationary || currentState == DominoState.FillingIndicator)
             {
@@ -126,7 +127,7 @@ public class Domino : DominoLike
 
             currentState = DominoState.Moving;
         }
-        else if (!currentlyMoving && currentState == DominoState.Moving)
+        else if (!currentlyMoving && currentState == DominoState.Moving) // When it stops moving
         {
             currentState = DominoState.Stationary;
             OnDominoStopMoving.Invoke(this);
@@ -322,8 +323,7 @@ public class Domino : DominoLike
         BoxCollider boxCollider = GetComponent<BoxCollider>();
         boxCollider.enabled = value;
 
-        if (rb.velocity.magnitude < stillnessVelocityThreshold &&
-            rb.angularVelocity.magnitude < stillnessRotationThreshold)
+        if (!IsDominoMoving() && currentState != DominoState.Animating)
         {
             currentState = DominoState.Stationary;
         }

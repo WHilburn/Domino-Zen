@@ -87,8 +87,6 @@ public class CameraController : MonoBehaviour
 
     private void UpdateDominoTimers()
     {
-        var dominoesToRemove = new List<Transform>();
-
         foreach (var domino in new List<Transform>(dominoTimers.Keys))
         {
             dominoTimers[domino] -= Time.deltaTime;
@@ -103,15 +101,10 @@ public class CameraController : MonoBehaviour
 
             targetGroup.m_Targets[targetGroup.FindMember(domino)].weight = weight;
 
-            if (dominoTimers[domino] <= 0f)
+            if (dominoTimers[domino] <= 0f && domino.GetComponent<Domino>().currentState != Domino.DominoState.Moving)
             {
-                dominoesToRemove.Add(domino);
+                RemoveDominoFromTargetGroup(domino);
             }
-        }
-
-        foreach (var domino in dominoesToRemove)
-        {
-            RemoveDominoFromTargetGroup(domino);
         }
     }
 
