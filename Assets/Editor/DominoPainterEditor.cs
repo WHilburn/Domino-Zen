@@ -8,6 +8,7 @@ public class DominoPainter : EditorWindow
     private Color selectedColor = Color.white; // Default color is white
     private GameObject indicatorPrefab; // Reference to the placement indicator prefab
     private GameObject dominoPrefab; // Reference to the placement indicator prefab
+    private bool rainbowMode = false; // Toggle for Rainbow Mode
 
     [MenuItem("Tools/Domino Painter")]
     public static void ShowWindow()
@@ -26,6 +27,8 @@ public class DominoPainter : EditorWindow
         // Select the prefab objects
         dominoPrefab = (GameObject)EditorGUILayout.ObjectField("Domino Prefab", dominoPrefab, typeof(GameObject), false);
         indicatorPrefab = (GameObject)EditorGUILayout.ObjectField("Indicator Prefab", indicatorPrefab, typeof(GameObject), false);
+
+        rainbowMode = EditorGUILayout.Toggle("Rainbow Mode", rainbowMode);
 
         // Button to apply material to selected dominoes
         if (GUILayout.Button("Apply to Selected"))
@@ -79,21 +82,44 @@ public class DominoPainter : EditorWindow
         Debug.Log($"Applying material list: {selectedMaterialList.name} to objects");
 
         // Apply the material and trigger ApplyRandomMaterial on each DominoSkin
-        foreach (DominoSkin dominoSkin in dominoSkinsToApply)
+        for (int i = 0; i < dominoSkinsToApply.Count; i++)
         {
+            DominoSkin dominoSkin = dominoSkinsToApply[i];
             dominoSkin.materialList = selectedMaterialList; // Assign material list
-            dominoSkin.colorOverride = selectedColor; // Apply the selected color override
+
+            if (rainbowMode)
+            {
+                float hue = (i / (float)dominoSkinsToApply.Count); // Calculate hue based on index
+                dominoSkin.colorOverride = Color.HSVToRGB(hue, 1f, 1f); // Apply rainbow color
+            }
+            else
+            {
+                dominoSkin.colorOverride = selectedColor; // Apply the selected color override
+            }
+
             dominoSkin.ApplyRandomMaterial(); // Apply random material from the list
             EditorUtility.SetDirty(dominoSkin); // Mark the object as changed for saving
         }
-        foreach (PlacementIndicator placementSkin in placementSkinsToApply)
+
+        for (int i = 0; i < placementSkinsToApply.Count; i++)
         {
-            Color placementColor = placementSkin.indicatorColor; // Get the current color of the indicator
-            if (selectedMaterialList.name == "BlackDominoMaterials") 
+            PlacementIndicator placementSkin = placementSkinsToApply[i];
+
+            if (rainbowMode)
             {
-                placementColor = Color.black;
+                float hue = (i / (float)placementSkinsToApply.Count); // Calculate hue based on index
+                placementSkin.ApplyColor(Color.HSVToRGB(hue, 1f, 1f)); // Apply rainbow color
             }
-            placementSkin.ApplyColor(placementColor); // Apply the selected color override
+            else
+            {
+                Color placementColor = placementSkin.indicatorColor; // Get the current color of the indicator
+                if (selectedMaterialList.name == "BlackDominoMaterials")
+                {
+                    placementColor = Color.black;
+                }
+                placementSkin.ApplyColor(placementColor); // Apply the selected color override
+            }
+
             EditorUtility.SetDirty(placementSkin); // Mark the object as changed for saving
         }
     }
