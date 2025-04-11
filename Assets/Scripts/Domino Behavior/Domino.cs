@@ -290,10 +290,13 @@ public class Domino : DominoLike
     #region Physics Management
     public IEnumerator TogglePhysics(bool on)
     {
-        // Stop any active DOTween animations
-        transform.DOKill();
+        if (on) 
+        {
+            // Stop any active DOTween animations
+            transform.DOKill();
+            yield return null; // Wait for the next frame to reenable physics
+        }
 
-        if (on) yield return null; // Wait for the next frame to reenable physics
         rb.isKinematic = !on;
 
         if (on)
@@ -304,11 +307,11 @@ public class Domino : DominoLike
 
         BoxCollider boxCollider = GetComponent<BoxCollider>();
         boxCollider.isTrigger = !on;
+        currentState = DominoState.Stationary;
 
-        if (!IsDominoMoving() && currentState != DominoState.Animating)
-        {
-            currentState = DominoState.Stationary;
-        }
+        // if (!IsDominoMoving() && currentState != DominoState.Animating)
+        // {
+        // }
     }
     #endregion
 }

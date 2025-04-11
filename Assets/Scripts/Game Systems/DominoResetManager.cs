@@ -4,6 +4,8 @@ using System.Collections.Generic;
 public class DominoResetManager : MonoBehaviour
 {
     public static DominoResetManager Instance { get; private set; }
+
+    public HashSet<Domino> allDominoes = new(); // All dominoes in the scene
     public HashSet<Domino> fallenDominoes = new();
     public HashSet<Domino> checkpointedDominoes = new(); // Dominoes locked at checkpoints
     private HashSet<Domino> waitingForCheckpoint = new(); // Dominoes that are waiting until the next checkpoint to lock
@@ -14,6 +16,15 @@ public class DominoResetManager : MonoBehaviour
     public enum ResetState {Idle, ResetUpcoming, Resetting};
     public ResetState currentState = ResetState.Idle; // Current state of the reset manager
 
+    private void Awake()
+    {
+        Domino.OnDominoCreated.AddListener(domino => allDominoes.Add(domino)); // Add domino to allDominoes set
+        Domino.OnDominoFall.AddListener(RegisterDominoForReset);
+        Domino.OnDominoDeleted.AddListener(RemoveDomino); // Subscribe to domino deletion event
+        Domino.OnDominoPlacedCorrectly.AddListener(RegisterDominoPlacement); // Subscribe to domino placement event
+        Invoke("UpdateDifficulty", 0.05f); // Update difficulty after a short delay
+    }
+
     private void Start()
     {
         if (Instance != null && Instance != this)
@@ -22,11 +33,7 @@ public class DominoResetManager : MonoBehaviour
         }
         Instance = this;
 
-        Domino.OnDominoFall.AddListener(RegisterDominoForReset);
-        Domino.OnDominoDeleted.AddListener(RemoveDomino); // Subscribe to domino deletion event
-        Domino.OnDominoPlacedCorrectly.AddListener(RegisterDominoPlacement); // Subscribe to domino placement event
-        Invoke("UpdateDifficulty", 0.05f); // Update difficulty after a short delay
-        // Add all dominos in the scene to checkpointedDominoes
+        // allDominoes = new HashSet<Domino>(FindObjectsOfType<Domino>());
     }
 
     public void UpdateDifficulty() // Set the game difficulty
@@ -44,7 +51,7 @@ public class DominoResetManager : MonoBehaviour
                 checkpointThreshold = 10000;
                 break;
         }
-        foreach (var domino in FindObjectsOfType<Domino>())
+        foreach (var domino in allDominoes)
         {
             if (domino.stablePositionSet && difficulty != GameManager.GameDifficulty.Hard) // Only add dominoes with a stable position set
             {
@@ -89,6 +96,11 @@ public class DominoResetManager : MonoBehaviour
             // Debug.Log("Removing domino from fallen list: " + domino.name);
             fallenDominoes.Remove(domino);
         }
+        if (allDominoes.Contains(domino))
+        {
+            // Debug.Log("Removing domino from fallen list: " + domino.name);
+            allDominoes.Remove(domino);
+        }
     }
 
     private void CheckpointDomino(Domino domino)
@@ -114,20 +126,20 @@ public class DominoResetManager : MonoBehaviour
 
     private void ResetAllDominoes()
     {
-        if (fallenDominoes.Count == 0) return; // No dominoes to reset
+        // if (fallenDominoes.Count == 0) return; // No dominoes to reset
         if (GameManager.Instance.gameDifficulty == GameManager.GameDifficulty.Hard)
         {
             Debug.Log("No dominoes will reset on Hard difficulty.");
             return; // No dominoes reset on Hard
         }
-        else Debug.Log("Resetting all dominoes. Count: " + fallenDominoes.Count);
+        else Debug.Log("Resetting all dominoes. Count: " + allDominoes.Count);
 
-        if (fallenDominoes.Count < 1000)
+        if (allDominoes.Count < 1000)
         {
             currentState = ResetState.Resetting;
             resetAnimation = Domino.DominoAnimation.Jump;
         }
-        else if (fallenDominoes.Count < 2000)
+        else if (allDominoes.Count < 2000)
         {
             resetAnimation = Domino.DominoAnimation.Rotate;
             currentState = ResetState.Resetting;
@@ -142,18 +154,17 @@ public class DominoResetManager : MonoBehaviour
         
         PlayerDominoPlacement.Instance.DeleteHeldDomino();
 
-        foreach (var domino in fallenDominoes)
+        foreach (var domino in allDominoes)
         {
-            if (!domino.stablePositionSet && domino.currentState != Domino.DominoState.Held) //Delete dominos that don't have a stable position set
+            if (checkpointedDominoes.Contains(domino)) // Reset checkpointed dominoes
+            {
+                domino.AnimateDomino(resetAnimation, resetDuration);
+            }
+            else //Delete all non-checkpointed dominoes
             {
                 domino.DespawnDomino();
                 continue;
             }
-            if (!checkpointedDominoes.Contains(domino)) // Skip resetting dominoes that are not checkpointed
-            {
-                continue; 
-            }
-            domino.AnimateDomino(resetAnimation, resetDuration);
         }
         fallenDominoes.Clear();
     }
@@ -165,7 +176,7 @@ public class DominoResetManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.M))
         {
             ResetAllDominoes();
         }
