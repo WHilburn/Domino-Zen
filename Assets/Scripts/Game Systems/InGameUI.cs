@@ -2,14 +2,18 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class InGameUI : MonoBehaviour
 {
     public static InGameUI Instance { get; private set; }
     [SerializeField] private TextMeshProUGUI dominoCountText; // Reference to the UI Text element
     [SerializeField] private TextMeshProUGUI indicatorCountText;
+    [SerializeField] private Canvas canvas; // Reference to the UI canvas
+    [SerializeField] private TextMeshProUGUI floatingTextPrefab; // Prefab for floating text
     public static int dominoCount = 0;
     public static int indicatorCount = 0;
+    public Camera mainCamera; // Reference to the main camera
 
     void Awake()
     {
@@ -74,5 +78,34 @@ public class InGameUI : MonoBehaviour
             dominoCountText.text = $"Dominoes Placed: {dominoCount}";
             indicatorCountText.text = $"Indicators Remaining: {indicatorCount}";
         }
+    }
+
+    public void CreateFloatingText(string text, Vector3 worldPosition, float scale, float fadeDuration, bool floatUpwards = false)
+    {
+        if (floatingTextPrefab == null || canvas == null) return;
+
+        // Instantiate the floating text
+        TextMeshProUGUI floatingText = Instantiate(floatingTextPrefab, canvas.transform);
+        floatingText.text = text;
+        floatingText.transform.localScale = Vector3.one * scale;
+
+        // Convert world position to canvas position
+        Vector2 screenPosition = mainCamera.WorldToScreenPoint(worldPosition);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvas.GetComponent<RectTransform>(), 
+            screenPosition, 
+            canvas.worldCamera, 
+            out Vector2 canvasPosition
+        );
+        floatingText.rectTransform.anchoredPosition = canvasPosition;
+
+        // Animate the text
+        Sequence sequence = DOTween.Sequence();
+        if (floatUpwards)
+        {
+            sequence.Append(floatingText.rectTransform.DOAnchorPosY(canvasPosition.y + 50f, fadeDuration));
+        }
+        sequence.Join(floatingText.DOFade(0, fadeDuration))
+                .OnComplete(() => Destroy(floatingText.gameObject));
     }
 }

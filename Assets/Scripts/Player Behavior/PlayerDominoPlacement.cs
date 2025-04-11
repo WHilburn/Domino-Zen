@@ -3,6 +3,8 @@ using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System;
+using System.Collections;
 
 public class PlayerDominoPlacement : MonoBehaviour
 {
@@ -39,6 +41,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private Dictionary<Renderer, Material[]> originalMaterials = new(); // Store original materials for each renderer
     private DecalProjector placementDecal; // Decal for the hollow rectangle
     public Material placementDecalMaterial; // Material for the hollow rectangle decal
+    public Material placementDecalMaterialRed;
     public Vector3 decalSize = new Vector3(1f, 1f, 1f); // Size of the decal
     public Vector3 decalPivot = new Vector3(0f, 0f, -1f); // Pivot point of the decal
 
@@ -126,6 +129,11 @@ public class PlayerDominoPlacement : MonoBehaviour
             if (existingDomino != null)
             {
                 existingDomino.AnimateDomino(Domino.DominoAnimation.Jiggle); // Play jiggle animation
+                placementDecal.material = placementDecalMaterialRed; // Change decal color to red
+                InGameUI.Instance.CreateFloatingText("Obstructed", spawnPos, .75f, 1f, true); // Show floating text
+                soundManager?.PlayArbitrarySound(soundManager.dominoLockedSound, 1, 1, spawnPos);
+                //Change the color back to blue after 1 second
+                StartCoroutine(ResetDecalColor(.5f, placementDecalMaterial));
                 return; // Prevent spawning
             }
         }
@@ -557,6 +565,15 @@ public class PlayerDominoPlacement : MonoBehaviour
         placementDecal.size = decalSize;
         placementDecal.enabled = false; // Initially hidden
         placementDecal.pivot = decalPivot;
+
+        // Set the initial color to blue
+        placementDecal.material.SetColor("_BaseColor", Color.blue);
+    }
+
+    private IEnumerator ResetDecalColor(float delay, Material newMaterial)
+    {
+        yield return new WaitForSeconds(delay);
+        placementDecal.material = newMaterial; // Change the decal material back to blue
     }
 
     private void UpdatePlacementDecal()

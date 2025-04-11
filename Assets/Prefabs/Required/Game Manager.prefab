@@ -372,6 +372,7 @@ MonoBehaviour:
   uiCanvas: {fileID: 3644463334577794610}
   glowOutlineMaterial: {fileID: 2100000, guid: 1326983e1cc673647829a031ae50b077, type: 2}
   placementDecalMaterial: {fileID: 2100000, guid: 0e6f54b953d844ae4ab2980a5ce7ae9c, type: 2}
+  placementDecalMaterialRed: {fileID: 0}
   decalSize: {x: 0.51028, y: 0.01, z: 0.13904}
   decalPivot: {x: 0, y: 0, z: 0}
 --- !u!114 &5360279869383916395
@@ -821,6 +822,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2382531695439063595}
     m_Modifications:
+    - target: {fileID: 2167814028722950021, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
+      propertyPath: canvas
+      value: 
+      objectReference: {fileID: 3644463334577794610}
+    - target: {fileID: 2167814028722950021, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
+      propertyPath: floatingTextPrefab
+      value: 
+      objectReference: {fileID: 5149128180304889477, guid: 9c73dffd34b5dc046bfac55f1c19dcc6, type: 3}
     - target: {fileID: 6733193944056606906, guid: c44490aa2606db64fbb2149e2b4c97e3, type: 3}
       propertyPath: m_Name
       value: Game UI
