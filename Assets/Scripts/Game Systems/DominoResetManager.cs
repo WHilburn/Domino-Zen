@@ -63,7 +63,10 @@ public class DominoResetManager : MonoBehaviour
     private void RegisterDominoPlacement(Domino domino) // Registers that a domino was placed in an indicator
     {
         if (GameManager.Instance.gameDifficulty == GameManager.GameDifficulty.Hard) return; // Skip on hard mode
-        RemoveDomino(domino); // Remove the domino from the reset list if it was placed correctly
+        if (fallenDominoes.Contains(domino))
+        {
+            fallenDominoes.Remove(domino); // Remove the domino from the reset list if it was placed correctly
+        } 
         waitingForCheckpoint.Add(domino); // Add to waitingForCheckpoint set
         if (waitingForCheckpoint.Count % checkpointThreshold == 0)
         {
@@ -93,12 +96,10 @@ public class DominoResetManager : MonoBehaviour
     {
         if (fallenDominoes.Contains(domino))
         {
-            // Debug.Log("Removing domino from fallen list: " + domino.name);
             fallenDominoes.Remove(domino);
         }
         if (allDominoes.Contains(domino))
         {
-            // Debug.Log("Removing domino from fallen list: " + domino.name);
             allDominoes.Remove(domino);
         }
     }
@@ -110,7 +111,7 @@ public class DominoResetManager : MonoBehaviour
 
         if (domino.placementIndicator != null)
         {
-            domino.placementIndicator.gameObject.SetActive(false); // Hide the placement indicator
+            domino.placementIndicator.gameObject.SetActive(false); // Disable the placement indicator
             domino.placementIndicator = null; // Clear the reference to the placementIndicator
         }
     }

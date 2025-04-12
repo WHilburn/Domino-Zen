@@ -373,8 +373,8 @@ MonoBehaviour:
   glowOutlineMaterial: {fileID: 2100000, guid: 1326983e1cc673647829a031ae50b077, type: 2}
   placementDecalMaterial: {fileID: 2100000, guid: ba3a5c75e3c5dfb44a909288ed06bc56, type: 2}
   placementDecalMaterialRed: {fileID: 2100000, guid: 2ed7dc9aa62f5c642b5f027309e50ba6, type: 2}
-  decalSize: {x: 0.51028, y: 0.01, z: 0.13904}
-  decalPivot: {x: 0, y: 0, z: 0}
+  decalSize: {x: 0.51028, y: 0.1, z: 0.13904}
+  decalPivot: {x: 0, y: -0.05, z: 0}
 --- !u!114 &5360279869383916395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -558,8 +558,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6956217463858373830}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.04208256, y: -0.053589933, z: 0.023782272, w: -0.9973924}
-  m_LocalPosition: {x: -59.672962, y: -0.644577, z: -5.2134857}
+  m_LocalRotation: {x: -0.1468124, y: 0.060329966, z: -0.039647844, w: -0.9865264}
+  m_LocalPosition: {x: 0.99736714, y: 4.76533, z: -6.5686703}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
