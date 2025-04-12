@@ -16,7 +16,7 @@ public class Domino : DominoLike
         Rotate,
         Teleport,
         Jiggle,
-        Jump // New animation type
+        Jump
     }
 
     private static readonly float stillnessVelocityThreshold = 6f;  // Velocity threshold to consider "stationary"
@@ -177,6 +177,7 @@ public class Domino : DominoLike
     #region Animation Methods
     private void PerformAnimation(DominoAnimation animation, float resetDuration)
     {
+        StartCoroutine(TogglePhysics(false)); // Disable collisions with other dominoes
         switch (animation)
         {
             case DominoAnimation.Teleport:
@@ -198,7 +199,6 @@ public class Domino : DominoLike
     {
         rb.transform.position = lastStablePosition;
         rb.transform.rotation = lastStableRotation;
-        currentState = DominoState.Stationary; // Reset state to stationary
         StartCoroutine(TogglePhysics(true));
     }
 
@@ -243,13 +243,8 @@ public class Domino : DominoLike
     private void PerformJump(float duration, float jumpHeight)
     {
         if (!stablePositionSet) return; // Ensure stable position is set
-
-        StartCoroutine(TogglePhysics(false)); // Disable physics during animation
-
-        Vector3 startPosition = transform.position;
         Vector3 endPosition = lastStablePosition;
-
-        float peakY = Mathf.Max(startPosition.y, endPosition.y) + jumpHeight;
+        float peakY = Mathf.Max(transform.position.y, endPosition.y) + jumpHeight;
 
         // Create a sequence for the jump animation
         DG.Tweening.Sequence jumpSequence = DOTween.Sequence();
@@ -266,8 +261,7 @@ public class Domino : DominoLike
         // Ensure physics is re-enabled after the animation
         jumpSequence.OnComplete(() =>
         {
-            rb.transform.position = endPosition;
-            StartCoroutine(TogglePhysics(true));
+            PerformTeleport();
         });
 
         jumpSequence.Play();

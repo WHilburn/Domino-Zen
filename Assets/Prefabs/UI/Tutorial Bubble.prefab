@@ -28,17 +28,17 @@ RectTransform:
   m_GameObject: {fileID: 3443530351652158104}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 6729735170623011923}
   m_Father: {fileID: 459167282244814065}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0}
-  m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -15, y: 15}
-  m_SizeDelta: {x: 150, y: 40}
-  m_Pivot: {x: 1, y: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 15, y: 15}
+  m_SizeDelta: {x: 150, y: 50}
+  m_Pivot: {x: 0, y: 0}
 --- !u!222 &2552556750004464216
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -67,8 +67,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: ae1c4e7f838ea48e5aa08c6d8d2674cd, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -150,7 +150,7 @@ RectTransform:
   m_GameObject: {fileID: 7026973819435454448}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.25, y: 1.25, z: 1.25}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 528516128437912151}
@@ -190,8 +190,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 0eb8ee698914e44c0ba254ad6b02a2f7, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -248,8 +248,16 @@ MonoBehaviour:
     visible: 1
     limitedPlacement: 1
   - text: The game has a robust physics simulation, and it's easy to accidentally
-      knock over dominoes. Depending on the difficulty, the dominoes you've placed
-      can reset themselves after you knock them over.
+      knock over dominoes if you aren't careful.
+    worldTarget: {fileID: 0}
+    completionCondition: 5
+    placementEnabled: 0
+    flickEnables: 0
+    cameraEnabled: 0
+    visible: 1
+    limitedPlacement: 1
+  - text: Depending on the difficulty setting, the dominoes you've placed can reset
+      themselves after you knock them over.
     worldTarget: {fileID: 0}
     completionCondition: 5
     placementEnabled: 0
@@ -290,9 +298,8 @@ MonoBehaviour:
     cameraEnabled: 1
     visible: 1
     limitedPlacement: 0
-  - text: You can use [WASD] to move the camera, and when you aren't holding a domino,
-      [Q] and [E] move the camera up and down. Use [Right Mouse Button] to aim the
-      camera.
+  - text: You can use [WASD] to move the camera around. [R] and [F] move the camera
+      up and down. Click and drag [Right Mouse Button] to aim the camera.
     worldTarget: {fileID: 0}
     completionCondition: 1
     placementEnabled: 1
@@ -620,10 +627,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Continue
+  m_text: Next
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
+  m_sharedMaterial: {fileID: 2164040, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

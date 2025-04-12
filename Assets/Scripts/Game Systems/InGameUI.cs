@@ -14,6 +14,15 @@ public class InGameUI : MonoBehaviour
     public static int dominoCount = 0;
     public static int indicatorCount = 0;
     public Camera mainCamera; // Reference to the main camera
+    public Button cameraForwardButton;
+    public Button cameraLeftButton;
+    public Button cameraBackButton;
+    public Button cameraRightButton;
+    public Button cameraUpButton;
+    public Button cameraDownButton;
+    public Button rotateLeftButton;
+    public Button rotateRightButton;
+    public Button openMenuButton;
 
     void Awake()
     {

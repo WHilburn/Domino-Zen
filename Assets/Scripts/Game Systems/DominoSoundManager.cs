@@ -4,8 +4,11 @@ using System.Collections.Generic;
 
 public class DominoSoundManager : MonoBehaviour
 {
+    #region Singleton
     public static DominoSoundManager Instance { get; private set; }
-    
+    #endregion
+
+    #region Inspector Settings
     [Header("User Settings")]
     public static float globalVolumeScale = 1f; // User-defined global volume scale modifier
     public DominoSoundType userSelectedSoundType = DominoSoundType.Click; // User-selected sound type
@@ -16,17 +19,12 @@ public class DominoSoundManager : MonoBehaviour
     public float maxVolume = .7f;  // Max volume when many dominoes are moving
     public float velocityScale = 0.01f; // Scale factor for volume adjustment
     public float volumeLerpSpeed = 2f; // Speed at which volume adjusts
-    private float targetVolume = 0f; // The volume we want to reach
     public float totalVelocityThreshhold = -100f; // Minimum velocity to play the sound, total must exceed this
     public float minimumVelocity = 0.7f; // Minimum velocity for a piece to contibute to the cascase sound
-    private float totalMovement = 0f; // Total movement of all dominoes
-    
-    [Header("Invididual Domino Sound Settings")]//Create a separator in the inspector
+
+    [Header("Individual Domino Sound Settings")]//Create a separator in the inspector
     public float minimumImpactForce = 1f;
     public float soundCooldown = 0.2f;
-    private float lastSoundTime = 0f;
-    private int songIndex = 0;
-    private SongTitle currentSong = SongTitle.OdeToJoy;
     public int octaveOffset = 0;
     public DominoSoundList dominoPianoSounds;
     public DominoSoundList dominoClickSounds;
@@ -37,8 +35,18 @@ public class DominoSoundManager : MonoBehaviour
 
     [Header("AudioSource Pool Settings")]
     public int audioSourcePoolSize = 128; // Number of AudioSources in the pool
-    private Queue<AudioSource> audioSourcePool;
+    #endregion
 
+    #region Private Fields
+    private float targetVolume = 0f; // The volume we want to reach
+    private float totalMovement = 0f; // Total movement of all dominoes
+    private float lastSoundTime = 0f;
+    private int songIndex = 0;
+    private SongTitle currentSong = SongTitle.OdeToJoy;
+    private Queue<AudioSource> audioSourcePool;
+    #endregion
+
+    #region Enums
     public enum SongTitle
     { 
         Twinkle, Entertainer, MapleLeafRag,
@@ -54,7 +62,9 @@ public class DominoSoundManager : MonoBehaviour
         Click,
         Piano
     }
+    #endregion
 
+    #region Static Fields
     private static readonly Dictionary<string, int> noteMap = new()
     {
         { "C3", 0 }, { "C#3", 1 }, { "Db3", 1 }, { "D3", 2 }, { "D#3", 3 }, { "Eb3", 3 }, { "E3", 4 },
@@ -71,7 +81,6 @@ public class DominoSoundManager : MonoBehaviour
 
         { "-", -1 } // Rest note
     };
-
 
     private static readonly Dictionary<SongTitle, string> songLibrary = new()
     {
@@ -102,8 +111,9 @@ public class DominoSoundManager : MonoBehaviour
         { 0, DominoSoundType.Click },
         { 1, DominoSoundType.Piano }
     };
+    #endregion
 
-
+    #region Unity Lifecycle
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -134,7 +144,9 @@ public class DominoSoundManager : MonoBehaviour
         // Smoothly interpolate the actual volume toward the target volume
         cascadeSource.volume = Mathf.Lerp(cascadeSource.volume, targetVolume, Time.deltaTime * volumeLerpSpeed);
     }
+    #endregion
 
+    #region Public Methods
     public void SetGlobalVolume(float volume)
     {
         globalVolumeScale = volume; // Set the global volume scale
@@ -161,41 +173,6 @@ public class DominoSoundManager : MonoBehaviour
         {
             totalMovement += Mathf.Clamp(velocityMagnitude, 0f, 20f);
         }
-    }
-
-    // Initialize the AudioSource pool
-    private void InitializeAudioSourcePool()
-    {
-        audioSourcePool = new Queue<AudioSource>();
-
-        for (int i = 0; i < audioSourcePoolSize; i++)
-        {
-            GameObject audioSourceObject = new($"PooledAudioSource_{i}");
-            audioSourceObject.transform.SetParent(transform);
-            AudioSource audioSource = audioSourceObject.AddComponent<AudioSource>();
-            audioSource.playOnAwake = false;
-            audioSourcePool.Enqueue(audioSource);
-        }
-    }
-
-    // Get an available AudioSource from the pool
-    private AudioSource GetPooledAudioSource()
-    {
-        if (audioSourcePool.Count > 0)
-        {
-            return audioSourcePool.Dequeue();
-        }
-
-        // Debug.LogWarning("AudioSource pool exhausted! Consider increasing the pool size.");
-        return null;
-    }
-
-    // Return an AudioSource to the pool
-    private void ReturnAudioSourceToPool(AudioSource audioSource)
-    {
-        audioSource.Stop();
-        audioSource.clip = null;
-        audioSourcePool.Enqueue(audioSource);
     }
 
     public void PlayArbitrarySound(AudioClip clip, float volume = 1f, float pitch = 1f, Vector3? position = null)
@@ -225,7 +202,6 @@ public class DominoSoundManager : MonoBehaviour
         StartCoroutine(ReturnAudioSourceAfterPlayback(source));
     }
 
-    // Play a sound using the pooled AudioSources
     public void PlayDominoSound(Domino domino, float impactForce, Vector3 dominoPosition)
     {
         if (impactForce < minimumImpactForce)
@@ -256,6 +232,40 @@ public class DominoSoundManager : MonoBehaviour
 
         // Return the AudioSource to the pool after the clip finishes playing
         StartCoroutine(ReturnAudioSourceAfterPlayback(source));
+    }
+    #endregion
+
+    #region Private Methods
+    private void InitializeAudioSourcePool()
+    {
+        audioSourcePool = new Queue<AudioSource>();
+
+        for (int i = 0; i < audioSourcePoolSize; i++)
+        {
+            GameObject audioSourceObject = new($"PooledAudioSource_{i}");
+            audioSourceObject.transform.SetParent(transform);
+            AudioSource audioSource = audioSourceObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+            audioSourcePool.Enqueue(audioSource);
+        }
+    }
+
+    private AudioSource GetPooledAudioSource()
+    {
+        if (audioSourcePool.Count > 0)
+        {
+            return audioSourcePool.Dequeue();
+        }
+
+        // Debug.LogWarning("AudioSource pool exhausted! Consider increasing the pool size.");
+        return null;
+    }
+
+    private void ReturnAudioSourceToPool(AudioSource audioSource)
+    {
+        audioSource.Stop();
+        audioSource.clip = null;
+        audioSourcePool.Enqueue(audioSource);
     }
 
     private IEnumerator ReturnAudioSourceAfterPlayback(AudioSource source)
@@ -299,6 +309,7 @@ public class DominoSoundManager : MonoBehaviour
             source.PlayOneShot(clip, volume);
         }
     }
+
     private string[] ParseNotes(string songNotes)
     {
         List<string> parsedNotes = new();
@@ -351,7 +362,6 @@ public class DominoSoundManager : MonoBehaviour
         return parsedNotes.ToArray();
     }
 
-
     private void SwitchToNextSong()
     {
         SongTitle[] songKeys = (SongTitle[])System.Enum.GetValues(typeof(SongTitle));
@@ -359,4 +369,5 @@ public class DominoSoundManager : MonoBehaviour
         currentSong = songKeys[(currentIndex + 1) % songKeys.Length];
         Debug.Log("Switched to song: " + currentSong);
     }
+    #endregion
 }

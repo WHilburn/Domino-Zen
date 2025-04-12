@@ -145,7 +145,7 @@ public class DominoResetManager : MonoBehaviour
             resetAnimation = Domino.DominoAnimation.Teleport;
         } 
         float resetDuration = 1f;
-        Invoke(nameof(ResetToIdle), resetDuration + .01f); // Reset the state to Idle after the reset duration
+        Invoke(nameof(ResetToIdle), resetDuration * 1.5f); // Reset the state to Idle after the reset duration
         
         PlayerDominoPlacement.Instance.DeleteHeldDomino();
 
@@ -163,6 +163,7 @@ public class DominoResetManager : MonoBehaviour
         }
         fallenDominoes.Clear();
         waitingForCheckpoint.Clear(); // Clear the waitingForCheckpoint set
+        CancelInvoke(nameof(ResetAllDominoes));
     }
 
     private void ResetToIdle()
