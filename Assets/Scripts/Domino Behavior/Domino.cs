@@ -14,7 +14,6 @@ public class Domino : DominoLike
     public enum DominoAnimation
     {
         Rotate,
-        Jump,
         Teleport,
         Jiggle
     }
@@ -185,9 +184,6 @@ public class Domino : DominoLike
             case DominoAnimation.Rotate:
                 PerformRotate(resetDuration);
                 break;
-            case DominoAnimation.Jump:
-                PerformJump(resetDuration);
-                break;
             case DominoAnimation.Jiggle:
                 PerformJiggle();
                 break;
@@ -212,33 +208,6 @@ public class Domino : DominoLike
         });
     }
 
-    private void PerformJump(float resetDuration)
-    {
-        float jumpHeight = 1.5f;  // Height of the pop-up
-        float jumpDuration = 0.4f * resetDuration;  // Faster upward motion
-        float fallDuration = 0.2f * resetDuration; // Faster downward motion
-        float rotationDuration = 0.4f * resetDuration; // Smooth rotation time
-
-        // Determine the upward jump target
-        Vector3 jumpPeak = new Vector3(lastStablePosition.x, lastStablePosition.y + jumpHeight, lastStablePosition.z);
-
-        // Random rotation to add a bit of flair
-        Vector3 randomFlip = new Vector3(Random.Range(0f, 720f),Random.Range(0f, 720f),Random.Range(0f, 720f));
-
-        StartCoroutine(TogglePhysics(false));
-        DG.Tweening.Sequence jumpSequence = DOTween.Sequence();
-        jumpSequence.Append(transform.DOMove(jumpPeak, jumpDuration).SetEase(Ease.OutQuad));
-        jumpSequence.Join(transform.DORotate(randomFlip, jumpDuration, RotateMode.FastBeyond360).SetEase(Ease.OutQuad));
-        jumpSequence.Append(transform.DORotateQuaternion(lastStableRotation, rotationDuration).SetEase(Ease.OutQuad));
-        jumpSequence.Append(transform.DOMove(lastStablePosition, fallDuration).SetEase(Ease.InQuad));
-    
-        jumpSequence.OnComplete(() =>
-        {
-            PerformTeleport();
-        });
-        jumpSequence.Play();
-    }
-
     private void PerformJiggle()
     {
         float jiggleDuration = 0.2f;
@@ -260,8 +229,7 @@ public class Domino : DominoLike
         // Ensure the position is reset to the original position at the end
         jiggleSequence.OnComplete(() =>
         {
-            transform.position = originalPosition;
-            StartCoroutine(TogglePhysics(true));
+            PerformTeleport();
         });
 
         jiggleSequence.Play();
@@ -294,7 +262,7 @@ public class Domino : DominoLike
         {
             // Stop any active DOTween animations
             transform.DOKill();
-            yield return null; // Wait for the next frame to reenable physics
+            yield return new WaitForFixedUpdate(); // Wait for the next frame to reenable physics
         }
 
         rb.isKinematic = !on;
@@ -308,10 +276,6 @@ public class Domino : DominoLike
         BoxCollider boxCollider = GetComponent<BoxCollider>();
         boxCollider.isTrigger = !on;
         currentState = DominoState.Stationary;
-
-        // if (!IsDominoMoving() && currentState != DominoState.Animating)
-        // {
-        // }
     }
     #endregion
 }

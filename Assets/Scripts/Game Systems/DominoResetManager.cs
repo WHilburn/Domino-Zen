@@ -128,19 +128,13 @@ public class DominoResetManager : MonoBehaviour
     private void ResetAllDominoes()
     {
         // if (fallenDominoes.Count == 0) return; // No dominoes to reset
-        if (GameManager.Instance.gameDifficulty == GameManager.GameDifficulty.Hard)
+        if (currentState == ResetState.Resetting || GameManager.Instance.gameDifficulty == GameManager.GameDifficulty.Hard)
         {
-            Debug.Log("No dominoes will reset on Hard difficulty.");
-            return; // No dominoes reset on Hard
+            return;
         }
         else Debug.Log("Resetting all dominoes. Count: " + allDominoes.Count);
 
-        if (allDominoes.Count < 1000)
-        {
-            currentState = ResetState.Resetting;
-            resetAnimation = Domino.DominoAnimation.Jump;
-        }
-        else if (allDominoes.Count < 2000)
+        if (allDominoes.Count < 2000)
         {
             resetAnimation = Domino.DominoAnimation.Rotate;
             currentState = ResetState.Resetting;
@@ -151,7 +145,7 @@ public class DominoResetManager : MonoBehaviour
             resetAnimation = Domino.DominoAnimation.Teleport;
         } 
         float resetDuration = 1f;
-        Invoke(nameof(ResetToIdle), resetDuration); // Reset the state to Idle after the reset duration
+        Invoke(nameof(ResetToIdle), resetDuration + .01f); // Reset the state to Idle after the reset duration
         
         PlayerDominoPlacement.Instance.DeleteHeldDomino();
 
@@ -168,6 +162,7 @@ public class DominoResetManager : MonoBehaviour
             }
         }
         fallenDominoes.Clear();
+        waitingForCheckpoint.Clear(); // Clear the waitingForCheckpoint set
     }
 
     private void ResetToIdle()
