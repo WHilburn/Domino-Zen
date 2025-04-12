@@ -250,7 +250,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     {
         if (heldDomino == null) return;
 
-        Destroy(heldDomino);
+        heldDomino.GetComponent<Domino>().DespawnDomino();
         DestroyHand();
 
         ClearHeldDomino();

@@ -15,7 +15,8 @@ public class Domino : DominoLike
     {
         Rotate,
         Teleport,
-        Jiggle
+        Jiggle,
+        Jump // New animation type
     }
 
     private static readonly float stillnessVelocityThreshold = 6f;  // Velocity threshold to consider "stationary"
@@ -187,6 +188,9 @@ public class Domino : DominoLike
             case DominoAnimation.Jiggle:
                 PerformJiggle();
                 break;
+            case DominoAnimation.Jump:
+                PerformJump(resetDuration, 1f);
+                break;
         }
     }
 
@@ -222,17 +226,51 @@ public class Domino : DominoLike
 
         // Add jiggle movement in a direction relative to the domino's current facing
         Vector3 rightDirection = transform.right * noiseIntensity; // Right relative to the domino's facing
-        jiggleSequence.Append(transform.DOMove(originalPosition + rightDirection, jiggleDuration / 4).SetEase(Ease.InOutSine));
-        jiggleSequence.Append(transform.DOMove(originalPosition - rightDirection, jiggleDuration / 2).SetEase(Ease.InOutSine));
-        jiggleSequence.Append(transform.DOMove(originalPosition, jiggleDuration / 4).SetEase(Ease.InOutSine));
+        jiggleSequence.Append(rb.transform.DOMove(originalPosition + rightDirection, jiggleDuration / 4).SetEase(Ease.InOutSine));
+        jiggleSequence.Append(rb.transform.DOMove(originalPosition - rightDirection, jiggleDuration / 2).SetEase(Ease.InOutSine));
+        jiggleSequence.Append(rb.transform.DOMove(originalPosition, jiggleDuration / 4).SetEase(Ease.InOutSine));
 
         // Ensure the position is reset to the original position at the end
         jiggleSequence.OnComplete(() =>
         {
-            PerformTeleport();
+            rb.transform.position = originalPosition;
+            StartCoroutine(TogglePhysics(true));
         });
 
         jiggleSequence.Play();
+    }
+
+    private void PerformJump(float duration, float jumpHeight)
+    {
+        if (!stablePositionSet) return; // Ensure stable position is set
+
+        StartCoroutine(TogglePhysics(false)); // Disable physics during animation
+
+        Vector3 startPosition = transform.position;
+        Vector3 endPosition = lastStablePosition;
+
+        float peakY = Mathf.Max(startPosition.y, endPosition.y) + jumpHeight;
+
+        // Create a sequence for the jump animation
+        DG.Tweening.Sequence jumpSequence = DOTween.Sequence();
+
+        // Move laterally on x and z axes while rotating to the stable rotation
+        jumpSequence.Append(rb.transform.DOMoveX(endPosition.x, duration).SetEase(Ease.InOutSine));
+        jumpSequence.Join(rb.transform.DOMoveZ(endPosition.z, duration).SetEase(Ease.InOutSine));
+        jumpSequence.Join(rb.transform.DORotateQuaternion(lastStableRotation, duration).SetEase(Ease.InOutSine));
+
+        // Create a parabolic jump on the y-axis
+        jumpSequence.Join(rb.transform.DOMoveY(peakY, duration / 2).SetEase(Ease.OutSine)); // Ascend
+        jumpSequence.Append(rb.transform.DOMoveY(endPosition.y, duration / 2).SetEase(Ease.InSine)); // Descend
+
+        // Ensure physics is re-enabled after the animation
+        jumpSequence.OnComplete(() =>
+        {
+            rb.transform.position = endPosition;
+            StartCoroutine(TogglePhysics(true));
+        });
+
+        jumpSequence.Play();
     }
     #endregion
 
@@ -261,7 +299,7 @@ public class Domino : DominoLike
         if (on) 
         {
             // Stop any active DOTween animations
-            transform.DOKill();
+            rb.transform.DOKill();
             yield return new WaitForFixedUpdate(); // Wait for the next frame to reenable physics
         }
 

@@ -136,7 +136,7 @@ public class DominoResetManager : MonoBehaviour
 
         if (allDominoes.Count < 2000)
         {
-            resetAnimation = Domino.DominoAnimation.Rotate;
+            resetAnimation = Domino.DominoAnimation.Jump;
             currentState = ResetState.Resetting;
         } 
         else
