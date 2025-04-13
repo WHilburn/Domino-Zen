@@ -121,7 +121,889 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: Panel (5)Blue_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 306.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ffcd4bc2d4db94b1688ac9644bf720cb
+      internalID: 417842580
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_1
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 306.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bdae98381032d4f4c82c222c272172ed
+      internalID: -826613392
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_2
+      rect:
+        serializedVersion: 2
+        x: 102
+        y: 306.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 30b75e8f448fd4a6e8aaa31c5ce5f0f5
+      internalID: -1299375184
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_3
+      rect:
+        serializedVersion: 2
+        x: 153
+        y: 306.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5e28d11f977f9450c8059ea1beea7066
+      internalID: 1791730319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_4
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 306.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 927a77ff5b7444055a70a0767670288d
+      internalID: -632801370
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_5
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 306.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6a0bc3f9f8a994cf7aa0f7028264af33
+      internalID: 1192458730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_6
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 255.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1a73f829bfc7147ffb20f0b121d262e5
+      internalID: 343048959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_7
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 255.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e895c04e6309c426a9f082416e32f28e
+      internalID: 178019124
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_8
+      rect:
+        serializedVersion: 2
+        x: 102
+        y: 255.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 40d1902cf518c496da7c315fc76f7947
+      internalID: 873804838
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_9
+      rect:
+        serializedVersion: 2
+        x: 153
+        y: 255.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5354c32077f3a446886af2a490dc0b4e
+      internalID: 2083205703
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_10
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 255.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0c208afcf97ea455ebd08fb3409bfe21
+      internalID: 239069325
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_11
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 255.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8c1a04da67bde489381463e2d99f57bd
+      internalID: 940739228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 204.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 25de281bd8c27476cb02f84806a41094
+      internalID: -942496133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_13
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 204.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fec0f17aac84743cb9d57781e5412f90
+      internalID: 1382651304
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_14
+      rect:
+        serializedVersion: 2
+        x: 102
+        y: 204.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d16b539d21a5c4953ad85742ae09e89c
+      internalID: 1153124790
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_15
+      rect:
+        serializedVersion: 2
+        x: 153
+        y: 204.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3f2232dc2e19e414790b50af554b8f9d
+      internalID: -828595653
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_16
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 204.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9736ce025e14641028e3374b380a0b2c
+      internalID: -1555074983
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_17
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 204.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e404d61d07fb84dfdb61a3034b51eb4d
+      internalID: -419746845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_18
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 153.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fbf1998348c7b4cf8b2f0547d77e5c11
+      internalID: 1751990570
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_19
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 153.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fa1bc0329663d4062a660273ed41554e
+      internalID: -1416791938
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_20
+      rect:
+        serializedVersion: 2
+        x: 102
+        y: 153.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f28ac3539ac9f46a6b922a5a2f17bb68
+      internalID: -919331050
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_21
+      rect:
+        serializedVersion: 2
+        x: 153
+        y: 153.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6b09abfd174c044cea4da215385be59a
+      internalID: 1445481546
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_22
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 153.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dd637be9bebcf44e6aee499a0db45b0b
+      internalID: -456380724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_23
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 153.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5f53e3caee54e45aabc2d0aee3a117e6
+      internalID: 1386021163
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 102.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fa91c69da24174a17b21abc472f48b5f
+      internalID: 2010341309
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_25
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 102.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 286539a0f0195472cba6d665b3d5c417
+      internalID: -825372046
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_26
+      rect:
+        serializedVersion: 2
+        x: 102
+        y: 102.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5262b772d2a014e5c8d590673fa39896
+      internalID: -855688733
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_27
+      rect:
+        serializedVersion: 2
+        x: 153
+        y: 102.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 24812929798284941b40c9060a3c7d75
+      internalID: -2010072872
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_28
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 102.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 28d07cd9bac264fdcb2d74365b9a460a
+      internalID: -164699528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_29
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 102.85715
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 49e6c4f567b284bf89daf2157bb5cff5
+      internalID: -1101448163
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_30
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 51.857143
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b2e3557c0feb7462cb494d81c62b7ab3
+      internalID: -1932713521
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_31
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 51.857143
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e0e63e6ae50fb453baf590e7c9b4279b
+      internalID: 854873371
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_32
+      rect:
+        serializedVersion: 2
+        x: 102
+        y: 51.857143
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 71c039e287a954cfa93d5ac24d8734d7
+      internalID: -485117027
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_33
+      rect:
+        serializedVersion: 2
+        x: 153
+        y: 51.857143
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 412cc1b7f69a846e1a43bc426aea6258
+      internalID: 1480928080
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_34
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 51.857143
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ff29e4a79a5e44d6787cd9a45c6f7f2b
+      internalID: -722600236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_35
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 51.857143
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3b23e4d99efe14f8e963ceecea694f0a
+      internalID: 241637174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_36
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0.8571434
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 051913a1e76b3444092660c4ec3aa078
+      internalID: -1440723072
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_37
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 0.8571434
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 83db9edef24e0439f9538b8f1371b21e
+      internalID: 1838707637
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_38
+      rect:
+        serializedVersion: 2
+        x: 102
+        y: 0.8571434
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 58496f1f2d9094dfd9a4da2cf8a648f0
+      internalID: 765863661
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_39
+      rect:
+        serializedVersion: 2
+        x: 153
+        y: 0.8571434
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7a4402a88895d46d292227e8c1d7ea23
+      internalID: 1670676893
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_40
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 0.8571434
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c8da8a5e0b6d64078b7414b1a8802bb4
+      internalID: -643525698
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel (5)Blue_41
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 0.8571434
+        width: 51.333332
+        height: 51.142857
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 001b7988d51f541289a8ffb7036627cb
+      internalID: -1266450019
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -132,7 +1014,49 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Panel (5)Blue_0: 417842580
+      Panel (5)Blue_1: -826613392
+      Panel (5)Blue_10: 239069325
+      Panel (5)Blue_11: 940739228
+      Panel (5)Blue_12: -942496133
+      Panel (5)Blue_13: 1382651304
+      Panel (5)Blue_14: 1153124790
+      Panel (5)Blue_15: -828595653
+      Panel (5)Blue_16: -1555074983
+      Panel (5)Blue_17: -419746845
+      Panel (5)Blue_18: 1751990570
+      Panel (5)Blue_19: -1416791938
+      Panel (5)Blue_2: -1299375184
+      Panel (5)Blue_20: -919331050
+      Panel (5)Blue_21: 1445481546
+      Panel (5)Blue_22: -456380724
+      Panel (5)Blue_23: 1386021163
+      Panel (5)Blue_24: 2010341309
+      Panel (5)Blue_25: -825372046
+      Panel (5)Blue_26: -855688733
+      Panel (5)Blue_27: -2010072872
+      Panel (5)Blue_28: -164699528
+      Panel (5)Blue_29: -1101448163
+      Panel (5)Blue_3: 1791730319
+      Panel (5)Blue_30: -1932713521
+      Panel (5)Blue_31: 854873371
+      Panel (5)Blue_32: -485117027
+      Panel (5)Blue_33: 1480928080
+      Panel (5)Blue_34: -722600236
+      Panel (5)Blue_35: 241637174
+      Panel (5)Blue_36: -1440723072
+      Panel (5)Blue_37: 1838707637
+      Panel (5)Blue_38: 765863661
+      Panel (5)Blue_39: 1670676893
+      Panel (5)Blue_4: -632801370
+      Panel (5)Blue_40: -643525698
+      Panel (5)Blue_41: -1266450019
+      Panel (5)Blue_5: 1192458730
+      Panel (5)Blue_6: 343048959
+      Panel (5)Blue_7: 178019124
+      Panel (5)Blue_8: 873804838
+      Panel (5)Blue_9: 2083205703
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

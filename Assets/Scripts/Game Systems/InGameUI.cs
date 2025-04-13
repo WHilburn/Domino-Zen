@@ -20,9 +20,9 @@ public class InGameUI : MonoBehaviour
     public Button cameraRightButton;
     public Button cameraUpButton;
     public Button cameraDownButton;
-    public Button rotateLeftButton;
-    public Button rotateRightButton;
-    public Button openMenuButton;
+    // public Button rotateLeftButton; //Unused for now
+    // public Button rotateRightButton;
+    // public Button openMenuButton;
 
     void Awake()
     {
