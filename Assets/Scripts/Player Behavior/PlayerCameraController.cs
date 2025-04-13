@@ -16,6 +16,7 @@ public class PlayerCameraController : MonoBehaviour
     public CinemachineBrain brain;
     public bool isCameraEnabled = true; // Flag to enable/disable camera controls
     private bool windowFocused = true; // Flag to check if the window is focused
+    private float cameraFOV = 60f; // Default camera field of view
 
     void Start()
     {
@@ -32,6 +33,12 @@ public class PlayerCameraController : MonoBehaviour
     private void ToggleCameraControls(bool enable)
     {
         isCameraEnabled = enable; // Update the flag based on the event
+    }
+
+    public void setCameraFOV(float fov)
+    {
+        cameraFOV = fov;
+        GetComponent<CinemachineVirtualCamera>().m_Lens.FieldOfView = fov; // Set the camera's field of view
     }
 
     void OnEnable()

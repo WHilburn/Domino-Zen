@@ -13,6 +13,7 @@ public class InGameUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI floatingTextPrefab; // Prefab for floating text
     public static int dominoCount = 0;
     public static int indicatorCount = 0;
+    public static bool paused = false; // Static variable to track pause state
     public Camera mainCamera; // Reference to the main camera
     public Button cameraForwardButton;
     public Button cameraLeftButton;
@@ -23,6 +24,20 @@ public class InGameUI : MonoBehaviour
     // public Button rotateLeftButton; //Unused for now
     // public Button rotateRightButton;
     // public Button openMenuButton;
+
+    public GameObject pauseMenu; // For enabling and disabling the pause menu
+    public GameObject optionsPanel;
+    public Button pauseButton;
+    public Button unpauseButton;
+    public Button optionsButton;
+    public Button mainMenuButton;
+    public Slider volumeSlider;
+    public TextMeshProUGUI volumeText;
+    public Slider fovSlider;
+    public TextMeshProUGUI fovText;
+    public Slider mysterySlider;
+    public TextMeshProUGUI mysteryText;
+    public TMP_Dropdown dominoSoundDropdown;
 
     void Awake()
     {
@@ -43,6 +58,25 @@ public class InGameUI : MonoBehaviour
         }
         dominoCount = 0; // Initialize domino count
         indicatorCount = 0; // Initialize indicator count
+
+        // Wire up buttons
+        pauseButton.onClick.AddListener(TogglePauseMenu);
+        unpauseButton.onClick.AddListener(TogglePauseMenu);
+        optionsButton.onClick.AddListener(() => optionsPanel.SetActive(!optionsPanel.activeSelf));
+
+        // Wire up sliders
+        volumeSlider.onValueChanged.AddListener(UpdateVolume);
+        fovSlider.onValueChanged.AddListener(UpdateFOV);
+
+        //Disable pause menu and options panel at start
+        if (pauseMenu != null)
+        {
+            pauseMenu.SetActive(false);
+        }
+        if (optionsPanel != null)
+        {
+            optionsPanel.SetActive(false);
+        }
     }
 
     private void OnEnable()
@@ -89,7 +123,7 @@ public class InGameUI : MonoBehaviour
         }
     }
 
-    public void CreateFloatingText(string text, Vector3 worldPosition, float scale, float fadeDuration, bool floatUpwards = false)
+    public void CreateFloatingWorldText(string text, Vector3 worldPosition, float scale, float fadeDuration, bool floatUpwards = false)
     {
         if (floatingTextPrefab == null || canvas == null) return;
 
@@ -116,5 +150,38 @@ public class InGameUI : MonoBehaviour
         }
         sequence.Join(floatingText.DOFade(0, fadeDuration))
                 .OnComplete(() => Destroy(floatingText.gameObject));
+    }
+
+    private void TogglePauseMenu()
+    {
+        paused = !paused; // Toggle the pause state
+        if (pauseMenu != null)
+        {
+            pauseMenu.SetActive(paused); // Toggle pause menu visibility
+        }
+    }
+
+    private void UpdateVolume(float value)
+    {
+        if (DominoSoundManager.Instance != null)
+        {
+            DominoSoundManager.Instance.SetGlobalVolume(value); // Update global volume in sound manager
+        }
+        if (volumeText != null)
+        {
+            volumeText.text = $"{Mathf.RoundToInt(value * 100)}%"; // Update volume text
+        }
+    }
+
+    private void UpdateFOV(float value)
+    {
+        if (PlayerCameraController.Instance != null)
+        {
+            PlayerCameraController.Instance.setCameraFOV(value); // Update camera FOV
+        }
+        if (fovText != null)
+        {
+            fovText.text = $"{Mathf.RoundToInt(value)}°"; // Update FOV text with degree symbol
+        }
     }
 }

@@ -44,7 +44,6 @@ public class PlayerDominoPlacement : MonoBehaviour
     public Material placementDecalMaterialRed;
     public Vector3 decalSize = new Vector3(1f, 1f, 1f); // Size of the decal
     public Vector3 decalPivot = new Vector3(0f, 0f, -1f); // Pivot point of the decal
-
     private Domino obstruction;
 
     void Start()
@@ -62,9 +61,12 @@ public class PlayerDominoPlacement : MonoBehaviour
 
     void Update()
     {
-        if (DominoResetManager.Instance != null && DominoResetManager.Instance.currentState != DominoResetManager.ResetState.Idle)
+        if (InGameUI.paused|| 
+        DominoResetManager.Instance != null && 
+        DominoResetManager.Instance.currentState != DominoResetManager.ResetState.Idle)
         {
-            // Debug.Log("Cannot place new dominoes while there are fallen dominoes.");
+            DestroyHand(); // Destroy the hand if the game is paused or in a reset state
+            placementDecal.enabled = false;
             return;
         }
 
@@ -131,7 +133,7 @@ public class PlayerDominoPlacement : MonoBehaviour
                 return existingDomino; // Obstruction detected
             }
         }
-        placementDecal.material = placementDecalMaterial;
+        if (placementDecal != null) placementDecal.material = placementDecalMaterial;
         return null; // No obstruction detected
     }
 
@@ -148,7 +150,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         if (obstruction != null && obstruction != heldDomino)
         {
             obstruction.AnimateDomino(Domino.DominoAnimation.Jiggle); // Play jiggle animation
-            InGameUI.Instance.CreateFloatingText("Obstructed", spawnPos, .75f, 1f, true); // Show floating text
+            InGameUI.Instance.CreateFloatingWorldText("Obstructed", spawnPos, 1f, 1f, true);
             soundManager?.PlayArbitrarySound(soundManager.dominoObstructedSound, 1, 1, spawnPos);
             return; // Prevent spawning
         }
@@ -583,12 +585,6 @@ public class PlayerDominoPlacement : MonoBehaviour
 
         // Set the initial color to blue
         placementDecal.material.SetColor("_BaseColor", Color.blue);
-    }
-
-    private IEnumerator ResetDecalColor(float delay, Material newMaterial)
-    {
-        yield return new WaitForSeconds(delay);
-        placementDecal.material = newMaterial; // Change the decal material back to blue
     }
 
     private void UpdatePlacementDecal()
