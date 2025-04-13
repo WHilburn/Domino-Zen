@@ -6,14 +6,18 @@ using DG.Tweening;
 
 public class InGameUI : MonoBehaviour
 {
+    #region Singleton
     public static InGameUI Instance { get; private set; }
+    #endregion
+
+    #region Serialized Fields
     [SerializeField] private TextMeshProUGUI dominoCountText; // Reference to the UI Text element
     [SerializeField] private TextMeshProUGUI indicatorCountText;
     [SerializeField] private Canvas canvas; // Reference to the UI canvas
     [SerializeField] private TextMeshProUGUI floatingTextPrefab; // Prefab for floating text
-    public static int dominoCount = 0;
-    public static int indicatorCount = 0;
-    public static bool paused = false; // Static variable to track pause state
+    [SerializeField] private RectTransform buttonPanel; // Reference to the three-button panel
+    [SerializeField] private RectTransform optionsPanelRect; // Reference to the options panel RectTransform
+    [SerializeField] private float animationDuration = 0.5f; // Duration of the animation
     public Camera mainCamera; // Reference to the main camera
     public Button cameraForwardButton;
     public Button cameraLeftButton;
@@ -21,10 +25,6 @@ public class InGameUI : MonoBehaviour
     public Button cameraRightButton;
     public Button cameraUpButton;
     public Button cameraDownButton;
-    // public Button rotateLeftButton; //Unused for now
-    // public Button rotateRightButton;
-    // public Button openMenuButton;
-
     public GameObject pauseMenu; // For enabling and disabling the pause menu
     public GameObject optionsPanel;
     public Button pauseButton;
@@ -38,7 +38,15 @@ public class InGameUI : MonoBehaviour
     public Slider mysterySlider;
     public TextMeshProUGUI mysteryText;
     public TMP_Dropdown dominoSoundDropdown;
+    #endregion
 
+    #region Static Variables
+    public static int dominoCount = 0;
+    public static int indicatorCount = 0;
+    public static bool paused = false; // Static variable to track pause state
+    #endregion
+
+    #region Unity Methods
     void Awake()
     {
         // Ensure only one instance of InGameUI exists
@@ -62,7 +70,7 @@ public class InGameUI : MonoBehaviour
         // Wire up buttons
         pauseButton.onClick.AddListener(TogglePauseMenu);
         unpauseButton.onClick.AddListener(TogglePauseMenu);
-        optionsButton.onClick.AddListener(() => optionsPanel.SetActive(!optionsPanel.activeSelf));
+        optionsButton.onClick.AddListener(ToggleOptionsPanel); // Update to use ToggleOptionsPanel
 
         // Wire up sliders
         volumeSlider.onValueChanged.AddListener(UpdateVolume);
@@ -88,6 +96,16 @@ public class InGameUI : MonoBehaviour
         PlacementIndicator.OnIndicatorEmptied.AddListener(HandleIndicatorEmptied);
     }
 
+    void Update()
+    {
+        if (Input.GetButtonDown("Menu")) // Poll the input manager for the "Menu" input
+        {
+            TogglePauseMenu();
+        }
+    }
+    #endregion
+
+    #region Event Handlers
     private void HandleDominoCreated(Domino domino)
     {
         if (dominoCountText == null) return; // Ensure the text reference is valid
@@ -113,13 +131,72 @@ public class InGameUI : MonoBehaviour
         indicatorCount++;
         UpdateCountText();
     }
+    #endregion
 
+    #region UI Updates
     private void UpdateCountText()
     {
         if (dominoCountText != null)
         {
             dominoCountText.text = $"Dominoes Placed: {dominoCount}";
             indicatorCountText.text = $"Indicators Remaining: {indicatorCount}";
+        }
+    }
+
+    private void UpdateVolume(float value)
+    {
+        if (DominoSoundManager.Instance != null)
+        {
+            DominoSoundManager.Instance.SetGlobalVolume(value); // Update global volume in sound manager
+        }
+        if (volumeText != null)
+        {
+            volumeText.text = $"{Mathf.RoundToInt(value * 100)}%"; // Update volume text
+        }
+    }
+
+    private void UpdateFOV(float value)
+    {
+        if (PlayerCameraController.Instance != null)
+        {
+            PlayerCameraController.Instance.setCameraFOV(value); // Update camera FOV
+        }
+        if (fovText != null)
+        {
+            fovText.text = $"{Mathf.RoundToInt(value)}°"; // Update FOV text with degree symbol
+        }
+    }
+    #endregion
+
+    #region UI Animations
+    private void TogglePauseMenu()
+    {
+        paused = !paused; // Toggle the pause state
+        if (pauseMenu != null)
+        {
+            pauseMenu.SetActive(paused); // Toggle pause menu visibility
+        }
+    }
+
+    private void ToggleOptionsPanel()
+    {
+        if (optionsPanel == null || buttonPanel == null) return;
+
+        bool isOptionsActive = optionsPanel.activeSelf;
+        optionsPanel.SetActive(true); // Ensure the options panel is active for animation
+        float totalWidth = pauseMenu.GetComponent<RectTransform>().rect.width;
+
+        // Animate the panels
+        if (isOptionsActive)
+        {
+            buttonPanel.DOSizeDelta(new Vector2(totalWidth, buttonPanel.sizeDelta.y), animationDuration); // Contract button panel
+            optionsPanelRect.DOSizeDelta(new Vector2(0, optionsPanelRect.sizeDelta.y), animationDuration)
+                .OnComplete(() => optionsPanel.SetActive(false)); // Collapse options panel and deactivate
+        }
+        else
+        {
+            buttonPanel.DOSizeDelta(new Vector2(totalWidth/3, buttonPanel.sizeDelta.y), animationDuration); // Expand button panel
+            optionsPanelRect.DOSizeDelta(new Vector2((totalWidth*2)/3, optionsPanelRect.sizeDelta.y), animationDuration); // Expand options panel
         }
     }
 
@@ -151,37 +228,5 @@ public class InGameUI : MonoBehaviour
         sequence.Join(floatingText.DOFade(0, fadeDuration))
                 .OnComplete(() => Destroy(floatingText.gameObject));
     }
-
-    private void TogglePauseMenu()
-    {
-        paused = !paused; // Toggle the pause state
-        if (pauseMenu != null)
-        {
-            pauseMenu.SetActive(paused); // Toggle pause menu visibility
-        }
-    }
-
-    private void UpdateVolume(float value)
-    {
-        if (DominoSoundManager.Instance != null)
-        {
-            DominoSoundManager.Instance.SetGlobalVolume(value); // Update global volume in sound manager
-        }
-        if (volumeText != null)
-        {
-            volumeText.text = $"{Mathf.RoundToInt(value * 100)}%"; // Update volume text
-        }
-    }
-
-    private void UpdateFOV(float value)
-    {
-        if (PlayerCameraController.Instance != null)
-        {
-            PlayerCameraController.Instance.setCameraFOV(value); // Update camera FOV
-        }
-        if (fovText != null)
-        {
-            fovText.text = $"{Mathf.RoundToInt(value)}°"; // Update FOV text with degree symbol
-        }
-    }
+    #endregion
 }

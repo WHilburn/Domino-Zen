@@ -216,7 +216,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -200, y: -200}
+  m_SizeDelta: {x: -240, y: -240}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3150164014006879781
 CanvasRenderer:
@@ -277,8 +277,8 @@ MonoBehaviour:
   m_Spacing: 100
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 1
-  m_ChildControlHeight: 1
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
@@ -1524,7 +1524,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 930, y: 1040}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6889094328260389087
 CanvasRenderer:
@@ -2381,6 +2381,9 @@ MonoBehaviour:
   indicatorCountText: {fileID: 4542305022190276696}
   canvas: {fileID: 3644463334577794610}
   floatingTextPrefab: {fileID: 5149128180304889477, guid: 9c73dffd34b5dc046bfac55f1c19dcc6, type: 3}
+  buttonPanel: {fileID: 2806398290412149215}
+  optionsPanelRect: {fileID: 5093590552979358982}
+  animationDuration: 0.5
   mainCamera: {fileID: 7643491476663183632}
   cameraForwardButton: {fileID: 0}
   cameraLeftButton: {fileID: 0}
@@ -2784,11 +2787,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5425069912657967251, guid: 444619dbcae0a4c09acf388ef1ed8a52, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 1130
       objectReference: {fileID: 0}
     - target: {fileID: 5425069912657967251, guid: 444619dbcae0a4c09acf388ef1ed8a52, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 1040
       objectReference: {fileID: 0}
     - target: {fileID: 5425069912657967251, guid: 444619dbcae0a4c09acf388ef1ed8a52, type: 3}
       propertyPath: m_LocalPosition.x
