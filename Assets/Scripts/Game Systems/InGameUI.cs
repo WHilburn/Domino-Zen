@@ -76,13 +76,14 @@ public class InGameUI : MonoBehaviour
         volumeSlider.onValueChanged.AddListener(UpdateVolume);
         fovSlider.onValueChanged.AddListener(UpdateFOV);
 
-        //Disable pause menu and options panel at start
+        // Disable pause menu and options panel at start
         if (pauseMenu != null)
         {
             pauseMenu.SetActive(false);
         }
         if (optionsPanel != null)
         {
+            optionsPanelRect.sizeDelta = new Vector2(0, optionsPanelRect.sizeDelta.y); // Set options panel size to 0
             optionsPanel.SetActive(false);
         }
     }
@@ -185,18 +186,23 @@ public class InGameUI : MonoBehaviour
         bool isOptionsActive = optionsPanel.activeSelf;
         optionsPanel.SetActive(true); // Ensure the options panel is active for animation
         float totalWidth = pauseMenu.GetComponent<RectTransform>().rect.width;
+        HorizontalLayoutGroup layoutGroup = pauseMenu.GetComponent<HorizontalLayoutGroup>();
 
         // Animate the panels
         if (isOptionsActive)
         {
-            buttonPanel.DOSizeDelta(new Vector2(totalWidth, buttonPanel.sizeDelta.y), animationDuration); // Contract button panel
+            buttonPanel.DOSizeDelta(new Vector2(totalWidth / 3, buttonPanel.sizeDelta.y), animationDuration); // Contract button panel
             optionsPanelRect.DOSizeDelta(new Vector2(0, optionsPanelRect.sizeDelta.y), animationDuration)
                 .OnComplete(() => optionsPanel.SetActive(false)); // Collapse options panel and deactivate
+            optionsPanelRect.DOScaleX(0, animationDuration);
+            DOTween.To(() => layoutGroup.spacing, x => layoutGroup.spacing = x, 0, animationDuration); // Tween spacing to 0
         }
         else
         {
-            buttonPanel.DOSizeDelta(new Vector2(totalWidth/3, buttonPanel.sizeDelta.y), animationDuration); // Expand button panel
-            optionsPanelRect.DOSizeDelta(new Vector2((totalWidth*2)/3, optionsPanelRect.sizeDelta.y), animationDuration); // Expand options panel
+            buttonPanel.DOSizeDelta(new Vector2(totalWidth / 3, buttonPanel.sizeDelta.y), animationDuration); // Expand button panel
+            optionsPanelRect.DOSizeDelta(new Vector2((totalWidth * 2) / 4, optionsPanelRect.sizeDelta.y), animationDuration); // Expand options panel
+            optionsPanelRect.DOScaleX(1, animationDuration);
+            DOTween.To(() => layoutGroup.spacing, x => layoutGroup.spacing = x, 100, animationDuration); // Tween spacing to 100
         }
     }
 
