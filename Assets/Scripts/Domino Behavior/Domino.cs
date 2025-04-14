@@ -193,6 +193,7 @@ public class Domino : DominoLike
                 PerformJump(resetDuration, 1f);
                 break;
         }
+        
     }
 
     private void PerformTeleport()
@@ -205,11 +206,13 @@ public class Domino : DominoLike
     private void PerformRotate(float resetDuration)
     {
         StartCoroutine(TogglePhysics(false));
-        rb.transform.DOMove(lastStablePosition, resetDuration);
-        rb.transform.DORotateQuaternion(lastStableRotation, resetDuration).OnComplete(() =>
-        {
-            PerformTeleport();
-        });
+        rb.transform.DOMove(lastStablePosition, resetDuration).SetUpdate(UpdateType.Fixed);
+        rb.transform.DORotateQuaternion(lastStableRotation, resetDuration)
+            .SetUpdate(UpdateType.Fixed)
+            .OnComplete(() =>
+            {
+                PerformTeleport();
+            });
     }
 
     private void PerformJiggle()
@@ -222,7 +225,7 @@ public class Domino : DominoLike
         StartCoroutine(TogglePhysics(false));
 
         // Create a sequence for the jiggle animation
-        DG.Tweening.Sequence jiggleSequence = DOTween.Sequence();
+        DG.Tweening.Sequence jiggleSequence = DOTween.Sequence().SetUpdate(UpdateType.Fixed);
 
         // Add jiggle movement in a direction relative to the domino's current facing
         Vector3 rightDirection = transform.right * noiseIntensity; // Right relative to the domino's facing
@@ -247,7 +250,7 @@ public class Domino : DominoLike
         float peakY = Mathf.Max(transform.position.y, endPosition.y) + jumpHeight;
 
         // Create a sequence for the jump animation
-        DG.Tweening.Sequence jumpSequence = DOTween.Sequence();
+        DG.Tweening.Sequence jumpSequence = DOTween.Sequence().SetUpdate(UpdateType.Fixed);
 
         // Move laterally on x and z axes while rotating to the stable rotation
         jumpSequence.Append(rb.transform.DOMoveX(endPosition.x, duration).SetEase(Ease.InOutSine));
