@@ -1,10 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
-using UnityEngine.UI;
 using System.Collections.Generic;
-using System;
-using System.Collections;
 
 public class PlayerDominoPlacement : MonoBehaviour
 {
@@ -589,6 +586,7 @@ public class PlayerDominoPlacement : MonoBehaviour
 
     private void UpdatePlacementDecal()
     {
+        if (placementDecal == null) CreatePlacementDecal();
         if (heldDomino != null || !placementEnabled || !IsCameraActive())
         {
             placementDecal.enabled = false; // Hide the decal if conditions are not met

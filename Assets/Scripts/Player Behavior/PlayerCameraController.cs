@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class PlayerCameraController : MonoBehaviour
 {
+    #region Fields and Properties
     public static PlayerCameraController Instance { get; private set; }
     public float moveSpeed = 75f;
     public float lookSpeed = 3f;
@@ -16,8 +17,11 @@ public class PlayerCameraController : MonoBehaviour
     public CinemachineBrain brain;
     public bool isCameraEnabled = true; // Flag to enable/disable camera controls
     private bool windowFocused = true; // Flag to check if the window is focused
-    private float cameraFOV = 60f; // Default camera field of view
+    public CinemachineVirtualCamera tutorialCamera;
+    private static float cameraFOV = 60f; // Default camera field of view
+    #endregion
 
+    #region Unity Lifecycle
     void Start()
     {
         if (Instance != null && Instance != this)
@@ -30,22 +34,12 @@ public class PlayerCameraController : MonoBehaviour
         TutorialManager.OnToggleCameraControls.AddListener(ToggleCameraControls); // Subscribe to the event
     }
 
-    private void ToggleCameraControls(bool enable)
-    {
-        isCameraEnabled = enable; // Update the flag based on the event
-    }
-
-    public void setCameraFOV(float fov)
-    {
-        cameraFOV = fov;
-        GetComponent<CinemachineVirtualCamera>().m_Lens.FieldOfView = fov; // Set the camera's field of view
-    }
-
     void OnEnable()
     {
         InitializeRotation();
         brain = FindObjectOfType<CinemachineBrain>();
     }
+
     private void OnApplicationFocus(bool hasFocus)
     {
         windowFocused = hasFocus; // Update the flag based on the application focus state
@@ -92,6 +86,20 @@ public class PlayerCameraController : MonoBehaviour
             // Stabilize rotation when the right mouse button is released
             StabilizeRotation();
         }
+    }
+    #endregion
+
+    #region Camera Control Methods
+    private void ToggleCameraControls(bool enable)
+    {
+        isCameraEnabled = enable; // Update the flag based on the event
+    }
+
+    public void setCameraFOV(float fov)
+    {
+        cameraFOV = fov;
+        GetComponent<CinemachineVirtualCamera>().m_Lens.FieldOfView = fov; // Set the camera's field of view
+
     }
 
     public void InitializeRotation()
@@ -174,7 +182,9 @@ public class PlayerCameraController : MonoBehaviour
         currentRotationX = Mathf.Clamp(currentRotationX, -80f, 80f);
         transform.rotation = Quaternion.Euler(currentRotationX, currentRotationY, 0);
     }
+    #endregion
 
+    #region Collision Handling
     private Vector3 HandleCollisions(Vector3 currentPos, Vector3 targetPos)
     {
         Vector3 movementVector = targetPos - currentPos;
@@ -192,4 +202,5 @@ public class PlayerCameraController : MonoBehaviour
 
         return targetPos;
     }
+    #endregion
 }

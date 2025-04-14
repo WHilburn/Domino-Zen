@@ -59,8 +59,9 @@ public class DominoSoundManager : MonoBehaviour
 
     public enum DominoSoundType
     {
+        Default,
         Click,
-        Piano
+        Piano,
     }
     #endregion
 
