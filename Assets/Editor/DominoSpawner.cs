@@ -241,7 +241,6 @@ public class DominoSpawner : EditorWindow
     {
         GameObject newDomino = (GameObject)PrefabUtility.InstantiatePrefab(dominoPrefab);
         newDomino.transform.position = spawnPos;
-        newDomino.GetComponent<Domino>().musicMode = musicMode;
         newDomino.transform.rotation = rotation;
 
         // Assign a unique name to the domino

@@ -9,7 +9,8 @@ public class Domino : DominoLike
 {
     #region Fields and Enums
     [Header("Domino Settings")]
-    private Rigidbody rb;
+    [HideInInspector] public Rigidbody rb;
+    public DominoSoundManager.DominoSoundType soundType = DominoSoundManager.DominoSoundType.Click; // Default sound type
 
     public enum DominoAnimation
     {
@@ -32,7 +33,6 @@ public class Domino : DominoLike
     }
 
     public DominoState currentState = DominoState.Stationary;
-    public bool musicMode = true;
     [HideInInspector]
     public bool stablePositionSet = false;
     [HideInInspector]

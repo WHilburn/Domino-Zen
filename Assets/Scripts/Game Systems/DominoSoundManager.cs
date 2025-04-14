@@ -4,9 +4,7 @@ using System.Collections.Generic;
 
 public class DominoSoundManager : MonoBehaviour
 {
-    #region Singleton
     public static DominoSoundManager Instance { get; private set; }
-    #endregion
 
     #region Inspector Settings
     [Header("User Settings")]
@@ -14,12 +12,13 @@ public class DominoSoundManager : MonoBehaviour
     public DominoSoundType userSelectedSoundType = DominoSoundType.Default; // User-selected sound type
 
     [Header("Cascade Audio Settings")] //Create a separator in the inspector
+    private HashSet<Rigidbody> movingDominoes = new HashSet<Rigidbody>(); // Set to track moving dominoes
     public AudioSource cascadeSource; // Background cascade sound
     public AudioClip cascadeClip;     // Rolling cascade sound
     public float maxVolume = .7f;  // Max volume when many dominoes are moving
     public float velocityScale = 0.01f; // Scale factor for volume adjustment
     public float volumeLerpSpeed = 2f; // Speed at which volume adjusts
-    public float totalVelocityThreshhold = -100f; // Minimum velocity to play the sound, total must exceed this
+    public float totalVelocityThreshhold = -50f; // Minimum velocity to play the sound, total must exceed this
     public float minimumVelocity = 0.7f; // Minimum velocity for a piece to contibute to the cascase sound
 
     [Header("Individual Domino Sound Settings")]//Create a separator in the inspector
@@ -132,10 +131,18 @@ public class DominoSoundManager : MonoBehaviour
 
         InitializeAudioSourcePool();
         Domino.OnDominoImpact.AddListener(PlayDominoSound);
+        Domino.OnDominoFall.AddListener(RegisterMovingDomino);
+        Domino.OnDominoStopMoving.AddListener(UnregisterMovingDomino);
+        Domino.OnDominoDeleted.AddListener(UnregisterMovingDomino);
     }
 
     void Start()
     {
+        // Randomize the starting song
+        SongTitle[] songKeys = (SongTitle[])System.Enum.GetValues(typeof(SongTitle));
+        currentSong = songKeys[Random.Range(0, songKeys.Length)];
+        Debug.Log("Randomized starting song: " + currentSong);
+
         // Setup cascade audio
         cascadeSource.clip = cascadeClip;
         cascadeSource.loop = true;
@@ -145,12 +152,7 @@ public class DominoSoundManager : MonoBehaviour
 
     void Update()
     {
-        // Compute the target volume based on movement and apply global volume scale
-        targetVolume = Mathf.Clamp(totalMovement * velocityScale, 0f, maxVolume) * globalVolumeScale;
-        // Reset total movement for the next interval
-        totalMovement = totalVelocityThreshhold;
-        // Smoothly interpolate the actual volume toward the target volume
-        cascadeSource.volume = Mathf.Lerp(cascadeSource.volume, targetVolume, Time.deltaTime * volumeLerpSpeed);
+        UpdateCascadeVolume(); // Update the cascade volume based on movement
     }
     #endregion
 
@@ -173,13 +175,38 @@ public class DominoSoundManager : MonoBehaviour
             Debug.LogWarning($"Invalid domino sound choice: {value}");
         }
     }
+
+    public void RegisterMovingDomino(Domino domino)
+    {
+        if (domino.rb != null)
+        {
+            movingDominoes.Add(domino.rb); // Add the domino to the set
+        }
+    }
+
+    public void UnregisterMovingDomino(Domino domino)
+    {
+        if (domino.rb != null)
+        {
+            movingDominoes.Remove(domino.rb); // Remove the domino from the set
+        }
+    }
     
 
-    public void UpdateDominoMovement(float velocityMagnitude)
+    public void UpdateCascadeVolume()
     {
-        if (velocityMagnitude > minimumVelocity)
+        // Compute the target volume based on movement and apply global volume scale
+        targetVolume = Mathf.Clamp(totalMovement * velocityScale, 0f, maxVolume) * globalVolumeScale;
+        // Reset total movement for the next interval
+        totalMovement = totalVelocityThreshhold;
+        // Smoothly interpolate the actual volume toward the target volume
+        cascadeSource.volume = Mathf.Lerp(cascadeSource.volume, targetVolume, Time.deltaTime * volumeLerpSpeed);
+        foreach (Rigidbody dominoRb in movingDominoes)
         {
-            totalMovement += Mathf.Clamp(velocityMagnitude, 0f, 20f);
+            if (dominoRb == null) continue; // Skip if the Rigidbody is null
+            float velocity = dominoRb.velocity.magnitude + dominoRb.angularVelocity.magnitude; // Combine linear and angular velocity
+            totalMovement += Mathf.Clamp(velocity, 0f, 20f);
+            if (totalMovement >= 500f) break; // Break if the total movement exceeds a threshold
         }
     }
 
@@ -219,11 +246,10 @@ public class DominoSoundManager : MonoBehaviour
         if (source == null) return;
         if (dominoPosition != null) source.transform.position = dominoPosition;
 
-        // Determine the sound type to play (use forced type if provided, otherwise use user-selected type)
-        DominoSoundType soundType = userSelectedSoundType;
-        if (domino.musicMode) {
-            soundType = DominoSoundType.Piano; // Use forced sound type if provided
-        }
+        // Determine the sound type to play
+        DominoSoundType soundType = userSelectedSoundType == DominoSoundType.Default 
+            ? domino.soundType 
+            : userSelectedSoundType;
 
         if (soundType == DominoSoundType.Piano)
         {
@@ -233,9 +259,11 @@ public class DominoSoundManager : MonoBehaviour
         else if (soundType == DominoSoundType.Click)
         {
             AudioClip clip = dominoClickSounds.sounds[Random.Range(0, dominoClickSounds.sounds.Length)];
-            float volume = Mathf.Clamp(impactForce / 40f, 0.1f, 0.5f) * globalVolumeScale; // Apply global volume scale
+            // Determine volume of individual clicks, subtract a portion of the cascade volume
+            float volume = (Mathf.Clamp(impactForce / 40f, 0.1f, 0.5f) - Mathf.Clamp(cascadeSource.volume / 10f, 0f, .12f)) * globalVolumeScale; // Apply global volume scale
             source.PlayOneShot(clip, volume);
-            source.pitch = 2; // Set pitch to 2 for domino click sounds
+            // Debug.Log($"Playing click sound: {clip.name} at volume: {volume}");
+            source.pitch = 3; // Set pitch higher for domino clicks
         }
 
         // Return the AudioSource to the pool after the clip finishes playing

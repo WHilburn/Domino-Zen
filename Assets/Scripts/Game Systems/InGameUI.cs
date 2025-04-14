@@ -76,6 +76,15 @@ public class InGameUI : MonoBehaviour
         volumeSlider.onValueChanged.AddListener(UpdateVolume);
         fovSlider.onValueChanged.AddListener(UpdateFOV);
 
+        // Wire up dropdown
+        dominoSoundDropdown.onValueChanged.AddListener((int value) =>
+        {
+            if (DominoSoundManager.Instance != null)
+            {
+                DominoSoundManager.Instance.SetDominoSound(value);
+            }
+        });
+
         // Disable pause menu and options panel at start
         if (pauseMenu != null)
         {
