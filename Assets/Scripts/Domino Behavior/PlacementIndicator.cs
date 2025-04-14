@@ -132,7 +132,7 @@ public class PlacementIndicator : DominoLike
 
     private void PlaceDomino()
     {
-        if ((trackedDomino.stablePositionSet) || //Dont allow domino to be placed if it already has a stable position set
+        if (trackedDomino.stablePositionSet || //Dont allow domino to be placed if it already has a stable position set
         DominoResetManager.Instance != null && 
         DominoResetManager.Instance.currentState != DominoResetManager.ResetState.Idle && // Prevent placement if there are fallen dominoes and we're waiting for a reset or in the middle of resetting
         !DominoResetManager.Instance.checkpointedDominoes.Contains(trackedDomino))// Prevent placing a second time if the domino is checkpointed
@@ -143,9 +143,8 @@ public class PlacementIndicator : DominoLike
         // Set the domino's stable position and rotation
         trackedDomino.SaveStablePosition(transform);
         // Reset the domino's position using the rotate reset animation
-        trackedDomino.AnimateDomino(Domino.DominoAnimation.Rotate);
-
         trackedDominoRb.GetComponent<DominoSkin>().TweenColor(indicatorColor, 1f); // Tween the color of the domino
+        trackedDomino.AnimateDomino(Domino.DominoAnimation.Rotate);
         trackedDomino.currentState = Domino.DominoState.FillingIndicator; // Set the domino's state to Placed
 
         // Fade out the indicator
