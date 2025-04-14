@@ -62,6 +62,9 @@ public class DominoSoundManager : MonoBehaviour
         Default,
         Click,
         Piano,
+        Xylophone,
+        Guitar,
+        Flute,
     }
     #endregion
 
@@ -109,8 +112,12 @@ public class DominoSoundManager : MonoBehaviour
 
     private static readonly Dictionary<int, DominoSoundType> dominoSoundTypes = new()
     {
-        { 0, DominoSoundType.Click },
-        { 1, DominoSoundType.Piano }
+        { 0, DominoSoundType.Default },
+        { 1, DominoSoundType.Click },
+        { 2, DominoSoundType.Piano },
+        { 3, DominoSoundType.Xylophone },
+        { 4, DominoSoundType.Guitar },
+        { 5, DominoSoundType.Flute },
     };
     #endregion
 
