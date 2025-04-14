@@ -11,7 +11,7 @@ public class DominoSoundManager : MonoBehaviour
     #region Inspector Settings
     [Header("User Settings")]
     public static float globalVolumeScale = 1f; // User-defined global volume scale modifier
-    public DominoSoundType userSelectedSoundType = DominoSoundType.Click; // User-selected sound type
+    public DominoSoundType userSelectedSoundType = DominoSoundType.Default; // User-selected sound type
 
     [Header("Cascade Audio Settings")] //Create a separator in the inspector
     public AudioSource cascadeSource; // Background cascade sound
@@ -235,7 +235,7 @@ public class DominoSoundManager : MonoBehaviour
             AudioClip clip = dominoClickSounds.sounds[Random.Range(0, dominoClickSounds.sounds.Length)];
             float volume = Mathf.Clamp(impactForce / 40f, 0.1f, 0.5f) * globalVolumeScale; // Apply global volume scale
             source.PlayOneShot(clip, volume);
-            source.pitch = 3; // Set pitch to 2 for domino click sounds
+            source.pitch = 2; // Set pitch to 2 for domino click sounds
         }
 
         // Return the AudioSource to the pool after the clip finishes playing
