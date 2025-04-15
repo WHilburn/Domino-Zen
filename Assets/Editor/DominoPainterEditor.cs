@@ -4,18 +4,23 @@ using System.Collections.Generic;
 
 public class DominoPainter : EditorWindow
 {
+    #region Fields
     private DominoMaterialList selectedMaterialList;
     private Color selectedColor = Color.white; // Default color is white
     private GameObject indicatorPrefab; // Reference to the placement indicator prefab
     private GameObject dominoPrefab; // Reference to the placement indicator prefab
     private bool rainbowMode = false; // Toggle for Rainbow Mode
+    #endregion
 
+    #region Editor Window
     [MenuItem("Tools/Domino Painter")]
     public static void ShowWindow()
     {
         GetWindow<DominoPainter>("Domino Painter");
     }
+    #endregion
 
+    #region GUI
     void OnGUI()
     {
         GUILayout.Label("Domino Painter", EditorStyles.boldLabel);
@@ -48,7 +53,9 @@ public class DominoPainter : EditorWindow
             ReplaceIndicatorsWithDominoes();
         }
     }
+    #endregion
 
+    #region Apply Material
     private void ApplyMaterialToSelected()
     {
         // Get all selected objects in the Scene
@@ -123,7 +130,9 @@ public class DominoPainter : EditorWindow
             EditorUtility.SetDirty(placementSkin); // Mark the object as changed for saving
         }
     }
+    #endregion
 
+    #region Dominoes > Indicator
     private void ReplaceDominoesWithIndicators()
     {
         // Check if the indicator prefab is assigned
@@ -183,7 +192,9 @@ public class DominoPainter : EditorWindow
 
         Debug.Log($"Replaced {dominoSkinsToReplace.Count} dominoes with placement indicators.");
     }
+    #endregion
 
+    #region Indicator > Dominoes
     private void ReplaceIndicatorsWithDominoes()
     {
         // Check if the domino prefab is assigned
@@ -239,4 +250,5 @@ public class DominoPainter : EditorWindow
 
         Debug.Log($"Replaced {indicatorsToReplace.Count} placement indicators with dominoes.");
     }
+    #endregion
 }

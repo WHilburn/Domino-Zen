@@ -6,6 +6,7 @@ using UnityEngine.Events;
 
 public class CameraController : MonoBehaviour
 {
+    #region Fields and Properties
     public static CameraController Instance { get; private set; }
     public CinemachineVirtualCamera freeLookCamera; // Player-controlled camera
     public CinemachineVirtualCamera trackingCamera; // Auto-framing camera
@@ -17,7 +18,9 @@ public class CameraController : MonoBehaviour
     private Dictionary<Transform, float> dominoTimers = new(); // Tracks time remaining for each domino in the target group
     private const float dominoLifetime = .25f; // Time before domino is removed from the target group
     private HashSet<Transform> trackedDominoes = new(); // Tracks dominoes already added to the target group
+    #endregion
 
+    #region Unity Lifecycle
     void Start()
     {
         if (Instance != null && Instance != this)
@@ -49,21 +52,6 @@ public class CameraController : MonoBehaviour
         Domino.OnDominoDeleted.RemoveListener(HandleDominoDeleted);
     }
 
-    private void HandleDominoFall(Domino domino)
-    {
-        if (!dominoTimers.ContainsKey(domino.transform) && !trackedDominoes.Contains(domino.transform))
-        {
-            dominoTimers[domino.transform] = dominoLifetime;
-            targetGroup.AddMember(domino.transform, 1f, 0.1f); // Add domino to the target group
-            trackedDominoes.Add(domino.transform); // Mark domino as tracked
-        }
-    }
-
-    private void HandleDominoDeleted(Domino domino)
-    {
-        RemoveDominoFromTargetGroup(domino.transform);
-    }
-
     void Update()
     {
         UpdateDominoTimers();
@@ -84,7 +72,47 @@ public class CameraController : MonoBehaviour
             EnableFreeLook();
         }
     }
+    #endregion
 
+    #region Event Handlers
+    private void HandleDominoFall(Domino domino)
+    {
+        if (!dominoTimers.ContainsKey(domino.transform) && !trackedDominoes.Contains(domino.transform))
+        {
+            dominoTimers[domino.transform] = dominoLifetime;
+            targetGroup.AddMember(domino.transform, 1f, 0.1f); // Add domino to the target group
+            trackedDominoes.Add(domino.transform); // Mark domino as tracked
+        }
+    }
+
+    private void HandleDominoDeleted(Domino domino)
+    {
+        RemoveDominoFromTargetGroup(domino.transform);
+    }
+    #endregion
+
+    #region Camera Management
+    private void EnableFreeLook()
+    {
+        isTracking = false;
+        freeLookCamera.Priority = 20;
+        trackingCamera.Priority = 10;
+        freeLookCamera.GetComponent<PlayerCameraController>().InitializeRotation();
+        OnFreeLookCameraEnabled.Invoke();
+        trackedDominoes.Clear(); // Allow dominoes to be tracked again
+    }
+
+    private void EnableTrackingCamera()
+    {
+        isTracking = true;
+        freeLookCamera.Priority = 10;
+        trackingCamera.Priority = 20;
+        GetComponent<PlayerDominoPlacement>().ReleaseDomino();
+        OnFreeLookCameraDisabled.Invoke();
+    }
+    #endregion
+
+    #region Domino Management
     private void UpdateDominoTimers()
     {
         foreach (var domino in new List<Transform>(dominoTimers.Keys))
@@ -116,26 +144,9 @@ public class CameraController : MonoBehaviour
             targetGroup.RemoveMember(domino); // Remove domino from the target group
         }
     }
+    #endregion
 
-    private void EnableFreeLook()
-    {
-        isTracking = false;
-        freeLookCamera.Priority = 20;
-        trackingCamera.Priority = 10;
-        freeLookCamera.GetComponent<PlayerCameraController>().InitializeRotation();
-        OnFreeLookCameraEnabled.Invoke();
-        trackedDominoes.Clear(); // Allow dominoes to be tracked again
-    }
-
-    private void EnableTrackingCamera()
-    {
-        isTracking = true;
-        freeLookCamera.Priority = 10;
-        trackingCamera.Priority = 20;
-        GetComponent<PlayerDominoPlacement>().ReleaseDomino();
-        OnFreeLookCameraDisabled.Invoke();
-    }
-
+    #region Debugging
     private void DrawDebugLines()
     {
         foreach (var domino in dominoTimers.Keys)
@@ -146,4 +157,5 @@ public class CameraController : MonoBehaviour
             }
         }
     }
+    #endregion
 }

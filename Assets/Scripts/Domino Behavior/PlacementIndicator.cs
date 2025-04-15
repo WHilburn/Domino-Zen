@@ -6,6 +6,7 @@ using UnityEngine.Events;
 [ExecuteInEditMode]
 public class PlacementIndicator : DominoLike
 {
+    #region Fields and Properties
     private Renderer indicatorRenderer;
     public BoxCollider placementCollider; //Collider for placement detection
     public BoxCollider snapCollider; // Collider for snapping to the ground
@@ -24,7 +25,9 @@ public class PlacementIndicator : DominoLike
     public IndicatorState currentState = IndicatorState.Empty; // Current state
     public static UnityEvent<PlacementIndicator> OnIndicatorFilled = new();
     public static UnityEvent<PlacementIndicator> OnIndicatorEmptied = new();
+    #endregion
 
+    #region Unity Methods
     void Start()
     {
         indicatorRenderer = GetComponent<Renderer>();
@@ -32,6 +35,33 @@ public class PlacementIndicator : DominoLike
         CheckAndResolveOverlap(); // Check for overlaps with other indicators
         SnapToGround();
         if (soundManager == null) soundManager = FindObjectOfType<DominoSoundManager>(); // Get references
+    }
+
+    void Update()
+    {
+        switch (currentState)
+        {
+            case IndicatorState.Empty:
+                // Wait for a collision with a domino
+                break;
+
+            case IndicatorState.TryingToFill:
+                if (trackedDomino != null)
+                {
+                    Debug.DrawLine(transform.position, trackedDomino.transform.position, Color.yellow);
+                    CheckDominoPlacement();
+                }
+                break;
+
+            case IndicatorState.Filled:
+                if (trackedDomino.currentState == Domino.DominoState.Held)
+                {
+                    currentState = IndicatorState.Empty; // Transition to Empty state
+                    OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty
+                    FadeIn(); // Fade back in if the domino is removed
+                }
+                break;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -72,34 +102,9 @@ public class PlacementIndicator : DominoLike
             FadeIn(); // Fade back in if the domino is removed
         }
     }
+    #endregion
 
-    void Update()
-    {
-        switch (currentState)
-        {
-            case IndicatorState.Empty:
-                // Wait for a collision with a domino
-                break;
-
-            case IndicatorState.TryingToFill:
-                if (trackedDomino != null)
-                {
-                    Debug.DrawLine(transform.position, trackedDomino.transform.position, Color.yellow);
-                    CheckDominoPlacement();
-                }
-                break;
-
-            case IndicatorState.Filled:
-                if (trackedDomino.currentState == Domino.DominoState.Held)
-                {
-                    currentState = IndicatorState.Empty; // Transition to Empty state
-                    OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty
-                    FadeIn(); // Fade back in if the domino is removed
-                }
-                break;
-        }
-    }
-
+    #region Placement Logic
     private void CheckDominoPlacement()
     {
         if (trackedDominoRb == null ||
@@ -154,7 +159,9 @@ public class PlacementIndicator : DominoLike
         GameManager.Instance.CheckCompletion(); // Check if all indicators are filled
         Domino.OnDominoPlacedCorrectly.Invoke(trackedDomino);
     }
+    #endregion
 
+    #region Visual Effects
     private void FadeOut()
     {
         soundManager.PlayPlacementSound(1);
@@ -175,6 +182,7 @@ public class PlacementIndicator : DominoLike
         // Use DOTween to fade in the material's alpha
         indicatorRenderer.material.DOFade(maxAlpha, fadeSpeed);
     }
+
     public void ApplyColor(Color inputColor)
     {
         indicatorColor = inputColor;
@@ -184,4 +192,5 @@ public class PlacementIndicator : DominoLike
         newMaterial.color = inputColor; // Assign instance to avoid modifying sharedMaterial
         renderer.material = newMaterial; // Assign the new material to the renderer
     }
+    #endregion
 }

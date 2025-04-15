@@ -3,8 +3,11 @@ using System.Collections.Generic;
 
 public class DominoResetManager : MonoBehaviour
 {
+    #region Singleton
     public static DominoResetManager Instance { get; private set; }
+    #endregion
 
+    #region Fields
     public HashSet<Domino> allDominoes = new(); // All dominoes in the scene
     public HashSet<Domino> fallenDominoes = new();
     public HashSet<Domino> checkpointedDominoes = new(); // Dominoes locked at checkpoints
@@ -15,7 +18,9 @@ public class DominoResetManager : MonoBehaviour
     public int checkpointThreshold = 5; // Number of dominoes required for a checkpoint
     public enum ResetState {Idle, ResetUpcoming, Resetting};
     public ResetState currentState = ResetState.Idle; // Current state of the reset manager
+    #endregion
 
+    #region Unity Lifecycle
     private void Awake()
     {
         Domino.OnDominoCreated.AddListener(domino => allDominoes.Add(domino)); // Add domino to allDominoes set
@@ -36,6 +41,16 @@ public class DominoResetManager : MonoBehaviour
         // allDominoes = new HashSet<Domino>(FindObjectsOfType<Domino>());
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            ResetAllDominoes();
+        }
+    }
+    #endregion
+
+    #region Difficulty Management
     public void UpdateDifficulty() // Set the game difficulty
     {
         var difficulty = GameManager.Instance.gameDifficulty;
@@ -60,7 +75,9 @@ public class DominoResetManager : MonoBehaviour
             }
         }
     }
+    #endregion
 
+    #region Domino Registration
     private void RegisterDominoPlacement(Domino domino) // Registers that a domino was placed in an indicator
     {
         if (GameManager.Instance.gameDifficulty == GameManager.GameDifficulty.Hard) return; // Skip on hard mode
@@ -104,7 +121,9 @@ public class DominoResetManager : MonoBehaviour
             allDominoes.Remove(domino);
         }
     }
+    #endregion
 
+    #region Checkpoint Management
     private void CheckpointDomino(Domino domino)
     {
         domino.locked = true;
@@ -125,7 +144,9 @@ public class DominoResetManager : MonoBehaviour
         }
         waitingForCheckpoint.Clear(); // Clear the waitingForCheckpoint set
     }
+    #endregion
 
+    #region Reset Management
     private void ResetAllDominoes()
     {
         // if (fallenDominoes.Count == 0) return; // No dominoes to reset
@@ -171,12 +192,5 @@ public class DominoResetManager : MonoBehaviour
     {
         currentState = ResetState.Idle; // Set the state to Idle
     }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            ResetAllDominoes();
-        }
-    }
+    #endregion
 }
