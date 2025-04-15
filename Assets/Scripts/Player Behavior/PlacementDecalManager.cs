@@ -101,8 +101,8 @@ public class PlacementDecalManager
         if (heldDomino != null || !placementEnabled || !IsCameraActive())
         {
             placementDecal.enabled = false;
-            dashedBorderObject.SetActive(false); // Hide border
-            return;
+            //dashedBorderObject.SetActive(false); // Hide border
+            // return;
         }
 
         Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
@@ -115,19 +115,19 @@ public class PlacementDecalManager
             if (Vector3.Distance(activeCamera.transform.position, mousePosition) > maxDistance)
             {
                 placementDecal.enabled = false;
-                dashedBorderObject.SetActive(false); // Hide border
-                return;
+                //dashedBorderObject.SetActive(false); // Hide border
+                // return;
             }
 
             placementDecal.transform.position = mousePosition;
             placementDecal.transform.rotation = rotation; // Apply the updated rotation
-            placementDecal.enabled = true;
+            placementDecal.enabled = heldDomino == null; // Enable if no domino is held
             dashedBorderObject.SetActive(true); // Show border
         }
         else
         {
             placementDecal.enabled = false;
-            dashedBorderObject.SetActive(false); // Hide border
+            //dashedBorderObject.SetActive(false); // Hide border
         }
     }
 
