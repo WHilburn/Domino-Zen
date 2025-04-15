@@ -21,7 +21,7 @@ public class PlacementIndicator : DominoLike
     static readonly float alignmentAngleThreshold = 10f; // Angle threshold for alignment
     public Color indicatorColor = Color.white; // Color of the indicator
 
-    public enum IndicatorState { Empty, TryingToFill, Filled } // Define states
+    public enum IndicatorState { Empty, TryingToFill, Filled, Disabled } // Define states
     public IndicatorState currentState = IndicatorState.Empty; // Current state
     public static UnityEvent<PlacementIndicator> OnIndicatorFilled = new();
     public static UnityEvent<PlacementIndicator> OnIndicatorEmptied = new();
@@ -43,6 +43,9 @@ public class PlacementIndicator : DominoLike
         {
             case IndicatorState.Empty:
                 // Wait for a collision with a domino
+                break;
+            case IndicatorState.Disabled:
+                // Nothing can happen until enabled
                 break;
 
             case IndicatorState.TryingToFill:
@@ -66,7 +69,7 @@ public class PlacementIndicator : DominoLike
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("DominoTag") && trackedDomino == null && currentState != IndicatorState.Filled)
+        if (other.CompareTag("DominoTag") && trackedDomino == null && currentState != IndicatorState.Filled && currentState != IndicatorState.Disabled)
         {
             trackedDomino = other.gameObject.GetComponent<Domino>();
             if (trackedDomino.placementIndicator != null && trackedDomino.placementIndicator != this) //If the domino is also paired to another indicator, ignore it
@@ -81,7 +84,7 @@ public class PlacementIndicator : DominoLike
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("DominoTag") && trackedDomino == null && currentState != IndicatorState.Filled)
+        if (other.CompareTag("DominoTag") && trackedDomino == null && currentState != IndicatorState.Filled && currentState != IndicatorState.Disabled)
         {
             trackedDomino = other.gameObject.GetComponent<Domino>();
             trackedDominoRb = other.gameObject.GetComponent<Rigidbody>();
@@ -91,7 +94,7 @@ public class PlacementIndicator : DominoLike
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject == trackedDomino?.gameObject)
+        if (other.gameObject == trackedDomino?.gameObject && currentState != IndicatorState.Disabled)
         {
             if (currentState == IndicatorState.Filled) OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty;
             trackedDomino.placementIndicator = null; // Clear the domino's reference to this indicator 

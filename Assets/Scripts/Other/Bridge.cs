@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening; // Add this import for DOTween
 
 public class Bridge : MonoBehaviour
 {
@@ -69,36 +70,47 @@ public class Bridge : MonoBehaviour
 
     private void MakeBridgeTransparent()
     {
-        bridgeRenderer.material.color = new Color(bridgeRenderer.material.color.r, bridgeRenderer.material.color.g, bridgeRenderer.material.color.b, 0.5f);
+        SetMaterialToTransparent(); // Set the material to transparent mode
+        bridgeRenderer.material.DOFade(0.5f, 0.5f); // Smoothly fade to 50% alpha over 0.5 seconds
         meshCollider.enabled = false;
 
         foreach (var childIndicator in topOfBridgeIndicators)
         {
-            // childIndicator.gameObject.SetActive(false);
             childIndicator.FadeOut(false);
+            childIndicator.currentState = PlacementIndicator.IndicatorState.Disabled;
         }
     }
 
     private void MaterializeBridge()
     {
-        bridgeRenderer.material.color = new Color(bridgeRenderer.material.color.r, bridgeRenderer.material.color.g, bridgeRenderer.material.color.b, 1f);
+        SetMaterialToOpaque(); // Set the material to opaque mode
+        bridgeRenderer.material.DOFade(1f, 0.5f); // Smoothly fade to 100% alpha over 0.5 seconds
         meshCollider.enabled = true;
 
         foreach (var childIndicator in topOfBridgeIndicators)
         {
-            childIndicator.gameObject.SetActive(true);
             childIndicator.FadeIn(false);
+            childIndicator.currentState = PlacementIndicator.IndicatorState.Empty;
         }
     }
 
-    private void ResetBridge()
+    private void SetMaterialToTransparent()
     {
-        bridgeRenderer.material.color = new Color(bridgeRenderer.material.color.r, bridgeRenderer.material.color.g, bridgeRenderer.material.color.b, 1f);
-        meshCollider.enabled = true;
+        bridgeRenderer.material.SetFloat("_Mode", 3); // Set rendering mode to Transparent
+        bridgeRenderer.material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        bridgeRenderer.material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        bridgeRenderer.material.SetInt("_ZWrite", 0);
+        bridgeRenderer.material.EnableKeyword("_ALPHABLEND_ON");
+        bridgeRenderer.material.renderQueue = 3000;
+    }
 
-        foreach (var childIndicator in topOfBridgeIndicators)
-        {
-            childIndicator.gameObject.SetActive(true);
-        }
+    private void SetMaterialToOpaque()
+    {
+        bridgeRenderer.material.SetFloat("_Mode", 0); // Set rendering mode to Opaque
+        bridgeRenderer.material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+        bridgeRenderer.material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+        bridgeRenderer.material.SetInt("_ZWrite", 1);
+        bridgeRenderer.material.DisableKeyword("_ALPHABLEND_ON");
+        bridgeRenderer.material.renderQueue = -1;
     }
 }
