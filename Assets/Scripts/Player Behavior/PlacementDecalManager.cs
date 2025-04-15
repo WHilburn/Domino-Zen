@@ -37,9 +37,9 @@ public class PlacementDecalManager
         placementDecal.pivot = decalPivot;
 
         // Create dashed border using 4 thin quads
-        float borderThickness = 0.01f; // Thickness of the border
+        float borderThickness = 0.0075f; // Thickness of the border
         Vector3 borderScaleX = new Vector3(decalSize.x, borderThickness, 1f);
-        Vector3 borderScaleZ = new Vector3(decalSize.z, borderThickness, 1f);
+        Vector3 borderScaleZ = new Vector3(decalSize.z + (borderThickness * 2f), borderThickness, 1f);
 
         // Top border
         GameObject topBorder = GameObject.CreatePrimitive(PrimitiveType.Quad);
@@ -66,6 +66,7 @@ public class PlacementDecalManager
         leftBorder.name = "LeftBorder";
         MeshRenderer leftBorderRenderer = leftBorder.GetComponent<MeshRenderer>();
         leftBorderRenderer.material = dashedOutlineMaterial;
+        leftBorderRenderer.material.SetFloat("_DashSize", dashedOutlineMaterial.GetFloat("_DashSize") * 3); // Triple dash size
         leftBorder.transform.SetParent(decalObject.transform);
         leftBorder.transform.localPosition = new Vector3(-(decalSize.x / 2 + borderThickness / 2), 0, 0);
         leftBorder.transform.localScale = borderScaleZ;
@@ -76,6 +77,7 @@ public class PlacementDecalManager
         rightBorder.name = "RightBorder";
         MeshRenderer rightBorderRenderer = rightBorder.GetComponent<MeshRenderer>();
         rightBorderRenderer.material = dashedOutlineMaterial;
+        rightBorderRenderer.material.SetFloat("_DashSize", dashedOutlineMaterial.GetFloat("_DashSize") * 3); // Triple dash size
         rightBorder.transform.SetParent(decalObject.transform);
         rightBorder.transform.localPosition = new Vector3(decalSize.x / 2 + borderThickness / 2, 0, 0);
         rightBorder.transform.localScale = borderScaleZ;
