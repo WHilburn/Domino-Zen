@@ -16,7 +16,6 @@ public class PlayerDominoPlacement : MonoBehaviour
     private GameObject hand3DInstance; // Instance of the 3D hand
     private DominoSoundManager soundManager; // Reference to the SoundManager
     private Vector3 anchor;
-    private DecalProjector decalProjector;
     private float savedDrag;
     private float savedAngularDrag;
     public float followSpeed = 1f;
@@ -36,12 +35,12 @@ public class PlayerDominoPlacement : MonoBehaviour
     public static bool placementLimited = false; // Flag to limit placement to a specific area
     public Material glowOutlineMaterial; // Reference to the glow outline material
     private Domino hoveredDomino; // Currently hovered domino
-    private DecalProjector placementDecal; // Decal for the hollow rectangle
     public Material placementDecalMaterial; // Material for the hollow rectangle decal
     public Material placementDecalMaterialRed;
     public Vector3 decalSize = new Vector3(1f, 1f, 1f); // Size of the decal
     public Vector3 decalPivot = new Vector3(0f, 0f, -1f); // Pivot point of the decal
     private Domino obstruction;
+    private PlacementDecalManager placementDecalManager;
     #endregion
     #region Unity Methods
     void Start()
@@ -51,20 +50,28 @@ public class PlayerDominoPlacement : MonoBehaviour
             Destroy(Instance.gameObject); // Destroy the previous instance if it exists
         }
         Instance = this;
-        // activeCamera = FindFirstObjectByType<Camera>();
         soundManager = FindObjectOfType<DominoSoundManager>(); // Get reference to the SoundManager
         TutorialManager.OnTogglePlacementControls.AddListener(TogglePlacementControls); // Subscribe to the event
-        CreatePlacementDecal(); // Initialize the placement decal
+
+        placementDecalManager = new PlacementDecalManager(
+            placementDecalMaterial,
+            placementDecalMaterialRed,
+            decalSize,
+            decalPivot,
+            maxDistance,
+            activeCamera,
+            savedRotation
+        );
     }
 
     void Update()
     {
-        if (InGameUI.paused|| 
-        DominoResetManager.Instance != null && 
-        DominoResetManager.Instance.currentState != DominoResetManager.ResetState.Idle)
+        if (InGameUI.paused || 
+            DominoResetManager.Instance != null && 
+            DominoResetManager.Instance.currentState != DominoResetManager.ResetState.Idle)
         {
             DestroyHand(); // Destroy the hand if the game is paused or in a reset state
-            placementDecal.enabled = false;
+            placementDecalManager.UpdatePlacementDecal(false, heldDomino, savedRotation);
             return;
         }
 
@@ -80,7 +87,7 @@ public class PlayerDominoPlacement : MonoBehaviour
             heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Held; // Ensure the state is held
         }
 
-        obstruction = CheckForObstruction(); // Check for obstructions
+        obstruction = placementDecalManager.CheckForObstruction(heldDomino, savedRotation, hoverOffset); // Check for obstructions
 
         if (Input.GetKeyDown(KeyCode.Space) && placementEnabled)
         {
@@ -106,7 +113,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         }
 
         HandleMouseHover();
-        UpdatePlacementDecal(); // Update the placement decal position and visibility
+        placementDecalManager.UpdatePlacementDecal(placementEnabled, heldDomino, savedRotation); // Update the placement decal position and visibility
         HandleRotation(); // Handle rotation even when no domino is held
     }
     #endregion
@@ -118,25 +125,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         if (!placementEnabled) DestroyHand(); // Destroy the hand when controls are disabled
     }
 
-    private Domino CheckForObstruction()
-    {
-        if (heldDomino != null) return null; // No obstruction check if domino is held
-
-        Vector3 checkPosition = GetMouseWorldPosition();
-        Collider[] colliders = Physics.OverlapBox(checkPosition, new Vector3(0.255f, 0.5f, 0.065f), savedRotation);
-        foreach (Collider collider in colliders)
-        {
-            Domino existingDomino = collider.GetComponent<Domino>();
-            if (existingDomino != null && existingDomino != heldDomino)
-            {
-                placementDecal.material = placementDecalMaterialRed;
-                return existingDomino; // Obstruction detected
-            }
-        }
-        if (placementDecal != null) placementDecal.material = placementDecalMaterial;
-        return null; // No obstruction detected
-    }
-        Vector3 GetMouseWorldPosition()
+    Vector3 GetMouseWorldPosition()
     {
         Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
         int environmentLayerMask = LayerMask.GetMask("EnvironmentLayer");
@@ -173,8 +162,8 @@ public class PlayerDominoPlacement : MonoBehaviour
     }
 
     #endregion
-    #region Spawn Domino
 
+    #region Spawn Domino
     void SpawnDomino()
     {
         if (!IsCameraActive() || (placementLimited && !IsMousePointingAtTutorialBook())) return;
@@ -214,8 +203,7 @@ public class PlayerDominoPlacement : MonoBehaviour
 
         heldDomino.layer = LayerMask.NameToLayer("Ignore Raycast");
         heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Held;
-        decalProjector = heldDomino.GetComponent<DecalProjector>();
-        if (decalProjector) decalProjector.enabled = true;
+        heldDomino.GetComponent<DecalProjector>().enabled = true;
 
         heldRb = heldDomino.GetComponent<Rigidbody>();
         savedDrag = heldRb.drag;
@@ -281,12 +269,12 @@ public class PlayerDominoPlacement : MonoBehaviour
     {
         heldDomino.layer = LayerMask.NameToLayer("Default");
         heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Moving;
+        heldDomino.GetComponent<DecalProjector>().enabled = false;
 
         SpringJoint spring = heldDomino.GetComponent<SpringJoint>();
         if (spring != null) Destroy(spring);
 
         heldRb.useGravity = true;
-        if (decalProjector) decalProjector.enabled = false;
         heldRb.velocity = Vector3.zero;
         heldRb.angularVelocity = Vector3.zero;
         heldRb.drag = savedDrag;
@@ -611,54 +599,6 @@ public class PlayerDominoPlacement : MonoBehaviour
         }
 
         hoveredDomino = null; // Clear the reference to the hovered domino
-    }
-    #endregion
-    #region Placement Decal
-
-    private void CreatePlacementDecal()
-    {
-        GameObject decalObject = new GameObject("PlacementDecal");
-        placementDecal = decalObject.AddComponent<DecalProjector>();
-        placementDecal.material = placementDecalMaterial;
-        placementDecal.size = decalSize;
-        placementDecal.enabled = false; // Initially hidden
-        placementDecal.pivot = decalPivot;
-
-        // Set the initial color to blue
-        placementDecal.material.SetColor("_BaseColor", Color.blue);
-    }
-
-    private void UpdatePlacementDecal()
-    {
-        if (placementDecal == null) CreatePlacementDecal();
-        if (heldDomino != null || !placementEnabled || !IsCameraActive())
-        {
-            placementDecal.enabled = false; // Hide the decal if conditions are not met
-            return;
-        }
-
-        Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
-        int environmentLayerMask = LayerMask.GetMask("EnvironmentLayer");
-
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, environmentLayerMask))
-        {
-            Vector3 mousePosition = hit.point;
-
-            // Check if the mouse position is within the valid range
-            if (Vector3.Distance(activeCamera.transform.position, mousePosition) > maxDistance)
-            {
-                placementDecal.enabled = false; // Hide the decal if out of range
-                return;
-            }
-
-            placementDecal.transform.position = mousePosition;
-            placementDecal.transform.rotation = savedRotation; // Align with savedRotation
-            placementDecal.enabled = true; // Show the decal
-        }
-        else
-        {
-            placementDecal.enabled = false; // Hide the decal if no valid surface is hit
-        }
     }
     #endregion
 }
