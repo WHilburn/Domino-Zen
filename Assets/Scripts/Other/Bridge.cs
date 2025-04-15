@@ -71,7 +71,7 @@ public class Bridge : MonoBehaviour
     private void MakeBridgeTransparent()
     {
         SetMaterialToTransparent(); // Set the material to transparent mode
-        bridgeRenderer.material.DOFade(0.5f, 0.5f); // Smoothly fade to 50% alpha over 0.5 seconds
+        bridgeRenderer.material.DOFade(0.25f, 0.5f); // Smoothly fade to 50% alpha over 0.5 seconds
         meshCollider.enabled = false;
 
         foreach (var childIndicator in topOfBridgeIndicators)
@@ -83,8 +83,7 @@ public class Bridge : MonoBehaviour
 
     private void MaterializeBridge()
     {
-        SetMaterialToOpaque(); // Set the material to opaque mode
-        bridgeRenderer.material.DOFade(1f, 0.5f); // Smoothly fade to 100% alpha over 0.5 seconds
+        bridgeRenderer.material.DOFade(1f, 0.25f).OnComplete(() => SetMaterialToOpaque()); // Smoothly fade to 100% alpha over 0.5 seconds, then set material to opaque
         meshCollider.enabled = true;
 
         foreach (var childIndicator in topOfBridgeIndicators)

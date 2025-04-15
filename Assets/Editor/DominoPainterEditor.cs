@@ -10,6 +10,9 @@ public class DominoPainter : EditorWindow
     private GameObject indicatorPrefab; // Reference to the placement indicator prefab
     private GameObject dominoPrefab; // Reference to the placement indicator prefab
     private bool rainbowMode = false; // Toggle for Rainbow Mode
+    private bool gradientMode = false; // Toggle for Gradient Mode
+    private Color startColor = Color.white; // Start color for gradient
+    private Color endColor = Color.blue; // End color for gradient
     #endregion
 
     #region Editor Window
@@ -27,13 +30,26 @@ public class DominoPainter : EditorWindow
 
         // Select a material list
         selectedMaterialList = (DominoMaterialList)EditorGUILayout.ObjectField("Material List", selectedMaterialList, typeof(DominoMaterialList), false);
-        selectedColor = EditorGUILayout.ColorField("Start Color", selectedColor);
 
         // Select the prefab objects
         dominoPrefab = (GameObject)EditorGUILayout.ObjectField("Domino Prefab", dominoPrefab, typeof(GameObject), false);
         indicatorPrefab = (GameObject)EditorGUILayout.ObjectField("Indicator Prefab", indicatorPrefab, typeof(GameObject), false);
 
         rainbowMode = EditorGUILayout.Toggle("Rainbow Mode", rainbowMode);
+        if (rainbowMode) gradientMode = false; // Disable gradient mode if rainbow mode is active
+
+        gradientMode = EditorGUILayout.Toggle("Gradient Mode", gradientMode);
+        if (gradientMode) rainbowMode = false; // Disable rainbow mode if gradient mode is active
+
+        if (gradientMode)
+        {
+            startColor = EditorGUILayout.ColorField("Start Color", startColor);
+            endColor = EditorGUILayout.ColorField("End Color", endColor);
+        }
+        else
+        {
+            selectedColor = EditorGUILayout.ColorField("Color", selectedColor);
+        }
 
         // Button to apply material to selected dominoes
         if (GUILayout.Button("Apply to Selected"))
@@ -99,6 +115,11 @@ public class DominoPainter : EditorWindow
                 float hue = (i / (float)dominoSkinsToApply.Count); // Calculate hue based on index
                 dominoSkin.colorOverride = Color.HSVToRGB(hue, 1f, 1f); // Apply rainbow color
             }
+            else if (gradientMode)
+            {
+                float t = i / (float)(dominoSkinsToApply.Count - 1); // Calculate gradient factor
+                dominoSkin.colorOverride = Color.Lerp(startColor, endColor, t); // Apply gradient color
+            }
             else
             {
                 dominoSkin.colorOverride = selectedColor; // Apply the selected color override
@@ -115,7 +136,16 @@ public class DominoPainter : EditorWindow
             if (rainbowMode)
             {
                 float hue = (i / (float)placementSkinsToApply.Count); // Calculate hue based on index
-                placementSkin.ApplyColor(Color.HSVToRGB(hue, 1f, 1f)); // Apply rainbow color
+                Color rainbowColor = Color.HSVToRGB(hue, 1f, 1f);
+                rainbowColor.a = 0.5f; // Set alpha to 0.5
+                placementSkin.ApplyColor(rainbowColor); // Apply rainbow color
+            }
+            else if (gradientMode)
+            {
+                float t = i / (float)(placementSkinsToApply.Count - 1); // Calculate gradient factor
+                Color gradientColor = Color.Lerp(startColor, endColor, t);
+                gradientColor.a = 0.5f; // Set alpha to 0.5
+                placementSkin.ApplyColor(gradientColor); // Apply gradient color
             }
             else
             {
@@ -124,6 +154,7 @@ public class DominoPainter : EditorWindow
                 {
                     placementColor = Color.black;
                 }
+                placementColor.a = 0.5f; // Set alpha to 0.5
                 placementSkin.ApplyColor(placementColor); // Apply the selected color override
             }
 

@@ -16,7 +16,7 @@ public class PlacementIndicator : DominoLike
     [Header("Indicator Settings")]
     static DominoSoundManager soundManager;
     static readonly float fadeSpeed = 2f;
-    static readonly float maxAlpha = 1f;
+    static readonly float maxAlpha = .5f;
     static readonly float placementThreshold = 0.2f; // Distance threshold for placement
     static readonly float alignmentAngleThreshold = 10f; // Angle threshold for alignment
     public Color indicatorColor = Color.white; // Color of the indicator
@@ -157,7 +157,7 @@ public class PlacementIndicator : DominoLike
 
         // Fade out the indicator
         FadeOut();
-        Debug.Log("Indicator filled: " + trackedDomino.name);
+        // Debug.Log("Indicator filled: " + trackedDomino.name);
         currentState = IndicatorState.Filled; // Transition to Placed state
         OnIndicatorFilled.Invoke(this); // Notify that the indicator is filled
         trackedDomino.placementIndicator = this;
