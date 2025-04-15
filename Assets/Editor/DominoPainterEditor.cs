@@ -68,6 +68,12 @@ public class DominoPainter : EditorWindow
         {
             ReplaceIndicatorsWithDominoes();
         }
+
+        // Button to refresh all dominoes or indicators
+        if (GUILayout.Button("Refresh All"))
+        {
+            RefreshAllObjects();
+        }
     }
     #endregion
 
@@ -280,6 +286,32 @@ public class DominoPainter : EditorWindow
         }
 
         Debug.Log($"Replaced {indicatorsToReplace.Count} placement indicators with dominoes.");
+    }
+    #endregion
+
+    #region Refresh All
+    private void RefreshAllObjects()
+    {
+        // Refresh all dominoes
+        DominoSkin[] allDominoes = GameObject.FindObjectsOfType<DominoSkin>();
+        foreach (DominoSkin domino in allDominoes)
+        {
+            if (domino.materialList != null)
+            {
+                domino.ApplyRandomMaterial(); // Reload material instance
+                EditorUtility.SetDirty(domino); // Mark as changed
+            }
+        }
+
+        // Refresh all placement indicators
+        PlacementIndicator[] allIndicators = GameObject.FindObjectsOfType<PlacementIndicator>();
+        foreach (PlacementIndicator indicator in allIndicators)
+        {
+            indicator.ApplyColor(indicator.indicatorColor); // Reapply existing color
+            EditorUtility.SetDirty(indicator); // Mark as changed
+        }
+
+        Debug.Log($"Refreshed {allDominoes.Length} dominoes and {allIndicators.Length} indicators.");
     }
     #endregion
 }
