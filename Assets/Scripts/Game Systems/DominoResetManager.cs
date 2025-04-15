@@ -56,6 +56,7 @@ public class DominoResetManager : MonoBehaviour
             if (domino.stablePositionSet && difficulty != GameManager.GameDifficulty.Hard) // Only add dominoes with a stable position set
             {
                 checkpointedDominoes.Add(domino);
+                domino.locked = true; // Lock the domino
             }
         }
     }

@@ -508,6 +508,7 @@ MonoBehaviour:
   damping: 10
   brain: {fileID: 7611589086122300706}
   isCameraEnabled: 1
+  tutorialCamera: {fileID: 0}
 --- !u!1 &1860123607212123599
 GameObject:
   m_ObjectHideFlags: 0
@@ -1289,7 +1290,7 @@ MonoBehaviour:
   maxVolume: 0.7
   velocityScale: 0.001
   volumeLerpSpeed: 5
-  totalVelocityThreshhold: -100
+  totalVelocityThreshhold: -25
   minimumVelocity: 1
   minimumImpactForce: 1
   soundCooldown: 0.05

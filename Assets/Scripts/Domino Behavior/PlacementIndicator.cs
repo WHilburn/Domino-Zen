@@ -145,13 +145,11 @@ public class PlacementIndicator : DominoLike
         // Reset the domino's position using the rotate reset animation
         trackedDominoRb.GetComponent<DominoSkin>().TweenColor(indicatorColor, 1f); // Tween the color of the domino
         trackedDomino.AnimateDomino(Domino.DominoAnimation.Rotate);
-        trackedDomino.currentState = Domino.DominoState.FillingIndicator; // Set the domino's state to Placed
 
         // Fade out the indicator
         FadeOut();
         currentState = IndicatorState.Filled; // Transition to Placed state
         OnIndicatorFilled.Invoke(this); // Notify that the indicator is filled
-        trackedDomino.currentState = Domino.DominoState.FillingIndicator; // Set the domino's state to Placed
         trackedDomino.placementIndicator = this;
         GameManager.Instance.CheckCompletion(); // Check if all indicators are filled
         Domino.OnDominoPlacedCorrectly.Invoke(trackedDomino);

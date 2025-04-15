@@ -26,7 +26,6 @@ public class Domino : DominoLike
     public enum DominoState
     {
         Stationary,
-        FillingIndicator,
         Moving,
         Held,
         Animating
@@ -85,7 +84,6 @@ public class Domino : DominoLike
         }
 
         HandleMovementState();
-        HandlePlacementIndicatorState();
         // Draw a debug line from the domino to its last stable position
         Debug.DrawLine(transform.position, lastStablePosition, Color.red);
     }
@@ -100,7 +98,7 @@ public class Domino : DominoLike
 
         if (currentlyMoving && currentState != DominoState.Moving) // When it starts moving
         {
-            if (currentState == DominoState.Stationary || currentState == DominoState.FillingIndicator)
+            if (currentState == DominoState.Stationary)
             {
                 OnDominoFall.Invoke(this);
             }
@@ -111,14 +109,6 @@ public class Domino : DominoLike
         {
             currentState = DominoState.Stationary;
             OnDominoStopMoving.Invoke(this);
-        }
-    }
-
-    private void HandlePlacementIndicatorState()
-    {
-        if (!IsDominoMoving() && placementIndicator != null && !locked)
-        {
-            currentState = DominoState.FillingIndicator;
         }
     }
 
@@ -281,7 +271,7 @@ public class Domino : DominoLike
 
         if (currentState != DominoState.Held && collision.gameObject.CompareTag("DominoTag"))
         {
-            if (currentState == DominoState.Stationary || currentState == DominoState.FillingIndicator)
+            if (currentState == DominoState.Stationary)
             {
                 OnDominoFall.Invoke(this);
             }

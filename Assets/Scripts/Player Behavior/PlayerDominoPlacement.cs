@@ -509,7 +509,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             Domino domino = hit.collider.GetComponent<Domino>();
-            if (domino != null)
+            if (domino != null && domino.currentState != Domino.DominoState.Animating)
             {
                 if (domino != hoveredDomino) ApplyGlowOutline(domino);
             }
@@ -526,49 +526,74 @@ public class PlayerDominoPlacement : MonoBehaviour
         RemoveGlowOutline(); // Remove glow from the previously hovered domino
 
         hoveredDomino = domino;
-        Renderer[] renderers = domino.GetComponentsInChildren<Renderer>();
 
-        foreach (Renderer renderer in renderers)
+        // Find or create the glow outline child object
+        Transform glowOutlineTransform = domino.transform.Find("GlowOutline");
+        if (glowOutlineTransform == null)
         {
-            originalMaterials[renderer] = renderer.materials; // Store original materials
-            List<Material> materials = new(renderer.materials);
-            materials.Add(glowOutlineMaterial); // Add the glow outline material
-            renderer.materials = materials.ToArray();
-        }
+            GameObject glowOutlineObject = new GameObject("GlowOutline");
+            glowOutlineObject.transform.SetParent(domino.transform);
+            glowOutlineObject.transform.localPosition = Vector3.zero;
+            glowOutlineObject.transform.localRotation = Quaternion.identity;
+            glowOutlineObject.transform.localScale = Vector3.one;
 
-        // Get the color from the DominoSkin component
-        DominoSkin dominoSkin = domino.GetComponent<DominoSkin>();
-        Color outlineColor = Color.blue; // Default to blue if no color is found
-        if (dominoSkin != null)
-        {
-            Color dominoColor = dominoSkin.colorOverride;
-            if (dominoColor != Color.white)
+            MeshFilter meshFilter = glowOutlineObject.AddComponent<MeshFilter>();
+            MeshRenderer meshRenderer = glowOutlineObject.AddComponent<MeshRenderer>();
+
+            // Copy the mesh from the main renderer
+            MeshFilter originalMeshFilter = domino.GetComponentInChildren<MeshFilter>();
+            if (originalMeshFilter != null)
             {
-                // Calculate the complementary color
-                outlineColor = new Color(1f - dominoColor.r, 1f - dominoColor.g, 1f - dominoColor.b);
+                meshFilter.sharedMesh = originalMeshFilter.sharedMesh;
             }
+
+            // Assign the glow outline material
+            meshRenderer.material = glowOutlineMaterial;
+
+            // Assign the newly created object to glowOutlineTransform
+            glowOutlineTransform = glowOutlineObject.transform;
         }
 
-        // Set glow material properties
-        glowOutlineMaterial.SetFloat("_Scale", 1.06f);
-        glowOutlineMaterial.SetColor("_Color", outlineColor);
+        // Enable the glow outline renderer
+        MeshRenderer glowRenderer = glowOutlineTransform.GetComponent<MeshRenderer>();
+        if (glowRenderer != null)
+        {
+            glowRenderer.enabled = true;
+
+            // Set the glow material properties
+            DominoSkin dominoSkin = domino.GetComponent<DominoSkin>();
+            Color outlineColor = Color.blue; // Default to blue if no color is found
+            if (dominoSkin != null)
+            {
+                Color dominoColor = dominoSkin.colorOverride;
+                if (dominoColor != Color.white)
+                {
+                    // Calculate the complementary color
+                    outlineColor = new Color(1f - dominoColor.r, 1f - dominoColor.g, 1f - dominoColor.b);
+                }
+            }
+
+            glowOutlineMaterial.SetFloat("_Scale", 1.06f);
+            glowOutlineMaterial.SetColor("_Color", outlineColor);
+        }
     }
 
     private void RemoveGlowOutline()
     {
         if (hoveredDomino == null) return;
 
-        Renderer[] renderers = hoveredDomino.GetComponentsInChildren<Renderer>();
-        foreach (Renderer renderer in renderers)
+        // Find the glow outline child object
+        Transform glowOutlineTransform = hoveredDomino.transform.Find("GlowOutline");
+        if (glowOutlineTransform != null)
         {
-            if (originalMaterials.TryGetValue(renderer, out Material[] materials))
+            MeshRenderer glowRenderer = glowOutlineTransform.GetComponent<MeshRenderer>();
+            if (glowRenderer != null)
             {
-                renderer.materials = materials; // Restore original materials
+                glowRenderer.enabled = false; // Disable the glow outline renderer
             }
         }
 
-        originalMaterials.Clear();
-        hoveredDomino = null;
+        hoveredDomino = null; // Clear the reference to the hovered domino
     }
 
     private void CreatePlacementDecal()
