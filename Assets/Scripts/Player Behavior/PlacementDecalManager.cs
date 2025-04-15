@@ -6,16 +6,19 @@ public class PlacementDecalManager
     private DecalProjector placementDecal;
     private Material placementDecalMaterial;
     private Material placementDecalMaterialRed;
+    private Material dashedOutlineMaterial;
     private Vector3 decalSize;
     private Vector3 decalPivot;
     private float maxDistance;
     private Camera activeCamera;
     private Quaternion savedRotation;
+    private GameObject dashedBorderObject; // Secondary object for dashed border
 
-    public PlacementDecalManager(Material defaultMaterial, Material redMaterial, Vector3 size, Vector3 pivot, float maxDist, Camera camera, Quaternion rotation)
+    public PlacementDecalManager(Material defaultMaterial, Material redMaterial, Material dashedMaterial, Vector3 size, Vector3 pivot, float maxDist, Camera camera, Quaternion rotation)
     {
         placementDecalMaterial = defaultMaterial;
         placementDecalMaterialRed = redMaterial;
+        dashedOutlineMaterial = dashedMaterial;
         decalSize = size;
         decalPivot = pivot;
         maxDistance = maxDist;
@@ -28,11 +31,66 @@ public class PlacementDecalManager
     {
         GameObject decalObject = new GameObject("PlacementDecal");
         placementDecal = decalObject.AddComponent<DecalProjector>();
-        placementDecal.material = placementDecalMaterial;
+        placementDecal.material = placementDecalMaterial; // Use the default material
         placementDecal.size = decalSize;
         placementDecal.enabled = false; // Initially hidden
         placementDecal.pivot = decalPivot;
-        placementDecal.material.SetColor("_BaseColor", Color.blue);
+
+        // Create dashed border using 4 thin quads
+        float borderThickness = 0.01f; // Thickness of the border
+        Vector3 borderScaleX = new Vector3(decalSize.x, borderThickness, 1f);
+        Vector3 borderScaleZ = new Vector3(decalSize.z, borderThickness, 1f);
+
+        // Top border
+        GameObject topBorder = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        topBorder.name = "TopBorder";
+        MeshRenderer topBorderRenderer = topBorder.GetComponent<MeshRenderer>();
+        topBorderRenderer.material = dashedOutlineMaterial;
+        topBorder.transform.SetParent(decalObject.transform);
+        topBorder.transform.localPosition = new Vector3(0, 0, decalSize.z / 2 + borderThickness / 2);
+        topBorder.transform.localScale = borderScaleX;
+        topBorder.transform.localRotation = Quaternion.Euler(90, 0, 0);
+
+        // Bottom border
+        GameObject bottomBorder = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        bottomBorder.name = "BottomBorder";
+        MeshRenderer bottomBorderRenderer = bottomBorder.GetComponent<MeshRenderer>();
+        bottomBorderRenderer.material = dashedOutlineMaterial;
+        bottomBorder.transform.SetParent(decalObject.transform);
+        bottomBorder.transform.localPosition = new Vector3(0, 0, -(decalSize.z / 2 + borderThickness / 2));
+        bottomBorder.transform.localScale = borderScaleX;
+        bottomBorder.transform.localRotation = Quaternion.Euler(90, 180, 0);
+
+        // Left border
+        GameObject leftBorder = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        leftBorder.name = "LeftBorder";
+        MeshRenderer leftBorderRenderer = leftBorder.GetComponent<MeshRenderer>();
+        leftBorderRenderer.material = dashedOutlineMaterial;
+        leftBorder.transform.SetParent(decalObject.transform);
+        leftBorder.transform.localPosition = new Vector3(-(decalSize.x / 2 + borderThickness / 2), 0, 0);
+        leftBorder.transform.localScale = borderScaleZ;
+        leftBorder.transform.localRotation = Quaternion.Euler(90, 270, 0);
+
+        // Right border
+        GameObject rightBorder = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        rightBorder.name = "RightBorder";
+        MeshRenderer rightBorderRenderer = rightBorder.GetComponent<MeshRenderer>();
+        rightBorderRenderer.material = dashedOutlineMaterial;
+        rightBorder.transform.SetParent(decalObject.transform);
+        rightBorder.transform.localPosition = new Vector3(decalSize.x / 2 + borderThickness / 2, 0, 0);
+        rightBorder.transform.localScale = borderScaleZ;
+        rightBorder.transform.localRotation = Quaternion.Euler(90, 90, 0);
+
+        // Group all borders under a parent object for easier management
+        dashedBorderObject = new GameObject("DashedBorder");
+        dashedBorderObject.transform.SetParent(decalObject.transform);
+        dashedBorderObject.transform.localPosition = Vector3.zero;
+        dashedBorderObject.SetActive(false); // Initially hidden
+
+        topBorder.transform.SetParent(dashedBorderObject.transform);
+        bottomBorder.transform.SetParent(dashedBorderObject.transform);
+        leftBorder.transform.SetParent(dashedBorderObject.transform);
+        rightBorder.transform.SetParent(dashedBorderObject.transform);
     }
 
     public void UpdatePlacementDecal(bool placementEnabled, GameObject heldDomino, Quaternion rotation)
@@ -41,6 +99,7 @@ public class PlacementDecalManager
         if (heldDomino != null || !placementEnabled || !IsCameraActive())
         {
             placementDecal.enabled = false;
+            dashedBorderObject.SetActive(false); // Hide border
             return;
         }
 
@@ -54,16 +113,19 @@ public class PlacementDecalManager
             if (Vector3.Distance(activeCamera.transform.position, mousePosition) > maxDistance)
             {
                 placementDecal.enabled = false;
+                dashedBorderObject.SetActive(false); // Hide border
                 return;
             }
 
             placementDecal.transform.position = mousePosition;
             placementDecal.transform.rotation = rotation; // Apply the updated rotation
             placementDecal.enabled = true;
+            dashedBorderObject.SetActive(true); // Show border
         }
         else
         {
             placementDecal.enabled = false;
+            dashedBorderObject.SetActive(false); // Hide border
         }
     }
 

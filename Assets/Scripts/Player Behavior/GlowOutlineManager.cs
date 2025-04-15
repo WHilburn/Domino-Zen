@@ -86,7 +86,7 @@ public class GlowOutlineManager
         }
     }
 
-    private void RemoveGlowOutline()
+    public void RemoveGlowOutline()
     {
         if (hoveredDomino == null) return;
 

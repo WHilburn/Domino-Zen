@@ -36,6 +36,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private Domino hoveredDomino; // Currently hovered domino
     public Material placementDecalMaterial; // Material for the hollow rectangle decal
     public Material placementDecalMaterialRed;
+    public Material dashedOutlineMaterial;
     public Vector3 decalSize = new Vector3(1f, 1f, 1f); // Size of the decal
     public Vector3 decalPivot = new Vector3(0f, 0f, -1f); // Pivot point of the decal
     private Domino obstruction;
@@ -56,6 +57,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         placementDecalManager = new PlacementDecalManager(
             placementDecalMaterial,
             placementDecalMaterialRed,
+            dashedOutlineMaterial,
             decalSize,
             decalPivot,
             maxDistance,
@@ -201,7 +203,7 @@ public class PlayerDominoPlacement : MonoBehaviour
 
     private void InitializeHeldDomino()
     {
-        RemoveGlowOutline(); // Remove glow outline
+        glowOutlineManager.RemoveGlowOutline();
 
         heldDomino.layer = LayerMask.NameToLayer("Ignore Raycast");
         heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Held;
@@ -500,26 +502,6 @@ public class PlayerDominoPlacement : MonoBehaviour
             // Apply the force at the holdPoint in the calculated direction
             rb.AddForceAtPosition(forceDirection * rb.mass, worldHoldPoint, ForceMode.Impulse);
         }
-    }
-    #endregion
-    #region Domino Outline
-
-    private void RemoveGlowOutline()
-    {
-        if (hoveredDomino == null) return;
-
-        // Find the glow outline child object
-        Transform glowOutlineTransform = hoveredDomino.transform.Find("GlowOutline");
-        if (glowOutlineTransform != null)
-        {
-            MeshRenderer glowRenderer = glowOutlineTransform.GetComponent<MeshRenderer>();
-            if (glowRenderer != null)
-            {
-                glowRenderer.enabled = false; // Disable the glow outline renderer
-            }
-        }
-
-        hoveredDomino = null; // Clear the reference to the hovered domino
     }
     #endregion
 }
