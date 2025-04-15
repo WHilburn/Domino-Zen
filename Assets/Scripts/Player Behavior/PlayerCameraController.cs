@@ -8,10 +8,7 @@ public class PlayerCameraController : MonoBehaviour
     public float moveSpeed = 75f;
     public float lookSpeed = 3f;
     public float collisionRadius = 0.5f;
-    public float verticalSpeed = 2f;
-    public float damping = 20f; // Controls gradual stopping
     private Vector3 moveDirection;
-    private float targetVerticalVelocity = 0f; // Tracks vertical movement for smooth transitions
     private float currentRotationX = 0f;
     private float currentRotationY = 0f;
     public CinemachineBrain brain;

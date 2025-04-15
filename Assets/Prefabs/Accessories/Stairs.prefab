@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 1214285330760791322}
   - component: {fileID: 8950487362427595466}
   - component: {fileID: 1321533444560937215}
-  - component: {fileID: 8227116288001694910}
   - component: {fileID: 8075411185957304462}
   m_Layer: 6
   m_Name: Stairs
@@ -120,27 +119,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4104380202958562290, guid: 0781941480df76749af87384af7e2043, type: 3}
---- !u!65 &8227116288001694910
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7342501704212691560}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.011290435, y: 0.011693203, z: 0.012457377}
-  m_Center: {x: 0.000015650392, y: -0.001653397, z: 0.01160497}
 --- !u!114 &8075411185957304462
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153,6 +131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfd215474a7aa41a888a4f01784caa7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  underBridgeIndicators: []
 --- !u!1001 &552129126000560098
 PrefabInstance:
   m_ObjectHideFlags: 0

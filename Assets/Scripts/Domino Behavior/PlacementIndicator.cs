@@ -75,7 +75,7 @@ public class PlacementIndicator : DominoLike
                 return;
             }
             trackedDominoRb = other.gameObject.GetComponent<Rigidbody>();
-            currentState = IndicatorState.TryingToFill; // Transition to Occupied state
+            currentState = IndicatorState.TryingToFill;
         }
     }
 
@@ -85,7 +85,7 @@ public class PlacementIndicator : DominoLike
         {
             trackedDomino = other.gameObject.GetComponent<Domino>();
             trackedDominoRb = other.gameObject.GetComponent<Rigidbody>();
-            currentState = IndicatorState.TryingToFill; // Transition to Occupied state
+            currentState = IndicatorState.TryingToFill;
         }
     }
 
@@ -164,9 +164,9 @@ public class PlacementIndicator : DominoLike
     #endregion
 
     #region Visual Effects
-    private void FadeOut()
+    public void FadeOut(bool playSound = true)
     {
-        soundManager.PlayPlacementSound(1);
+        if (playSound) soundManager.PlayPlacementSound(1);
 
         indicatorRenderer.material.DOKill();
         // Use DOTween to fade out the material's alpha
@@ -176,9 +176,9 @@ public class PlacementIndicator : DominoLike
         });
     }
 
-    private void FadeIn()
+    public void FadeIn(bool playSound = true)
     {
-        soundManager.PlayPlacementSound(-1);
+        if (playSound) soundManager.PlayPlacementSound(-1);
         indicatorRenderer.enabled = true;
         indicatorRenderer.material.DOKill();
         // Use DOTween to fade in the material's alpha

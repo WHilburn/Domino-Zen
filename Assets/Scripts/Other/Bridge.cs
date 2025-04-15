@@ -4,16 +4,14 @@ using UnityEngine;
 
 public class Bridge : MonoBehaviour
 {
-    private BoxCollider boxCollider;
     private MeshCollider meshCollider;
     private Renderer bridgeRenderer;
-    private HashSet<PlacementIndicator> underBridgeIndicators = new();
+    public List<PlacementIndicator> underBridgeIndicators = new();
     private HashSet<PlacementIndicator> topOfBridgeIndicators = new();
     private int filledIndicatorsCount = 0;
 
     void Start()
     {
-        boxCollider = GetComponent<BoxCollider>();
         meshCollider = GetComponent<MeshCollider>();
         bridgeRenderer = GetComponent<Renderer>();
         PlacementIndicator.OnIndicatorFilled.AddListener(OnIndicatorFilled);
@@ -28,52 +26,12 @@ public class Bridge : MonoBehaviour
                 topOfBridgeIndicators.Add(childIndicator);
             }
         }
-
-        StartCoroutine(DestroyBoxColliderAfterTime());
-    }
-
-    private IEnumerator DestroyBoxColliderAfterTime()
-    {
-        yield return new WaitForSeconds(.1f); // Wait a short time
         if (underBridgeIndicators.Count == 0)
         {
-            Debug.Log("No PlacementIndicators found under the bridge.");
+            Debug.LogWarning("No under bridge indicators found. Please assign them in the inspector.");
         }
-        else
-        {
-            Debug.Log($"Found {underBridgeIndicators.Count} PlacementIndicators under the bridge.");
-            MakeBridgeTransparent();
-        }
-        Destroy(boxCollider);
+        else Invoke("MakeBridgeTransparent",0.05f);
     }
-
-    public void AddIndicator(PlacementIndicator indicator)
-    {
-        if (indicator != null && !topOfBridgeIndicators.Contains(indicator))
-        {
-            underBridgeIndicators.Add(indicator);
-            Debug.Log($"Added {indicator.name} to under bridge indicators.");
-        }
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        PlacementIndicator indicator = other.GetComponent<PlacementIndicator>();
-        if (indicator != null && !indicator.transform.IsChildOf(transform) && !underBridgeIndicators.Contains(indicator))
-        {
-            underBridgeIndicators.Add(indicator);
-            Debug.Log($"Added {indicator.name} to underBridgeIndicators.");
-        }
-    }
-
-    // private void OnTriggerExit(Collider other)
-    // {
-    //     PlacementIndicator indicator = other.GetComponent<PlacementIndicator>();
-    //     if (indicator != null && underBridgeIndicators.Contains(indicator))
-    //     {
-    //         underBridgeIndicators.Remove(indicator);
-    //     }
-    // }
 
     private void OnIndicatorFilled(PlacementIndicator indicator)
     {
@@ -116,7 +74,8 @@ public class Bridge : MonoBehaviour
 
         foreach (var childIndicator in topOfBridgeIndicators)
         {
-            childIndicator.gameObject.SetActive(false);
+            // childIndicator.gameObject.SetActive(false);
+            childIndicator.FadeOut(false);
         }
     }
 
@@ -128,6 +87,7 @@ public class Bridge : MonoBehaviour
         foreach (var childIndicator in topOfBridgeIndicators)
         {
             childIndicator.gameObject.SetActive(true);
+            childIndicator.FadeIn(false);
         }
     }
 
