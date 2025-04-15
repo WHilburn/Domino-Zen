@@ -46,6 +46,7 @@ public class PlacementDecalManager
         topBorder.name = "TopBorder";
         MeshRenderer topBorderRenderer = topBorder.GetComponent<MeshRenderer>();
         topBorderRenderer.material = dashedOutlineMaterial;
+        UnityEngine.Object.Destroy(topBorder.GetComponent<Collider>()); // Remove collider
         topBorder.transform.SetParent(decalObject.transform);
         topBorder.transform.localPosition = new Vector3(0, 0, decalSize.z / 2 + borderThickness / 2);
         topBorder.transform.localScale = borderScaleX;
@@ -56,6 +57,7 @@ public class PlacementDecalManager
         bottomBorder.name = "BottomBorder";
         MeshRenderer bottomBorderRenderer = bottomBorder.GetComponent<MeshRenderer>();
         bottomBorderRenderer.material = dashedOutlineMaterial;
+        UnityEngine.Object.Destroy(bottomBorder.GetComponent<Collider>()); // Remove collider
         bottomBorder.transform.SetParent(decalObject.transform);
         bottomBorder.transform.localPosition = new Vector3(0, 0, -(decalSize.z / 2 + borderThickness / 2));
         bottomBorder.transform.localScale = borderScaleX;
@@ -67,6 +69,7 @@ public class PlacementDecalManager
         MeshRenderer leftBorderRenderer = leftBorder.GetComponent<MeshRenderer>();
         leftBorderRenderer.material = dashedOutlineMaterial;
         leftBorderRenderer.material.SetFloat("_DashSize", dashedOutlineMaterial.GetFloat("_DashSize") * 3); // Triple dash size
+        UnityEngine.Object.Destroy(leftBorder.GetComponent<Collider>()); // Remove collider
         leftBorder.transform.SetParent(decalObject.transform);
         leftBorder.transform.localPosition = new Vector3(-(decalSize.x / 2 + borderThickness / 2), 0, 0);
         leftBorder.transform.localScale = borderScaleZ;
@@ -78,6 +81,7 @@ public class PlacementDecalManager
         MeshRenderer rightBorderRenderer = rightBorder.GetComponent<MeshRenderer>();
         rightBorderRenderer.material = dashedOutlineMaterial;
         rightBorderRenderer.material.SetFloat("_DashSize", dashedOutlineMaterial.GetFloat("_DashSize") * 3); // Triple dash size
+        UnityEngine.Object.Destroy(rightBorder.GetComponent<Collider>()); // Remove collider
         rightBorder.transform.SetParent(decalObject.transform);
         rightBorder.transform.localPosition = new Vector3(decalSize.x / 2 + borderThickness / 2, 0, 0);
         rightBorder.transform.localScale = borderScaleZ;

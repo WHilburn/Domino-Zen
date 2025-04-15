@@ -115,6 +115,7 @@ public class PlacementIndicator : DominoLike
             return;
         }
         if (trackedDomino.currentState == Domino.DominoState.Held ||
+        trackedDomino.currentState == Domino.DominoState.Animating ||
             // trackedDominoRb.velocity.magnitude > 0.05f ||
             trackedDominoRb.angularVelocity.magnitude > 0.05f)
         {
@@ -153,6 +154,7 @@ public class PlacementIndicator : DominoLike
 
         // Fade out the indicator
         FadeOut();
+        Debug.Log("Indicator filled: " + trackedDomino.name);
         currentState = IndicatorState.Filled; // Transition to Placed state
         OnIndicatorFilled.Invoke(this); // Notify that the indicator is filled
         trackedDomino.placementIndicator = this;
