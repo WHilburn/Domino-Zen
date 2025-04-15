@@ -99,7 +99,7 @@ public class PlayerCameraController : MonoBehaviour
     {
         cameraFOV = fov;
         GetComponent<CinemachineVirtualCamera>().m_Lens.FieldOfView = fov; // Set the camera's field of view
-        tutorialCamera.m_Lens.FieldOfView = fov; // Set the tutorial camera's field of view
+        if (tutorialCamera != null) tutorialCamera.m_Lens.FieldOfView = fov; // Set the tutorial camera's field of view
     }
 
     public void InitializeRotation()

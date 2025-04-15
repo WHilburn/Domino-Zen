@@ -41,7 +41,6 @@ public class Domino : DominoLike
     public Vector3 lastStablePosition;
     public Quaternion lastStableRotation;
     private static float uprightThreshold = 0.99f; // How upright the domino must be (1 = perfectly upright)
-    public bool canSetNewStablePosition = true; // Flag to prevent multiple stability checks
 
     // Unity Events
     public static UnityEvent<Domino> OnDominoFall = new();

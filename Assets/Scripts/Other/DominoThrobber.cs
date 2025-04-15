@@ -17,7 +17,6 @@ public class DominoThrobber : MonoBehaviour
         foreach (var domino in dominoes)
         {
             domino.SaveStablePosition(domino.transform);
-            domino.canSetNewStablePosition = false;
         }
 
         // Start the throbber loop
