@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
-using System.Collections.Generic;
 
 public class PlayerDominoPlacement : MonoBehaviour
 {
@@ -41,6 +40,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     public Vector3 decalPivot = new Vector3(0f, 0f, -1f); // Pivot point of the decal
     private Domino obstruction;
     private PlacementDecalManager placementDecalManager;
+    private GlowOutlineManager glowOutlineManager;
     #endregion
     #region Unity Methods
     void Start()
@@ -62,6 +62,8 @@ public class PlayerDominoPlacement : MonoBehaviour
             activeCamera,
             savedRotation
         );
+
+        glowOutlineManager = new GlowOutlineManager(glowOutlineMaterial, activeCamera);
     }
 
     void Update()
@@ -112,7 +114,7 @@ public class PlayerDominoPlacement : MonoBehaviour
             TryFlickDomino();
         }
 
-        HandleMouseHover();
+        glowOutlineManager.HandleMouseHover(heldDomino);
         placementDecalManager.UpdatePlacementDecal(placementEnabled, heldDomino, savedRotation); // Update the placement decal position and visibility
         HandleRotation(); // Handle rotation even when no domino is held
     }
@@ -501,87 +503,6 @@ public class PlayerDominoPlacement : MonoBehaviour
     }
     #endregion
     #region Domino Outline
-
-    private void HandleMouseHover()
-    {
-        if (heldDomino != null || !IsCameraActive())
-        {
-            RemoveGlowOutline(); // Remove glow outline if holding a domino
-            return; // Skip hover handling if holding a domino
-        }
-
-        Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit))
-        {
-            Domino domino = hit.collider.GetComponent<Domino>();
-            if (domino != null && domino.currentState != Domino.DominoState.Animating)
-            {
-                if (domino != hoveredDomino) ApplyGlowOutline(domino);
-            }
-            else RemoveGlowOutline();
-        }
-        else if (hoveredDomino != null)
-        {
-            RemoveGlowOutline();
-        }
-    }
-
-    private void ApplyGlowOutline(Domino domino)
-    {
-        RemoveGlowOutline(); // Remove glow from the previously hovered domino
-
-        hoveredDomino = domino;
-
-        // Find or create the glow outline child object
-        Transform glowOutlineTransform = domino.transform.Find("GlowOutline");
-        if (glowOutlineTransform == null)
-        {
-            GameObject glowOutlineObject = new GameObject("GlowOutline");
-            glowOutlineObject.transform.SetParent(domino.transform);
-            glowOutlineObject.transform.localPosition = Vector3.zero;
-            glowOutlineObject.transform.localRotation = Quaternion.identity;
-            glowOutlineObject.transform.localScale = Vector3.one;
-
-            MeshFilter meshFilter = glowOutlineObject.AddComponent<MeshFilter>();
-            MeshRenderer meshRenderer = glowOutlineObject.AddComponent<MeshRenderer>();
-
-            // Copy the mesh from the main renderer
-            MeshFilter originalMeshFilter = domino.GetComponentInChildren<MeshFilter>();
-            if (originalMeshFilter != null)
-            {
-                meshFilter.sharedMesh = originalMeshFilter.sharedMesh;
-            }
-
-            // Assign the glow outline material
-            meshRenderer.material = glowOutlineMaterial;
-
-            // Assign the newly created object to glowOutlineTransform
-            glowOutlineTransform = glowOutlineObject.transform;
-        }
-
-        // Enable the glow outline renderer
-        MeshRenderer glowRenderer = glowOutlineTransform.GetComponent<MeshRenderer>();
-        if (glowRenderer != null)
-        {
-            glowRenderer.enabled = true;
-
-            // Set the glow material properties
-            DominoSkin dominoSkin = domino.GetComponent<DominoSkin>();
-            Color outlineColor = Color.blue; // Default to blue if no color is found
-            if (dominoSkin != null)
-            {
-                Color dominoColor = dominoSkin.colorOverride;
-                if (dominoColor != Color.white)
-                {
-                    // Calculate the complementary color
-                    outlineColor = new Color(1f - dominoColor.r, 1f - dominoColor.g, 1f - dominoColor.b);
-                }
-            }
-
-            glowOutlineMaterial.SetFloat("_Scale", 1.06f);
-            glowOutlineMaterial.SetColor("_Color", outlineColor);
-        }
-    }
 
     private void RemoveGlowOutline()
     {
