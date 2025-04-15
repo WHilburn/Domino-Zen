@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 public class PlayerDominoPlacement : MonoBehaviour
 {
+    #region Fields and Properties
     public static PlayerDominoPlacement Instance { get; private set; }
     public GameObject dominoPrefab;
     public GameObject hand3DPrefab; // Reference to the 3D hand prefab
@@ -35,14 +36,14 @@ public class PlayerDominoPlacement : MonoBehaviour
     public static bool placementLimited = false; // Flag to limit placement to a specific area
     public Material glowOutlineMaterial; // Reference to the glow outline material
     private Domino hoveredDomino; // Currently hovered domino
-    private Dictionary<Renderer, Material[]> originalMaterials = new(); // Store original materials for each renderer
     private DecalProjector placementDecal; // Decal for the hollow rectangle
     public Material placementDecalMaterial; // Material for the hollow rectangle decal
     public Material placementDecalMaterialRed;
     public Vector3 decalSize = new Vector3(1f, 1f, 1f); // Size of the decal
     public Vector3 decalPivot = new Vector3(0f, 0f, -1f); // Pivot point of the decal
     private Domino obstruction;
-
+    #endregion
+    #region Unity Methods
     void Start()
     {
         if (Instance != null && Instance != this)
@@ -79,7 +80,7 @@ public class PlayerDominoPlacement : MonoBehaviour
             heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Held; // Ensure the state is held
         }
 
-        obstruction = checkForObstruction(); // Check for obstructions
+        obstruction = CheckForObstruction(); // Check for obstructions
 
         if (Input.GetKeyDown(KeyCode.Space) && placementEnabled)
         {
@@ -108,6 +109,8 @@ public class PlayerDominoPlacement : MonoBehaviour
         UpdatePlacementDecal(); // Update the placement decal position and visibility
         HandleRotation(); // Handle rotation even when no domino is held
     }
+    #endregion
+    #region Placement Controls
 
     public void TogglePlacementControls(bool enable)
     {
@@ -115,7 +118,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         if (!placementEnabled) DestroyHand(); // Destroy the hand when controls are disabled
     }
 
-    private Domino checkForObstruction()
+    private Domino CheckForObstruction()
     {
         if (heldDomino != null) return null; // No obstruction check if domino is held
 
@@ -133,6 +136,44 @@ public class PlayerDominoPlacement : MonoBehaviour
         if (placementDecal != null) placementDecal.material = placementDecalMaterial;
         return null; // No obstruction detected
     }
+        Vector3 GetMouseWorldPosition()
+    {
+        Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
+        int environmentLayerMask = LayerMask.GetMask("EnvironmentLayer");
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, environmentLayerMask))
+        {
+            Vector3 position = hit.point + Vector3.up * hoverOffset;
+
+            // Prevent the hand from going further than 15 units from the camera
+            if (Vector3.Distance(activeCamera.transform.position, position) > maxDistance)
+            {
+                position = activeCamera.transform.position + 
+                           (position - activeCamera.transform.position).normalized * maxDistance;
+            }
+
+            return position;
+        }
+        return ray.origin + ray.direction * 5f;
+    }
+
+    private bool IsCameraActive()
+    {
+        return activeCamera != null && activeCamera.enabled;
+    }
+
+    private bool IsMousePointingAtTutorialBook() //Used during tutorial
+    {
+        Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
+        int layerMask = LayerMask.GetMask("EnvironmentLayer"); // Ignore dominoes in the raycast
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask))
+        {
+            return hit.collider.gameObject.name == "Tutorial Book";
+        }
+        return false;
+    }
+
+    #endregion
+    #region Spawn Domino
 
     void SpawnDomino()
     {
@@ -166,6 +207,25 @@ public class PlayerDominoPlacement : MonoBehaviour
         // Calculate the offset between the hand and the mouse cursor
         handMouseOffset = handAnchor.position - GetMouseWorldPosition();
     }
+
+    private void InitializeHeldDomino()
+    {
+        RemoveGlowOutline(); // Remove glow outline
+
+        heldDomino.layer = LayerMask.NameToLayer("Ignore Raycast");
+        heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Held;
+        decalProjector = heldDomino.GetComponent<DecalProjector>();
+        if (decalProjector) decalProjector.enabled = true;
+
+        heldRb = heldDomino.GetComponent<Rigidbody>();
+        savedDrag = heldRb.drag;
+        savedAngularDrag = heldRb.angularDrag;
+        heldRb.drag = 10f;
+        heldRb.angularDrag = 90f;
+    }
+
+    #endregion
+    #region Pick Up Domino
 
     void TryPickUpDomino()
     {
@@ -233,6 +293,8 @@ public class PlayerDominoPlacement : MonoBehaviour
         heldRb.angularDrag = savedAngularDrag;
         heldRb.constraints = RigidbodyConstraints.None;
     }
+    #endregion
+    #region Release/Delete Domino
 
     public void ReleaseDomino()
     {
@@ -254,6 +316,8 @@ public class PlayerDominoPlacement : MonoBehaviour
 
         ClearHeldDomino();
     }
+    #endregion
+    #region Domino Movement
 
     void MoveHeldDomino() // Also moves the hand anchor and updates the hand sprite
     {
@@ -316,60 +380,6 @@ public class PlayerDominoPlacement : MonoBehaviour
         }
     }
 
-    Vector3 GetMouseWorldPosition()
-    {
-        Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
-        int environmentLayerMask = LayerMask.GetMask("EnvironmentLayer");
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, environmentLayerMask))
-        {
-            Vector3 position = hit.point + Vector3.up * hoverOffset;
-
-            // Prevent the hand from going further than 15 units from the camera
-            if (Vector3.Distance(activeCamera.transform.position, position) > maxDistance)
-            {
-                position = activeCamera.transform.position + 
-                           (position - activeCamera.transform.position).normalized * maxDistance;
-            }
-
-            return position;
-        }
-        return ray.origin + ray.direction * 5f;
-    }
-
-    // Helper Methods
-    private bool IsCameraActive()
-    {
-        return activeCamera != null && activeCamera.enabled;
-    }
-
-    private void InitializeHeldDomino()
-    {
-        RemoveGlowOutline(); // Remove glow outline
-
-        heldDomino.layer = LayerMask.NameToLayer("Ignore Raycast");
-        heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Held;
-        decalProjector = heldDomino.GetComponent<DecalProjector>();
-        if (decalProjector) decalProjector.enabled = true;
-
-        heldRb = heldDomino.GetComponent<Rigidbody>();
-        savedDrag = heldRb.drag;
-        savedAngularDrag = heldRb.angularDrag;
-        heldRb.drag = 10f;
-        heldRb.angularDrag = 90f;
-    }
-
-    private bool IsDominoFalling()
-    {
-        return heldRb.velocity.magnitude > 1f || heldRb.angularVelocity.magnitude > 1f;
-    }
-
-    private void ClearHeldDomino()
-    {
-        heldDomino = null;
-        heldRb = null;
-        handAnchor = null;
-    }
-
     private Vector3 AdjustSpawnPosition(Vector3 position)
     {
         RaycastHit hit;
@@ -381,6 +391,31 @@ public class PlayerDominoPlacement : MonoBehaviour
         position.y += hoverOffset;
         return position;
     }
+    #endregion
+    #region Helper Methods
+    private bool IsDominoFalling()
+    {
+        return heldRb.velocity.magnitude > 1f || heldRb.angularVelocity.magnitude > 1f;
+    }
+
+    private void ClearHeldDomino()
+    {
+        heldDomino = null;
+        heldRb = null;
+        handAnchor = null;
+    }
+    void ShowLockSprite(Vector3 position)
+    {
+        if (lockSpritePrefab == null || uiCanvas == null) return;
+
+        // Instantiate the lock sprite as a UI element
+        GameObject lockSprite = Instantiate(lockSpritePrefab, uiCanvas.transform);
+        LockSpriteFollower follower = lockSprite.AddComponent<LockSpriteFollower>();
+        follower.Initialize(activeCamera, position, 1f); // Pass camera, world position, and fade duration
+    }
+    #endregion
+
+    #region Hand Management
 
     private void CreateHandAnchor(Vector3 spawnPos)
     {
@@ -435,17 +470,9 @@ public class PlayerDominoPlacement : MonoBehaviour
             Destroy(hand3DInstance);
         }
     }
+    #endregion
 
-    void ShowLockSprite(Vector3 position)
-    {
-        if (lockSpritePrefab == null || uiCanvas == null) return;
-
-        // Instantiate the lock sprite as a UI element
-        GameObject lockSprite = Instantiate(lockSpritePrefab, uiCanvas.transform);
-        LockSpriteFollower follower = lockSprite.AddComponent<LockSpriteFollower>();
-        follower.Initialize(activeCamera, position, 1f); // Pass camera, world position, and fade duration
-    }
-
+    #region Flick Domino
     private void TryFlickDomino()
     {
         if (!IsCameraActive()) return;
@@ -481,21 +508,11 @@ public class PlayerDominoPlacement : MonoBehaviour
                 : -domino.transform.forward;
 
             // Apply the force at the holdPoint in the calculated direction
-            rb.AddForceAtPosition(forceDirection * 1f, worldHoldPoint, ForceMode.Impulse);
+            rb.AddForceAtPosition(forceDirection * rb.mass, worldHoldPoint, ForceMode.Impulse);
         }
     }
-
-    // Helper method to check if the mouse is pointing at the "Tutorial Book"
-    private bool IsMousePointingAtTutorialBook()
-    {
-        Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
-        int layerMask = LayerMask.GetMask("EnvironmentLayer"); // Ignore dominoes in the raycast
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask))
-        {
-            return hit.collider.gameObject.name == "Tutorial Book";
-        }
-        return false;
-    }
+    #endregion
+    #region Domino Outline
 
     private void HandleMouseHover()
     {
@@ -595,6 +612,8 @@ public class PlayerDominoPlacement : MonoBehaviour
 
         hoveredDomino = null; // Clear the reference to the hovered domino
     }
+    #endregion
+    #region Placement Decal
 
     private void CreatePlacementDecal()
     {
@@ -641,4 +660,5 @@ public class PlayerDominoPlacement : MonoBehaviour
             placementDecal.enabled = false; // Hide the decal if no valid surface is hit
         }
     }
+    #endregion
 }
