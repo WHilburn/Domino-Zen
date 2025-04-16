@@ -10,7 +10,7 @@ public class PlacementIndicator : DominoLike
     private Renderer indicatorRenderer;
     public BoxCollider placementCollider; //Collider for placement detection
     public BoxCollider snapCollider; // Collider for snapping to the ground
-    private Domino trackedDomino;
+    [SerializeField] private Domino trackedDomino;
     private Rigidbody trackedDominoRb;
 
     [Header("Indicator Settings")]
@@ -134,12 +134,12 @@ public class PlacementIndicator : DominoLike
             new Vector2(transform.position.x, transform.position.z)) > placementThreshold)
         {
             trackedDomino = null;
+            trackedDominoRb = null;
             currentState = IndicatorState.Empty; // Transition to Empty state if too far away
             return;
         }
         if (trackedDomino.currentState == Domino.DominoState.Held ||
         trackedDomino.currentState == Domino.DominoState.Animating ||
-            // trackedDominoRb.velocity.magnitude > 0.05f ||
             trackedDominoRb.angularVelocity.magnitude > 0.05f)
         {
             return;
@@ -211,6 +211,7 @@ public class PlacementIndicator : DominoLike
     {
         if (playSound) soundManager.PlayPlacementSound(-1);
         Debug.Log("Indicator fading in: " + gameObject.name);
+        placementCollider.enabled = true;
         indicatorRenderer.enabled = true;
         indicatorRenderer.material.DOKill();
         // Use DOTween to fade in the material's alpha

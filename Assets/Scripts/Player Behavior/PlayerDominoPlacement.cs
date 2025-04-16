@@ -230,7 +230,7 @@ public class PlayerDominoPlacement : MonoBehaviour
             if (Vector3.Distance(activeCamera.transform.position, hit.point) > maxDistance) return;
 
             Domino domino = hit.collider.GetComponent<Domino>();
-            if (domino != null && domino.currentState != Domino.DominoState.Held)
+            if (domino != null && domino.currentState != Domino.DominoState.Held && domino.currentState != Domino.DominoState.Animating)
             {
                 if (domino.locked)
                 {
