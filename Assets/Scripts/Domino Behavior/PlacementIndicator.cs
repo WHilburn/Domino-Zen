@@ -25,6 +25,8 @@ public class PlacementIndicator : DominoLike
     public IndicatorState currentState = IndicatorState.Empty; // Current state
     public static UnityEvent<PlacementIndicator> OnIndicatorFilled = new();
     public static UnityEvent<PlacementIndicator> OnIndicatorEmptied = new();
+    public UnityEvent OnIndicatorFilledInstance = new(); // Non-static event for individual indicators
+    public UnityEvent OnIndicatorEmptiedInstance = new();
     #endregion
 
     #region Unity Methods
@@ -61,6 +63,7 @@ public class PlacementIndicator : DominoLike
                 {
                     currentState = IndicatorState.Empty; // Transition to Empty state
                     OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty
+                    OnIndicatorEmptiedInstance.Invoke(); // Notify individual subscribers
                     FadeIn(); // Fade back in if the domino is removed
                 }
                 break;
@@ -96,7 +99,11 @@ public class PlacementIndicator : DominoLike
     {
         if (other.gameObject == trackedDomino?.gameObject && currentState != IndicatorState.Disabled)
         {
-            if (currentState == IndicatorState.Filled) OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty;
+            if (currentState == IndicatorState.Filled)
+            {
+                OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty;
+                OnIndicatorEmptiedInstance.Invoke();
+            }
             trackedDomino.placementIndicator = null; // Clear the domino's reference to this indicator 
             // Reset the tracked domino and its Rigidbody
             trackedDomino = null;
@@ -135,6 +142,8 @@ public class PlacementIndicator : DominoLike
 
         if (isAligned && isPositioned)
         {
+            currentState = IndicatorState.Filled;
+            Debug.Log("Indicator filled: " + trackedDomino.name);
             PlaceDomino();
         }
     }
@@ -156,10 +165,12 @@ public class PlacementIndicator : DominoLike
         trackedDomino.AnimateDomino(Domino.DominoAnimation.Rotate);
 
         // Fade out the indicator
+        Debug.Log("Indicator about to fade out: " + gameObject.name);
         FadeOut();
         // Debug.Log("Indicator filled: " + trackedDomino.name);
         currentState = IndicatorState.Filled; // Transition to Placed state
-        OnIndicatorFilled.Invoke(this); // Notify that the indicator is filled
+        OnIndicatorFilled.Invoke(this); // Notify that the indicator is filled (static event)
+        OnIndicatorFilledInstance.Invoke(); // Notify individual subscribers
         trackedDomino.placementIndicator = this;
         GameManager.Instance.CheckCompletion(); // Check if all indicators are filled
         Domino.OnDominoPlacedCorrectly.Invoke(trackedDomino);
@@ -170,6 +181,7 @@ public class PlacementIndicator : DominoLike
     public void FadeOut(bool playSound = true)
     {
         if (playSound) soundManager.PlayPlacementSound(1);
+        Debug.Log("Indicator fading out: " + gameObject.name);
 
         indicatorRenderer.material.DOKill();
         // Use DOTween to fade out the material's alpha

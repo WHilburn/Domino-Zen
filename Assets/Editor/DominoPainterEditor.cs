@@ -276,7 +276,7 @@ public class DominoPainter : EditorWindow
             domino.transform.parent = indicatorTransform.parent;
 
             // Add and configure the DominoSkin component
-            DominoSkin dominoSkin = domino.AddComponent<DominoSkin>();
+            DominoSkin dominoSkin = domino.GetComponent<DominoSkin>();
             if (selectedMaterialList != null) dominoSkin.materialList = selectedMaterialList; // Assign the selected material list
             dominoSkin.colorOverride = indicatorColor; // Apply the indicator's color
             dominoSkin.ApplyRandomMaterial(); // Apply a random material from the list

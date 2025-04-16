@@ -43,6 +43,7 @@ public abstract class DominoLike : MonoBehaviour
 
     protected bool CheckAndResolveOverlap()
     {
+        if (!Application.isPlaying) return false; // Do nothing if not in play mode
         Collider[] colliders = Physics.OverlapSphere(transform.position, 0.05f); // Tiny point at the origin
         foreach (Collider collider in colliders)
         {
