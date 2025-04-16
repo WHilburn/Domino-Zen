@@ -269,10 +269,16 @@ public class PlayerDominoPlacement : MonoBehaviour
         handMouseOffset = handAnchor.position - GetMouseWorldPosition();
     }
 
+    #endregion
+
+    #region Release/Delete Domino
     private void ResetDominoProperties()
     {
         heldDomino.layer = LayerMask.NameToLayer("Default");
-        heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Moving;
+        if (heldDomino.GetComponent<Domino>().currentState != Domino.DominoState.Animating)
+        {
+            heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Moving;
+        }
         heldDomino.GetComponent<DecalProjector>().enabled = false;
 
         SpringJoint spring = heldDomino.GetComponent<SpringJoint>();
@@ -285,8 +291,6 @@ public class PlayerDominoPlacement : MonoBehaviour
         heldRb.angularDrag = savedAngularDrag;
         heldRb.constraints = RigidbodyConstraints.None;
     }
-    #endregion
-    #region Release/Delete Domino
 
     public void ReleaseDomino()
     {

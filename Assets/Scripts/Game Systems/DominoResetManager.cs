@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 public class DominoResetManager : MonoBehaviour
 {
@@ -131,9 +132,15 @@ public class DominoResetManager : MonoBehaviour
 
         if (domino.placementIndicator != null)
         {
-            domino.placementIndicator.gameObject.SetActive(false); // Disable the placement indicator
-            domino.placementIndicator = null; // Clear the reference to the placementIndicator
+            StartCoroutine(DeactivateIndicator(domino, domino.placementIndicator)); // Deactivate the placement indicator after a delay
         }
+    }
+
+    private IEnumerator DeactivateIndicator(Domino domino, PlacementIndicator indicator)
+    {
+        yield return new WaitForSeconds(PlacementIndicator.fadeSpeed); // Wait for a short duration
+        indicator.gameObject.SetActive(false); // Disable the placement indicator
+        domino.placementIndicator = null; // Clear the reference to the placementIndicator
     }
 
     private void CheckpointWaitingDominoes()

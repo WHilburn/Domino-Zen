@@ -295,11 +295,11 @@ public class Domino : DominoLike
         {
             rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
+            currentState = DominoState.Stationary;
         }
 
         BoxCollider boxCollider = GetComponent<BoxCollider>();
         boxCollider.isTrigger = !on;
-        currentState = DominoState.Stationary;
     }
     #endregion
 }

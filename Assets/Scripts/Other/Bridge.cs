@@ -9,7 +9,6 @@ public class Bridge : MonoBehaviour
     public List<PlacementIndicator> underBridgeIndicators = new();
     private HashSet<PlacementIndicator> topOfBridgeIndicators = new();
     private int filledIndicatorsCount = 0;
-
     public Material opaqueMaterial;
     public Material transparentMaterial;
 
@@ -74,7 +73,7 @@ public class Bridge : MonoBehaviour
 
         foreach (var childIndicator in topOfBridgeIndicators)
         {
-            Debug.Log("Making bridge transparent");
+            Debug.Log("Fading out bridge child indicator: " + childIndicator.name);
             childIndicator.FadeOut(false);
             childIndicator.currentState = PlacementIndicator.IndicatorState.Disabled;
         }

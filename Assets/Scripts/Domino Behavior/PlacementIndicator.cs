@@ -15,7 +15,7 @@ public class PlacementIndicator : DominoLike
 
     [Header("Indicator Settings")]
     static DominoSoundManager soundManager;
-    static readonly float fadeSpeed = 2f;
+    public static readonly float fadeSpeed = 2f;
     static readonly float maxAlpha = .5f;
     static readonly float placementThreshold = 0.2f; // Distance threshold for placement
     static readonly float alignmentAngleThreshold = 10f; // Angle threshold for alignment
@@ -37,6 +37,11 @@ public class PlacementIndicator : DominoLike
         CheckAndResolveOverlap(); // Check for overlaps with other indicators
         SnapToGround();
         if (soundManager == null) soundManager = FindObjectOfType<DominoSoundManager>(); // Get references
+        if (snapCollider != null) 
+        {
+            DestroyImmediate(snapCollider); // Disable the snap collider
+            snapCollider = null; // Set to null to avoid further use
+        }
     }
 
     void Update()
@@ -64,6 +69,7 @@ public class PlacementIndicator : DominoLike
                     currentState = IndicatorState.Empty; // Transition to Empty state
                     OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty
                     OnIndicatorEmptiedInstance.Invoke(); // Notify individual subscribers
+                    Debug.Log("Indicator fading in because the domino was lifted: " + trackedDomino.name);
                     FadeIn(); // Fade back in if the domino is removed
                 }
                 break;
@@ -97,7 +103,12 @@ public class PlacementIndicator : DominoLike
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject == trackedDomino?.gameObject && currentState != IndicatorState.Disabled)
+        if (!other.CompareTag("DominoTag"))
+        {
+            return; // Ignore if the collider is not a domino
+        }
+        else
+        if (other.gameObject == trackedDomino?.gameObject && currentState != IndicatorState.Disabled && trackedDomino?.currentState != Domino.DominoState.Animating)
         {
             if (currentState == IndicatorState.Filled)
             {
@@ -109,6 +120,7 @@ public class PlacementIndicator : DominoLike
             trackedDomino = null;
             trackedDominoRb = null;
             currentState = IndicatorState.Empty; // Transition to Empty state
+            Debug.Log("Indicator fading in because the domino fell out");
             FadeIn(); // Fade back in if the domino is removed
         }
     }
@@ -143,7 +155,6 @@ public class PlacementIndicator : DominoLike
         if (isAligned && isPositioned)
         {
             currentState = IndicatorState.Filled;
-            Debug.Log("Indicator filled: " + trackedDomino.name);
             PlaceDomino();
         }
     }
@@ -165,7 +176,6 @@ public class PlacementIndicator : DominoLike
         trackedDomino.AnimateDomino(Domino.DominoAnimation.Rotate);
 
         // Fade out the indicator
-        Debug.Log("Indicator about to fade out: " + gameObject.name);
         FadeOut();
         // Debug.Log("Indicator filled: " + trackedDomino.name);
         currentState = IndicatorState.Filled; // Transition to Placed state
@@ -194,6 +204,7 @@ public class PlacementIndicator : DominoLike
     public void FadeIn(bool playSound = true)
     {
         if (playSound) soundManager.PlayPlacementSound(-1);
+        Debug.Log("Indicator fading in: " + gameObject.name);
         indicatorRenderer.enabled = true;
         indicatorRenderer.material.DOKill();
         // Use DOTween to fade in the material's alpha
