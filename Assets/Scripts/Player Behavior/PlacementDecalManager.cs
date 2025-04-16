@@ -102,37 +102,59 @@ public class PlacementDecalManager
     public void UpdatePlacementDecal(bool placementEnabled, GameObject heldDomino, Quaternion rotation)
     {
         if (placementDecal == null) CreatePlacementDecal();
-        if (heldDomino != null || !placementEnabled || !IsCameraActive())
+        if (!placementEnabled || !IsCameraActive())
         {
             placementDecal.enabled = false;
-            //dashedBorderObject.SetActive(false); // Hide border
-            // return;
+            dashedBorderObject.SetActive(false); // Hide border
+            return;
         }
-
-        Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
+        
         int environmentLayerMask = LayerMask.GetMask("EnvironmentLayer");
+        Vector3 targetPosition;
+        Quaternion targetRotation = rotation;
 
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, environmentLayerMask))
+        if (heldDomino != null)
         {
-            Vector3 mousePosition = hit.point;
+            // Follow the point directly under the held domino
+            targetPosition = new Vector3(heldDomino.transform.position.x, 0, heldDomino.transform.position.z);
 
-            if (Vector3.Distance(activeCamera.transform.position, mousePosition) > maxDistance)
+            // Raycast down to determine the y position
+            Ray downRay = new Ray(heldDomino.transform.position, Vector3.down);
+            Debug.DrawLine(downRay.origin, downRay.origin + downRay.direction * 100f, Color.red, 0.1f);
+            if (Physics.Raycast(downRay, out RaycastHit hit, Mathf.Infinity, environmentLayerMask))
             {
-                placementDecal.enabled = false;
-                //dashedBorderObject.SetActive(false); // Hide border
-                // return;
+                targetPosition.y = hit.point.y + 0.005f; // Add a small offset to avoid clipping
+                targetRotation = Quaternion.Euler(0, heldDomino.transform.rotation.eulerAngles.y, 0); // Use only the y rotation of the held domino
             }
-
-            placementDecal.transform.position = mousePosition;
-            placementDecal.transform.rotation = rotation; // Apply the updated rotation
-            placementDecal.enabled = heldDomino == null; // Enable if no domino is held
-            dashedBorderObject.SetActive(true); // Show border
         }
         else
         {
-            placementDecal.enabled = false;
-            //dashedBorderObject.SetActive(false); // Hide border
+            // Follow the cursor
+            Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, environmentLayerMask))
+            {
+                targetPosition = hit.point;
+
+                if (Vector3.Distance(activeCamera.transform.position, targetPosition) > maxDistance)
+                {
+                    placementDecal.enabled = false;
+                    dashedBorderObject.SetActive(false); // Hide border
+                    return;
+                }
+            }
+            else
+            {
+                placementDecal.enabled = false;
+                dashedBorderObject.SetActive(false); // Hide border
+                return;
+            }
         }
+
+        placementDecal.transform.position = targetPosition;
+        placementDecal.transform.rotation = targetRotation;
+        placementDecal.enabled = heldDomino == null; // Enable if no domino is held
+        dashedBorderObject.SetActive(true); // Show border
     }
 
     public Domino CheckForObstruction(GameObject heldDomino, Quaternion savedRotation, float hoverOffset)

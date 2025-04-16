@@ -38,6 +38,7 @@ public class InGameUI : MonoBehaviour
     public Slider mysterySlider;
     public TextMeshProUGUI mysteryText;
     public TMP_Dropdown dominoSoundDropdown;
+    public TMP_Dropdown difficultyDropdown;
     #endregion
 
     #region Static Variables
@@ -85,6 +86,15 @@ public class InGameUI : MonoBehaviour
             }
         });
 
+        difficultyDropdown.onValueChanged.AddListener((int value) =>
+        {
+            if (GameManager.Instance != null)
+            {
+                GameManager.GameDifficulty difficulty = (GameManager.GameDifficulty)value;
+                GameManager.Instance.SetGameDifficulty(difficulty);
+            }
+        });
+
         // Disable pause menu and options panel at start
         if (pauseMenu != null)
         {
@@ -94,6 +104,17 @@ public class InGameUI : MonoBehaviour
         {
             optionsPanelRect.sizeDelta = new Vector2(0, optionsPanelRect.sizeDelta.y); // Set options panel size to 0
             optionsPanel.SetActive(false);
+        }
+        Invoke(nameof(InitializeDropdownValues), 0.05f); // Initialize dropdown values after a short delay
+    }
+
+    private void InitializeDropdownValues()
+    {
+        // Initialize difficulty dropdown to the current difficulty
+        if (GameManager.Instance != null && difficultyDropdown != null)
+        {
+            difficultyDropdown.value = (int)GameManager.Instance.gameDifficulty;
+            difficultyDropdown.RefreshShownValue(); // Refresh the dropdown to display the correct value
         }
     }
 

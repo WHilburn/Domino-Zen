@@ -10,7 +10,7 @@ public class Domino : DominoLike
     #region Fields and Enums
     [Header("Domino Settings")]
     [HideInInspector] public Rigidbody rb;
-    public DominoSoundManager.DominoSoundType soundType = DominoSoundManager.DominoSoundType.Click; // Default sound type
+    public DominoSoundManager.DominoSoundType soundType; // Sound type for the domino
 
     public enum DominoAnimation
     {
@@ -201,6 +201,7 @@ public class Domino : DominoLike
             .OnComplete(() =>
             {
                 PerformTeleport();
+                currentState = DominoState.Stationary;
             });
     }
 
@@ -227,6 +228,7 @@ public class Domino : DominoLike
         {
             rb.transform.position = originalPosition;
             StartCoroutine(TogglePhysics(true));
+            currentState = DominoState.Stationary;
         });
 
         jiggleSequence.Play();
@@ -254,6 +256,7 @@ public class Domino : DominoLike
         jumpSequence.OnComplete(() =>
         {
             PerformTeleport();
+            currentState = DominoState.Stationary;
         });
 
         jumpSequence.Play();
@@ -295,7 +298,7 @@ public class Domino : DominoLike
         {
             rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
-            currentState = DominoState.Stationary;
+            // currentState = DominoState.Stationary;
         }
 
         BoxCollider boxCollider = GetComponent<BoxCollider>();

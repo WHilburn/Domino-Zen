@@ -248,6 +248,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     void PickUpDomino(GameObject domino)
     {
         heldDomino = domino;
+        domino.GetComponent<Domino>().stablePositionSet = false; // Reset stable position set
         // Preserve the existing rotation of the domino
         savedRotation = heldDomino.transform.rotation;
         InitializeHeldDomino();
@@ -274,10 +275,11 @@ public class PlayerDominoPlacement : MonoBehaviour
     #region Release/Delete Domino
     private void ResetDominoProperties()
     {
+        Domino heldDominoScript = heldDomino.GetComponent<Domino>();
         heldDomino.layer = LayerMask.NameToLayer("Default");
-        if (heldDomino.GetComponent<Domino>().currentState != Domino.DominoState.Animating)
+        if (heldDominoScript.currentState != Domino.DominoState.Animating)
         {
-            heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Moving;
+            heldDominoScript.currentState = Domino.DominoState.Moving;
         }
         heldDomino.GetComponent<DecalProjector>().enabled = false;
 
@@ -448,7 +450,11 @@ public class PlayerDominoPlacement : MonoBehaviour
 
         hand3DInstance = Instantiate(hand3DPrefab);
         hand3DInstance.transform.position = spawnPos;
-        hand3DInstance.transform.rotation = savedRotation;
+        hand3DInstance.transform.rotation = Quaternion.Euler(
+            hand3DInstance.transform.rotation.eulerAngles.x,
+            savedRotation.eulerAngles.y,
+            hand3DInstance.transform.rotation.eulerAngles.z
+        );
     }
 
     private void DestroyHand()

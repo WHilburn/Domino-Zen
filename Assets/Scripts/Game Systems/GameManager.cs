@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class GameManager : MonoBehaviour
         Hard
     }
     public GameDifficulty gameDifficulty = GameDifficulty.Easy; // Default difficulty
+    public static UnityEvent<GameDifficulty> OnGameDifficultyChanged = new UnityEvent<GameDifficulty>();
 
     void Start()
     {
@@ -67,5 +69,12 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("***********All indicators have been filled!*************");
         }
+    }
+
+    public void SetGameDifficulty(GameDifficulty newDifficulty)
+    {
+        gameDifficulty = newDifficulty;
+        Debug.Log($"Game difficulty set to {gameDifficulty}");
+        OnGameDifficultyChanged.Invoke(newDifficulty); // Trigger the event
     }
 }

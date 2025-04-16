@@ -28,7 +28,8 @@ public class DominoResetManager : MonoBehaviour
         Domino.OnDominoFall.AddListener(RegisterDominoForReset);
         Domino.OnDominoDeleted.AddListener(RemoveDomino); // Subscribe to domino deletion event
         Domino.OnDominoPlacedCorrectly.AddListener(RegisterDominoPlacement); // Subscribe to domino placement event
-        Invoke("UpdateDifficulty", 0.05f); // Update difficulty after a short delay
+        GameManager.OnGameDifficultyChanged.AddListener(UpdateDifficulty); // Subscribe to difficulty change event
+        Invoke(nameof(InvokeUpdateDifficulty), 0.05f);
     }
 
     private void Start()
@@ -38,8 +39,11 @@ public class DominoResetManager : MonoBehaviour
             Destroy(Instance.gameObject); // Destroy the previous instance if it exists
         }
         Instance = this;
+    }
 
-        // allDominoes = new HashSet<Domino>(FindObjectsOfType<Domino>());
+    private void InvokeUpdateDifficulty()
+    {
+        UpdateDifficulty(GameManager.Instance.gameDifficulty);
     }
 
     private void Update()
@@ -49,12 +53,16 @@ public class DominoResetManager : MonoBehaviour
             ResetAllDominoes();
         }
     }
+
+    private void OnDestroy()
+    {
+        GameManager.OnGameDifficultyChanged.RemoveListener(UpdateDifficulty); // Unsubscribe to avoid memory leaks
+    }
     #endregion
 
     #region Difficulty Management
-    public void UpdateDifficulty() // Set the game difficulty
+    public void UpdateDifficulty(GameManager.GameDifficulty difficulty) // Set the game difficulty
     {
-        var difficulty = GameManager.Instance.gameDifficulty;
         switch (difficulty)
         {
             case GameManager.GameDifficulty.Easy:
@@ -65,6 +73,13 @@ public class DominoResetManager : MonoBehaviour
                 break;
             case GameManager.GameDifficulty.Hard:
                 checkpointThreshold = 10000;
+                checkpointedDominoes.Clear(); // Clear checkpointed dominoes on hard mode
+                foreach (var domino in allDominoes)
+                {
+                    domino.locked = false; // Unlock all dominoes on hard mode
+                    domino.stablePositionSet = false; // Reset stable position set
+                    domino.placementIndicator = null; // Clear the placement indicator
+                }
                 break;
         }
         foreach (var domino in allDominoes)

@@ -17,9 +17,10 @@ public class PlacementIndicator : DominoLike
     static DominoSoundManager soundManager;
     public static readonly float fadeSpeed = 2f;
     static readonly float maxAlpha = .5f;
-    static readonly float placementThreshold = 0.2f; // Distance threshold for placement
+    static readonly float placementThreshold = 0.1f; // Distance threshold for placement
     static readonly float alignmentAngleThreshold = 10f; // Angle threshold for alignment
     public Color indicatorColor = Color.white; // Color of the indicator
+    public DominoSoundManager.DominoSoundType soundType; // Sound type for the placement indicator
 
     public enum IndicatorState { Empty, TryingToFill, Filled, Disabled } // Define states
     public IndicatorState currentState = IndicatorState.Empty; // Current state
@@ -107,7 +108,6 @@ public class PlacementIndicator : DominoLike
         {
             return; // Ignore if the collider is not a domino
         }
-        else
         if (other.gameObject == trackedDomino?.gameObject && currentState != IndicatorState.Disabled && trackedDomino?.currentState != Domino.DominoState.Animating)
         {
             if (currentState == IndicatorState.Filled)
@@ -130,7 +130,8 @@ public class PlacementIndicator : DominoLike
     private void CheckDominoPlacement()
     {
         if (trackedDominoRb == null ||
-            Vector3.Distance(trackedDomino.transform.position, transform.position) > 1)
+            Vector2.Distance(new Vector2(trackedDomino.transform.position.x, trackedDomino.transform.position.z), 
+            new Vector2(transform.position.x, transform.position.z)) > placementThreshold)
         {
             trackedDomino = null;
             currentState = IndicatorState.Empty; // Transition to Empty state if too far away
@@ -171,6 +172,8 @@ public class PlacementIndicator : DominoLike
 
         // Set the domino's stable position and rotation
         trackedDomino.SaveStablePosition(transform);
+        // Assign the sound type to the domino
+        trackedDomino.soundType = soundType;
         // Reset the domino's position using the rotate reset animation
         trackedDominoRb.GetComponent<DominoSkin>().TweenColor(indicatorColor, 1f); // Tween the color of the domino
         trackedDomino.AnimateDomino(Domino.DominoAnimation.Rotate);
@@ -184,6 +187,7 @@ public class PlacementIndicator : DominoLike
         trackedDomino.placementIndicator = this;
         GameManager.Instance.CheckCompletion(); // Check if all indicators are filled
         Domino.OnDominoPlacedCorrectly.Invoke(trackedDomino);
+        placementCollider.enabled = false; // Disable the placement collider
     }
     #endregion
 
@@ -194,10 +198,12 @@ public class PlacementIndicator : DominoLike
         Debug.Log("Indicator fading out: " + gameObject.name);
 
         indicatorRenderer.material.DOKill();
+        placementCollider.enabled = false;
         // Use DOTween to fade out the material's alpha
         indicatorRenderer.material.DOFade(0f, fadeSpeed).OnComplete(() =>
         {
             indicatorRenderer.enabled = false; // Disable the renderer after fading out
+            placementCollider.enabled = true;
         });
     }
 
@@ -214,6 +220,7 @@ public class PlacementIndicator : DominoLike
     public void ApplyColor(Color inputColor)
     {
         indicatorColor = inputColor;
+        inputColor.a = Mathf.Clamp(inputColor.a, 0f, maxAlpha);
         Renderer renderer = GetComponent<Renderer>();
         // Create a new material instance so we don't modify shared materials
         Material newMaterial = new(renderer.sharedMaterial);

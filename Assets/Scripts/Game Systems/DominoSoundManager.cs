@@ -141,7 +141,7 @@ public class DominoSoundManager : MonoBehaviour
         // Randomize the starting song
         SongTitle[] songKeys = (SongTitle[])System.Enum.GetValues(typeof(SongTitle));
         currentSong = songKeys[Random.Range(0, songKeys.Length)];
-        Debug.Log("Randomized starting song: " + currentSong);
+        // Debug.Log("Randomized starting song: " + currentSong);
 
         // Setup cascade audio
         cascadeSource.clip = cascadeClip;

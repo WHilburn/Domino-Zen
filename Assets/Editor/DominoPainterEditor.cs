@@ -13,6 +13,7 @@ public class DominoPainter : EditorWindow
     private bool gradientMode = false; // Toggle for Gradient Mode
     private Color startColor = Color.white; // Start color for gradient
     private Color endColor = Color.blue; // End color for gradient
+    private DominoSoundManager.DominoSoundType selectedSoundType = DominoSoundManager.DominoSoundType.Click; // Default sound type
     #endregion
 
     #region Editor Window
@@ -50,6 +51,9 @@ public class DominoPainter : EditorWindow
         {
             selectedColor = EditorGUILayout.ColorField("Color", selectedColor);
         }
+
+        // Add sound type selection to the GUI
+        selectedSoundType = (DominoSoundManager.DominoSoundType)EditorGUILayout.EnumPopup("Sound Type", selectedSoundType);
 
         // Button to apply material to selected dominoes
         if (GUILayout.Button("Apply to Selected"))
@@ -221,6 +225,8 @@ public class DominoPainter : EditorWindow
             if (placementIndicator != null)
             {
                 placementIndicator.ApplyColor(dominoColor); // Apply the color to the indicator
+                // Assign the selected sound type to the placement indicator
+                placementIndicator.soundType = selectedSoundType;
             }
 
             // Register the domino for undo before destroying it
@@ -280,6 +286,12 @@ public class DominoPainter : EditorWindow
             if (selectedMaterialList != null) dominoSkin.materialList = selectedMaterialList; // Assign the selected material list
             dominoSkin.colorOverride = indicatorColor; // Apply the indicator's color
             dominoSkin.ApplyRandomMaterial(); // Apply a random material from the list
+
+            // Assign the indicator's sound type to the domino
+            if (indicator != null && dominoSkin != null)
+            {
+                domino.GetComponent<Domino>().soundType = indicator.soundType;
+            }
 
             // Register the indicator for undo before destroying it
             Undo.DestroyObjectImmediate(indicator.gameObject);
