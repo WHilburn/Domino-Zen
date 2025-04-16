@@ -48,7 +48,7 @@ public class GlowOutlineManager
         {
             GameObject glowOutlineObject = new GameObject("GlowOutline");
             glowOutlineObject.transform.SetParent(domino.transform);
-            glowOutlineObject.transform.localPosition = Vector3.zero;
+            glowOutlineObject.transform.localPosition = new Vector3(0, 0.01f, 0);
             glowOutlineObject.transform.localRotation = Quaternion.identity;
             glowOutlineObject.transform.localScale = Vector3.one;
 
