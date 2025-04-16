@@ -52,9 +52,6 @@ public class DominoPainter : EditorWindow
             selectedColor = EditorGUILayout.ColorField("Color", selectedColor);
         }
 
-        // Add sound type selection to the GUI
-        selectedSoundType = (DominoSoundManager.DominoSoundType)EditorGUILayout.EnumPopup("Sound Type", selectedSoundType);
-
         // Button to apply material to selected dominoes
         if (GUILayout.Button("Apply to Selected"))
         {
@@ -77,6 +74,18 @@ public class DominoPainter : EditorWindow
         if (GUILayout.Button("Refresh All"))
         {
             RefreshAllObjects();
+        }
+
+        GUILayout.Space(10);
+        GUILayout.Label("Sound Settings", EditorStyles.boldLabel);
+
+        // Add sound type selection to the GUI
+        selectedSoundType = (DominoSoundManager.DominoSoundType)EditorGUILayout.EnumPopup("Sound Type", selectedSoundType);
+
+        // Button to apply sound settings to selected dominoes or indicators
+        if (GUILayout.Button("Apply Sound Settings"))
+        {
+            ApplySoundSettingsToSelected();
         }
     }
     #endregion
@@ -170,6 +179,50 @@ public class DominoPainter : EditorWindow
 
             EditorUtility.SetDirty(placementSkin); // Mark the object as changed for saving
         }
+    }
+    #endregion
+
+    #region Apply Sound Settings
+    private void ApplySoundSettingsToSelected()
+    {
+        // Get all selected objects in the Scene
+        GameObject[] selectedObjects = Selection.gameObjects;
+
+        List<Domino> dominoesToApply = new List<Domino>();
+        List<PlacementIndicator> indicatorsToApply = new List<PlacementIndicator>();
+
+        foreach (GameObject obj in selectedObjects)
+        {
+            // Look for Domino and PlacementIndicator components in selected objects and their children
+            dominoesToApply.AddRange(obj.GetComponentsInChildren<Domino>());
+            indicatorsToApply.AddRange(obj.GetComponentsInChildren<PlacementIndicator>());
+        }
+
+        if (dominoesToApply.Count + indicatorsToApply.Count == 0)
+        {
+            Debug.LogWarning("No relevant objects found in the selected objects or their children.");
+            return;
+        }
+
+        // Register the undo operation
+        Undo.RegisterCompleteObjectUndo(dominoesToApply.ToArray(), "Apply Sound Settings");
+        Undo.RegisterCompleteObjectUndo(indicatorsToApply.ToArray(), "Apply Sound Settings");
+
+        // Apply the selected sound type to each Domino
+        foreach (Domino domino in dominoesToApply)
+        {
+            domino.soundType = selectedSoundType;
+            EditorUtility.SetDirty(domino); // Mark the object as changed for saving
+        }
+
+        // Apply the selected sound type to each PlacementIndicator
+        foreach (PlacementIndicator indicator in indicatorsToApply)
+        {
+            indicator.soundType = selectedSoundType;
+            EditorUtility.SetDirty(indicator); // Mark the object as changed for saving
+        }
+
+        Debug.Log($"Applied sound settings to {dominoesToApply.Count} dominoes and {indicatorsToApply.Count} indicators.");
     }
     #endregion
 

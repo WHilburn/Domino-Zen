@@ -67,7 +67,7 @@ public class PlacementIndicator : DominoLike
             case IndicatorState.Filled:
                 if (trackedDomino.currentState == Domino.DominoState.Held)
                 {
-                    currentState = IndicatorState.Empty; // Transition to Empty state
+                    currentState = IndicatorState.TryingToFill;
                     OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty
                     OnIndicatorEmptiedInstance.Invoke(); // Notify individual subscribers
                     Debug.Log("Indicator fading in because the domino was lifted: " + trackedDomino.name);
@@ -119,7 +119,7 @@ public class PlacementIndicator : DominoLike
             // Reset the tracked domino and its Rigidbody
             trackedDomino = null;
             trackedDominoRb = null;
-            currentState = IndicatorState.Empty; // Transition to Empty state
+            currentState = IndicatorState.TryingToFill; // Transition to Empty state
             Debug.Log("Indicator fading in because the domino fell out");
             FadeIn(); // Fade back in if the domino is removed
         }
@@ -173,7 +173,7 @@ public class PlacementIndicator : DominoLike
         // Set the domino's stable position and rotation
         trackedDomino.SaveStablePosition(transform);
         // Assign the sound type to the domino
-        trackedDomino.soundType = soundType;
+        if (soundType != DominoSoundManager.DominoSoundType.Default) trackedDomino.soundType = soundType;
         // Reset the domino's position using the rotate reset animation
         trackedDominoRb.GetComponent<DominoSkin>().TweenColor(indicatorColor, 1f); // Tween the color of the domino
         trackedDomino.AnimateDomino(Domino.DominoAnimation.Rotate);
@@ -195,7 +195,7 @@ public class PlacementIndicator : DominoLike
     public void FadeOut(bool playSound = true)
     {
         if (playSound) soundManager.PlayPlacementSound(1);
-        Debug.Log("Indicator fading out: " + gameObject.name);
+        // Debug.Log("Indicator fading out: " + gameObject.name);
 
         indicatorRenderer.material.DOKill();
         placementCollider.enabled = false;
@@ -210,7 +210,7 @@ public class PlacementIndicator : DominoLike
     public void FadeIn(bool playSound = true)
     {
         if (playSound) soundManager.PlayPlacementSound(-1);
-        Debug.Log("Indicator fading in: " + gameObject.name);
+        // Debug.Log("Indicator fading in: " + gameObject.name);
         placementCollider.enabled = true;
         indicatorRenderer.enabled = true;
         indicatorRenderer.material.DOKill();
