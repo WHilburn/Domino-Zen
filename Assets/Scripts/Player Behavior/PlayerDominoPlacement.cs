@@ -1,4 +1,5 @@
 using DG.Tweening;
+using UnityEditor.ShaderGraph;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
@@ -12,13 +13,11 @@ public class PlayerDominoPlacement : MonoBehaviour
     public static GameObject heldDomino;
     private Rigidbody heldRb;
     private Transform handAnchor; // Empty GameObject for domino attachment
-    private RectTransform handSpriteRect; // RectTransform of the hand sprite
     private GameObject hand3DInstance; // Instance of the 3D hand
     private DominoSoundManager soundManager; // Reference to the SoundManager
     private Vector3 anchor;
     private float savedDrag;
     private float savedAngularDrag;
-    public float followSpeed = 1f;
     public float maxHandSpeed = 3f;
     public float hoverOffset = 1.6f;
     public float rotationSpeed = 100f;
@@ -34,7 +33,6 @@ public class PlayerDominoPlacement : MonoBehaviour
     public static bool flickEnabled = true;
     public static bool placementLimited = false; // Flag to limit placement to a specific area
     public Material glowOutlineMaterial; // Reference to the glow outline material
-    private Domino hoveredDomino; // Currently hovered domino
     public Material placementDecalMaterial; // Material for the hollow rectangle decal
     public Material placementDecalMaterialRed;
     public Material dashedOutlineMaterial;
@@ -238,6 +236,12 @@ public class PlayerDominoPlacement : MonoBehaviour
     {
         if (!IsCameraActive()) return;
 
+        if (bucketModeEnabled && IsMousePointingAtBucket())
+        {
+            SpawnDomino(); // Spawn a domino if pointing at a bucket
+            return; // Prevent picking up if pointing at a bucket
+        }
+
         Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
@@ -434,6 +438,15 @@ public class PlayerDominoPlacement : MonoBehaviour
         {
             if (hit.collider.CompareTag("Bucket")) // Check if the hit object has the "Bucket" tag
             {
+                Bucket bucket = hit.collider.GetComponent<Bucket>();
+                if (bucket != null)
+                {
+                    return hit.collider.gameObject; // Return the bucket GameObject
+                }
+                else if (hit.collider.transform.parent != null && hit.collider.transform.parent.GetComponent<Bucket>() != null)
+                {
+                    return hit.collider.transform.parent.gameObject; // Return the parent GameObject if it has a Bucket script
+                }
                 return hit.collider.gameObject; // Return the bucket GameObject
             }
         }
@@ -494,14 +507,7 @@ public class PlayerDominoPlacement : MonoBehaviour
             springTween.Kill(); // Kill the tween to clean it up
         }
 
-        if (handAnchor != null)
-        {
-            Destroy(handAnchor.gameObject);
-            
-        }
-
-        if (handSpriteRect != null)
-            Destroy(handSpriteRect.gameObject);
+        if (handAnchor != null) Destroy(handAnchor.gameObject);
 
         if (hand3DInstance != null)
         {
