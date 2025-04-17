@@ -5,6 +5,7 @@ public abstract class DominoLike : MonoBehaviour
 {
     public static Vector3 holdPoint = new(0, 0.5f, 0); // Point where the domino is held
     public static Vector3 bottomPoint = new(0, -0.5f, 0); // Default bottom point for snapping
+    public static Vector3 standardDimensions = new(0.51028f, 1, 0.13904f); // Standard dimensions for the domino
 
     public virtual void SnapToGround()
     {
