@@ -173,7 +173,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     {
         if (!IsCameraActive() || (placementLimited && !IsMousePointingAtTutorialBook())) return;
 
-        GameObject bucket = null;
+        Bucket bucket = null;
         if (bucketModeEnabled)
         {
             bucket = IsMousePointingAtBucket();
@@ -184,9 +184,8 @@ public class PlayerDominoPlacement : MonoBehaviour
         Quaternion spawnRotation = savedRotation;
         if (bucketModeEnabled)
         {
-            Bucket bucket1 = bucket.GetComponent<Bucket>();
-            spawnPos = bucket1.spawnLocation.position; // Use the bucket's spawn location
-            spawnRotation = bucket1.spawnLocation.rotation; // Use the bucket's rotation
+            spawnPos = bucket.spawnLocation.position; // Use the bucket's spawn location
+            spawnRotation = bucket.spawnLocation.rotation; // Use the bucket's rotation
         }
 
         // Prevent spawning if the position is further than 15 units from the camera
@@ -205,13 +204,20 @@ public class PlayerDominoPlacement : MonoBehaviour
         heldDomino.name = $"{dominoPrefab.name} {InGameUI.dominoCount + 1}";
         InitializeHeldDomino();
 
-        CreateHandAnchor(spawnPos);
+        CreateHandAnchor(spawnPos); // Create the hand anchor
         initialHandElevation = handAnchor.position.y; // Store the initial elevation
         AttachDominoToAnchor();
 
         Create3DHand(spawnPos);
         // Calculate the offset between the hand and the mouse cursor
-        handMouseOffset = handAnchor.position - GetMouseWorldPosition();
+        if (bucketModeEnabled)
+        {
+            handMouseOffset = handAnchor.position - bucket.spawnLocation.position; // Adjust offset for bucket mode
+        }
+        else
+        {
+            handMouseOffset = handAnchor.position - GetMouseWorldPosition(); // Adjust offset for normal mode
+        }
     }
 
     private void InitializeHeldDomino()
@@ -340,24 +346,30 @@ public class PlayerDominoPlacement : MonoBehaviour
     {
         if (handAnchor == null) return;
 
-        // Get the target position adjusted by the offset
-        Vector3 targetPosition = GetMouseWorldPosition() + handMouseOffset;
+        Vector3 bucketOffset = new Vector3(0f, 0f, 0f); // Offset for the bucket mode
+        if (bucketModeEnabled && IsMousePointingAtBucket())
+        {
+            bucketOffset = new Vector3(0f, 1f, 0f); // Adjust the offset for bucket mode
+        }
 
-        // Clamp the target position to within 15 units of the camera
+        // Get the target position adjusted by the offset
+        Vector3 targetPosition = GetMouseWorldPosition() + handMouseOffset + bucketOffset;
+
+        // Clamp the target position to within maxDistance units of the camera
         if (Vector3.Distance(activeCamera.transform.position, targetPosition) > maxDistance)
         {
             targetPosition = activeCamera.transform.position + 
                              (targetPosition - activeCamera.transform.position).normalized * maxDistance;
         }
 
-        Vector3 targetFlat = new(targetPosition.x, initialHandElevation, targetPosition.z); // Maintain initial elevation
-        float step = Mathf.Min(maxHandSpeed * Time.deltaTime, Vector3.Distance(handAnchor.position, targetFlat));
-        handAnchor.position = Vector3.MoveTowards(handAnchor.position, targetFlat, step);
+        //Vector3 targetFlat = new(targetPosition.x, initialHandElevation, targetPosition.z); // Maintain initial elevation
+        float step = Mathf.Min(maxHandSpeed * Time.deltaTime, Vector3.Distance(handAnchor.position, targetPosition));
+        handAnchor.position = Vector3.MoveTowards(handAnchor.position, targetPosition, step);
+        Debug.DrawLine(handAnchor.position, targetPosition, Color.red); // Draw a line for debugging
 
         if (hand3DInstance != null)
         {
             hand3DInstance.transform.position = handAnchor.position;
-            // Do not match the domino's rotation to the hand
         }
     }
 
@@ -431,7 +443,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         follower.Initialize(activeCamera, position, 1f); // Pass camera, world position, and fade duration
     }
 
-    private GameObject IsMousePointingAtBucket()
+    private Bucket IsMousePointingAtBucket()
     {
         Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
@@ -441,13 +453,8 @@ public class PlayerDominoPlacement : MonoBehaviour
                 Bucket bucket = hit.collider.GetComponent<Bucket>();
                 if (bucket != null)
                 {
-                    return hit.collider.gameObject; // Return the bucket GameObject
+                    return hit.collider.GetComponent<Bucket>(); // Return the bucket GameObject
                 }
-                else if (hit.collider.transform.parent != null && hit.collider.transform.parent.GetComponent<Bucket>() != null)
-                {
-                    return hit.collider.transform.parent.gameObject; // Return the parent GameObject if it has a Bucket script
-                }
-                return hit.collider.gameObject; // Return the bucket GameObject
             }
         }
         return null;

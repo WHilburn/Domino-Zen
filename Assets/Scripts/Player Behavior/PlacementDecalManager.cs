@@ -120,7 +120,6 @@ public class PlacementDecalManager
 
             // Raycast down to determine the y position
             Ray downRay = new Ray(heldDomino.transform.position, Vector3.down);
-            Debug.DrawLine(downRay.origin, downRay.origin + downRay.direction * 100f, Color.red, 0.1f);
             if (Physics.Raycast(downRay, out RaycastHit hit, Mathf.Infinity, environmentLayerMask))
             {
                 targetPosition.y = hit.point.y + 0.005f; // Add a small offset to avoid clipping

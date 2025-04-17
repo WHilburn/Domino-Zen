@@ -84,7 +84,7 @@ public class Domino : DominoLike
 
         HandleMovementState();
         // Draw a debug line from the domino to its last stable position
-        Debug.DrawLine(transform.position, lastStablePosition, Color.red);
+        // Debug.DrawLine(transform.position, lastStablePosition, Color.red);
     }
     #endregion
 
