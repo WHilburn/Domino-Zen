@@ -12,6 +12,7 @@ public class PlayerCameraController : MonoBehaviour
     private float currentRotationX = 0f;
     private float currentRotationY = 0f;
     public CinemachineBrain brain;
+    public Camera activeCamera;
     public bool isCameraEnabled = true; // Flag to enable/disable camera controls
     private bool windowFocused = true; // Flag to check if the window is focused
     public CinemachineVirtualCamera tutorialCamera;
@@ -82,6 +83,12 @@ public class PlayerCameraController : MonoBehaviour
         {
             // Stabilize rotation when the right mouse button is released
             StabilizeRotation();
+        }
+
+        // Check if a domino is being held and adjust the camera to keep it in frame
+        if (PlayerDominoPlacement.heldDomino != null)
+        {
+            KeepHeldDominoInFrame();
         }
     }
     #endregion
@@ -166,6 +173,27 @@ public class PlayerCameraController : MonoBehaviour
         // Ensure no residual rotation occurs by clamping or resetting values
         currentRotationX = Mathf.Clamp(currentRotationX, -80f, 80f);
         transform.rotation = Quaternion.Euler(currentRotationX, currentRotationY, 0);
+    }
+
+    private void KeepHeldDominoInFrame()
+    {
+        GameObject heldDomino = PlayerDominoPlacement.heldDomino;
+        if (heldDomino == null || activeCamera == null) return;
+
+        Vector3 screenPoint = activeCamera.WorldToScreenPoint(heldDomino.transform.position);
+        bool isOutOfFrameHorizontally = screenPoint.x < 0 || screenPoint.x > Screen.width;
+
+        if (isOutOfFrameHorizontally)
+        {
+            Vector3 directionToDomino = (heldDomino.transform.position - transform.position).normalized;
+
+            // Calculate the target Y-axis rotation to look at the domino
+            float targetYRotation = Quaternion.LookRotation(directionToDomino).eulerAngles.y;
+
+            // Smoothly interpolate the camera's Y-axis rotation towards the target rotation
+            currentRotationY = Mathf.LerpAngle(currentRotationY, targetYRotation, lookSpeed * 0.25f * Time.deltaTime);
+            transform.rotation = Quaternion.Euler(currentRotationX, currentRotationY, 0);
+        }
     }
     #endregion
 
