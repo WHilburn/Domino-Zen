@@ -346,10 +346,23 @@ public class PlayerDominoPlacement : MonoBehaviour
     {
         if (handAnchor == null) return;
 
-        Vector3 bucketOffset = new Vector3(0f, 0f, 0f); // Offset for the bucket mode
-        if (bucketModeEnabled && IsMousePointingAtBucket())
+        Vector3 bucketOffset = Vector3.zero; // Offset for the bucket mode
+        if (bucketModeEnabled) //Move hand/domino up if over a bucket
         {
-            bucketOffset = new Vector3(0f, 1f, 0f); // Adjust the offset for bucket mode
+            Collider[] hitColliders = Physics.OverlapBox(
+                heldDomino.transform.position, 
+                new Vector3(0.25f, 1.5f, 0.25f), 
+                Quaternion.identity
+            );
+
+            foreach (var collider in hitColliders)
+            {
+                if (collider.CompareTag("Bucket"))
+                {
+                    bucketOffset = new Vector3(0f, 1f, 0f); // Adjust the offset for bucket mode
+                    break;
+                }
+            }
         }
 
         // Get the target position adjusted by the offset
