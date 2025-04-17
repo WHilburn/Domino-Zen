@@ -11,6 +11,7 @@ public class PlayerCameraController : MonoBehaviour
     private Vector3 moveDirection;
     private float currentRotationX = 0f;
     private float currentRotationY = 0f;
+    private static float offScreenHorizontalTolerance = 120f; // Tolerance for off-screen rotation
     public CinemachineBrain brain;
     public Camera activeCamera;
     public bool isCameraEnabled = true; // Flag to enable/disable camera controls
@@ -181,7 +182,7 @@ public class PlayerCameraController : MonoBehaviour
         if (heldDomino == null || activeCamera == null) return;
 
         Vector3 screenPoint = activeCamera.WorldToScreenPoint(heldDomino.transform.position);
-        bool isOutOfFrameHorizontally = screenPoint.x < 0 || screenPoint.x > Screen.width;
+        bool isOutOfFrameHorizontally = screenPoint.x < -offScreenHorizontalTolerance || screenPoint.x > Screen.width + offScreenHorizontalTolerance;
 
         if (isOutOfFrameHorizontally)
         {

@@ -220,6 +220,7 @@ public class PlacementIndicator : DominoLike
         if (playSound) soundManager.PlayPlacementSound(-1);
         // Debug.Log("Indicator fading in: " + gameObject.name);
         placementCollider.enabled = true;
+        indicatorRenderer = GetComponent<Renderer>();
         indicatorRenderer.enabled = true;
         indicatorRenderer.material.DOKill();
         // Use DOTween to fade in the material's alpha
