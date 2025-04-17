@@ -1,5 +1,4 @@
 using DG.Tweening;
-using UnityEditor.ShaderGraph;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
@@ -351,7 +350,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         {
             Collider[] hitColliders = Physics.OverlapBox(
                 heldDomino.transform.position, 
-                new Vector3(0.25f, 1.5f, 0.25f), 
+                new Vector3(0.3f, 5f, 0.3f), 
                 Quaternion.identity
             );
 
@@ -359,7 +358,7 @@ public class PlayerDominoPlacement : MonoBehaviour
             {
                 if (collider.CompareTag("Bucket"))
                 {
-                    bucketOffset = new Vector3(0f, 1f, 0f); // Adjust the offset for bucket mode
+                    bucketOffset = new Vector3(0f, 1.25f, 0f); // Adjust the offset for bucket mode
                     break;
                 }
             }
@@ -501,6 +500,10 @@ public class PlayerDominoPlacement : MonoBehaviour
         spring.massScale = 1f;
         spring.spring = 50f;
         // Tween the spring.spring value to 500 over 0.5 seconds using DOTween
+        if (springTween != null && springTween.IsActive())
+        {
+            springTween.Kill(); // Kill the tween to clean it up
+        }
         springTween = DOTween.To(() => spring.spring, x => spring.spring = x, 500f, 0.25f);
 
         heldRb.velocity = Vector3.zero;
