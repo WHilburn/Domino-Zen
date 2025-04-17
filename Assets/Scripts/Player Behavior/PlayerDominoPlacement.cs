@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
@@ -42,6 +43,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private Domino obstruction;
     private PlacementDecalManager placementDecalManager;
     private GlowOutlineManager glowOutlineManager;
+    private Tween springTween; // Store the tween reference
     #endregion
     #region Unity Methods
     void Start()
@@ -424,8 +426,8 @@ public class PlayerDominoPlacement : MonoBehaviour
 
     private void AttachDominoToAnchor()
     {
-        heldDomino.transform.position = handAnchor.position;
-        heldDomino.transform.rotation = savedRotation; // Match the rotation of the hand
+        // heldDomino.transform.position = handAnchor.position;
+        // heldDomino.transform.rotation = Quaternion.Euler(0f, savedRotation.eulerAngles.y, 0f); // Ensure x and z rotations are set to 0
 
         SpringJoint spring = heldDomino.AddComponent<SpringJoint>();
         spring.connectedBody = handAnchor.gameObject.AddComponent<Rigidbody>();
@@ -436,9 +438,11 @@ public class PlayerDominoPlacement : MonoBehaviour
         spring.autoConfigureConnectedAnchor = false;
         spring.connectedAnchor = Vector3.zero;
         spring.tolerance = 0.001f;
-        spring.spring = 500f;
         spring.damper = 1f;
         spring.massScale = 1f;
+        spring.spring = 50f;
+        // Tween the spring.spring value to 500 over 0.5 seconds using DOTween
+        springTween = DOTween.To(() => spring.spring, x => spring.spring = x, 500f, 0.25f);
 
         heldRb.velocity = Vector3.zero;
         heldRb.angularVelocity = Vector3.zero;
@@ -459,8 +463,16 @@ public class PlayerDominoPlacement : MonoBehaviour
 
     private void DestroyHand()
     {
+        if (springTween != null && springTween.IsActive())
+        {
+            springTween.Kill(); // Kill the tween to clean it up
+        }
+
         if (handAnchor != null)
+        {
             Destroy(handAnchor.gameObject);
+            
+        }
 
         if (handSpriteRect != null)
             Destroy(handSpriteRect.gameObject);
