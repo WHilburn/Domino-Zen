@@ -44,6 +44,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private PlacementDecalManager placementDecalManager;
     private GlowOutlineManager glowOutlineManager;
     private Tween springTween; // Store the tween reference
+    public bool bucketModeEnabled = false; // Flag to enable/disable bucket mode
     #endregion
     #region Unity Methods
     void Start()
@@ -174,7 +175,21 @@ public class PlayerDominoPlacement : MonoBehaviour
     {
         if (!IsCameraActive() || (placementLimited && !IsMousePointingAtTutorialBook())) return;
 
+        GameObject bucket = null;
+        if (bucketModeEnabled)
+        {
+            bucket = IsMousePointingAtBucket();
+            if (bucket == null) return; // Exit if not pointing at a bucket
+        }
+
         Vector3 spawnPos = GetMouseWorldPosition();
+        Quaternion spawnRotation = savedRotation;
+        if (bucketModeEnabled)
+        {
+            Bucket bucket1 = bucket.GetComponent<Bucket>();
+            spawnPos = bucket1.spawnLocation.position; // Use the bucket's spawn location
+            spawnRotation = bucket1.spawnLocation.rotation; // Use the bucket's rotation
+        }
 
         // Prevent spawning if the position is further than 15 units from the camera
         if (Vector3.Distance(activeCamera.transform.position, spawnPos) > maxDistance) return;
@@ -187,8 +202,6 @@ public class PlayerDominoPlacement : MonoBehaviour
             soundManager?.PlayArbitrarySound(soundManager.dominoObstructedSound, 1, 1, spawnPos);
             return; // Prevent spawning
         }
-
-        Quaternion spawnRotation = savedRotation;
 
         heldDomino = Instantiate(dominoPrefab, spawnPos, spawnRotation);
         heldDomino.name = $"{dominoPrefab.name} {InGameUI.dominoCount + 1}";
@@ -412,6 +425,19 @@ public class PlayerDominoPlacement : MonoBehaviour
         GameObject lockSprite = Instantiate(lockSpritePrefab, uiCanvas.transform);
         LockSpriteFollower follower = lockSprite.AddComponent<LockSpriteFollower>();
         follower.Initialize(activeCamera, position, 1f); // Pass camera, world position, and fade duration
+    }
+
+    private GameObject IsMousePointingAtBucket()
+    {
+        Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            if (hit.collider.CompareTag("Bucket")) // Check if the hit object has the "Bucket" tag
+            {
+                return hit.collider.gameObject; // Return the bucket GameObject
+            }
+        }
+        return null;
     }
     #endregion
 
