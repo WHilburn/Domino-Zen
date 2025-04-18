@@ -35,6 +35,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     public Material placementDecalMaterial; // Material for the hollow rectangle decal
     public Material placementDecalMaterialRed;
     public Material dashedOutlineMaterial;
+    public GameObject cylinderPrefab; // Reference to the cylinder prefab for placement visualization
     public Vector3 decalSize = new Vector3(1f, 1f, 1f); // Size of the decal
     public Vector3 decalPivot = new Vector3(0f, 0f, -1f); // Pivot point of the decal
     private Domino obstruction;
@@ -42,6 +43,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private GlowOutlineManager glowOutlineManager;
     private Tween springTween; // Store the tween reference
     public bool bucketModeEnabled = false; // Flag to enable/disable bucket mode
+    private PlayerObjectMovement objectMovementManager;
     #endregion
     #region Unity Methods
     void Start()
@@ -66,6 +68,8 @@ public class PlayerDominoPlacement : MonoBehaviour
         );
 
         glowOutlineManager = new GlowOutlineManager(glowOutlineMaterial, activeCamera);
+        objectMovementManager = gameObject.AddComponent<PlayerObjectMovement>();
+        objectMovementManager.Initialize(activeCamera);
     }
 
     void Update()
