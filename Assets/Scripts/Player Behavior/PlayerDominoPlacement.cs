@@ -111,7 +111,7 @@ public class PlayerDominoPlacement : MonoBehaviour
             DeleteHeldDomino();
         }
 
-        if (Input.GetKeyDown(KeyCode.F) && flickEnabled)
+        if (Input.GetButtonDown("Interact") && flickEnabled)
         {
             TryFlickDomino();
         }

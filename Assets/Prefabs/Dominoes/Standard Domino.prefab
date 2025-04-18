@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 2eb8b70a42ce24a25a84e149d170ca0b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -245,15 +245,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3328333be5ada4ed5b089b565a231cc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rb: {fileID: 0}
+  soundType: 0
   currentState: 0
-  velocityMagnitude: 0
-  musicMode: 1
   stablePositionSet: 0
   placementIndicator: {fileID: 0}
   locked: 0
   lastStablePosition: {x: 0, y: 0, z: 0}
   lastStableRotation: {x: 0, y: 0, z: 0, w: 0}
-  canSetNewStablePosition: 1
 --- !u!65 &8120456856630276370
 BoxCollider:
   m_ObjectHideFlags: 0

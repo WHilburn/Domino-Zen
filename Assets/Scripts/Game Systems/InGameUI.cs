@@ -45,12 +45,16 @@ public class InGameUI : MonoBehaviour
     public static int dominoCount = 0;
     public static int indicatorCount = 0;
     public static bool paused = false; // Static variable to track pause state
+    public Texture2D CursorTexture; // Texture for the custom cursor
     
     #endregion
 
     #region Unity Methods
     void Awake()
     {
+        // Set the game's mouse cursor to half size
+        // Cursor.SetCursor(CursorTexture, Vector2.zero, CursorMode.Auto);
+        // Cursor.SetCursor(CursorTexture, new Vector2(CursorTexture.width / 8, CursorTexture.height / 8), CursorMode.Auto);
         // Ensure only one instance of InGameUI exists
         if (Instance != null && Instance != this)
         {
