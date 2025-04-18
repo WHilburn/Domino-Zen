@@ -73,7 +73,7 @@ public class Bridge : MonoBehaviour
 
         foreach (var childIndicator in topOfBridgeIndicators)
         {
-            Debug.Log("Fading out bridge child indicator: " + childIndicator.name);
+            // Debug.Log("Fading out bridge child indicator: " + childIndicator.name);
             childIndicator.FadeOut(false);
             childIndicator.currentState = PlacementIndicator.IndicatorState.Disabled;
         }

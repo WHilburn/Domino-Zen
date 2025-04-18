@@ -88,6 +88,17 @@ public class DominoPainter : EditorWindow
             ApplySoundSettingsToSelected();
         }
     }
+
+    void OnEnable()
+    {
+        if (dominoPrefab == null)
+            dominoPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Dominoes/Standard Domino.prefab");
+        if (indicatorPrefab == null)
+            indicatorPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Dominoes/Placement Indicator.prefab");
+        if (selectedMaterialList == null)
+            selectedMaterialList = AssetDatabase.LoadAssetAtPath<DominoMaterialList>("Assets/Prefabs/Dominoes/Material and Sound Lists/WhiteDominoMaterials.asset");        
+    }
+
     #endregion
 
     #region Apply Material
