@@ -240,7 +240,10 @@ public class InGameUI : MonoBehaviour
                 .OnComplete(() => optionsPanel.SetActive(false)); // Collapse options panel and deactivate
             optionsPanelRect.DOScaleX(0, animationDuration);
             DOTween.To(() => layoutGroup.spacing, x => layoutGroup.spacing = x, 0, animationDuration)
-                .OnUpdate(() => Debug.Log($"Tweening spacing: {layoutGroup.spacing}")); // Log spacing during tween
+                .OnUpdate(() =>
+                {
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(pauseMenu.GetComponent<RectTransform>()); // Force layout rebuild
+                });
         }
         else
         {
@@ -248,13 +251,16 @@ public class InGameUI : MonoBehaviour
             optionsPanelRect.DOSizeDelta(new Vector2((totalWidth * 2) / 4, optionsPanelRect.sizeDelta.y), animationDuration); // Expand options panel
             optionsPanelRect.DOScaleX(1, animationDuration);
             DOTween.To(() => layoutGroup.spacing, x => layoutGroup.spacing = x, 100, animationDuration)
-                .OnUpdate(() => Debug.Log($"Tweening spacing: {layoutGroup.spacing}")); // Log spacing during tween
+                .OnUpdate(() =>
+                {
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(pauseMenu.GetComponent<RectTransform>()); // Force layout rebuild
+                });
         }
 
         // Log final spacing value after tween
         DOTween.Sequence().AppendInterval(animationDuration).OnComplete(() =>
         {
-            Debug.Log($"Final spacing: {layoutGroup.spacing}");
+            // Debug.Log($"Final spacing: {layoutGroup.spacing}");
         });
     }
 

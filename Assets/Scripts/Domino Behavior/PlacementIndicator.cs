@@ -113,19 +113,23 @@ public class PlacementIndicator : DominoLike
         {
             return; // Ignore if the collider is not a domino
         }
-        if (other.gameObject == trackedDomino?.gameObject && currentState != IndicatorState.Disabled && trackedDomino?.currentState != Domino.DominoState.Animating)
+        if (other.gameObject == trackedDomino?.gameObject &&
+        currentState != IndicatorState.Disabled &&
+        trackedDomino?.currentState != Domino.DominoState.Animating &&
+        Vector3.Distance(transform.position, trackedDomino.transform.position) > 0.001f
+        )
         {
             if (currentState == IndicatorState.Filled)
             {
                 OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty;
                 OnIndicatorEmptiedInstance.Invoke();
             }
+            Debug.Log("Indicator fading in because the domino fell out, distance: " + Vector3.Distance(transform.position, trackedDomino.transform.position));
             trackedDomino.placementIndicator = null; // Clear the domino's reference to this indicator 
             // Reset the tracked domino and its Rigidbody
             trackedDomino = null;
             trackedDominoRb = null;
             currentState = IndicatorState.TryingToFill; // Transition to Empty state
-            Debug.Log("Indicator fading in because the domino fell out");
             FadeIn(); // Fade back in if the domino is removed
         }
     }
