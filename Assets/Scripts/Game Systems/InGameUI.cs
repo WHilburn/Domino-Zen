@@ -45,6 +45,7 @@ public class InGameUI : MonoBehaviour
     public static int dominoCount = 0;
     public static int indicatorCount = 0;
     public static bool paused = false; // Static variable to track pause state
+    
     #endregion
 
     #region Unity Methods
@@ -106,6 +107,13 @@ public class InGameUI : MonoBehaviour
             optionsPanel.SetActive(false);
         }
         Invoke(nameof(InitializeDropdownValues), 0.05f); // Initialize dropdown values after a short delay
+
+        // Set the initial size of the button panel
+        if (buttonPanel != null && pauseMenu != null)
+        {
+            float totalWidth = pauseMenu.GetComponent<RectTransform>().rect.width;
+            buttonPanel.sizeDelta = new Vector2(totalWidth / 3, buttonPanel.sizeDelta.y);
+        }
     }
 
     private void InitializeDropdownValues()
@@ -169,8 +177,8 @@ public class InGameUI : MonoBehaviour
     {
         if (dominoCountText != null)
         {
-            dominoCountText.text = $"Dominoes Placed: {dominoCount}";
-            indicatorCountText.text = $"Indicators Remaining: {indicatorCount}";
+            dominoCountText.text = $"x {dominoCount}";
+            indicatorCountText.text = $"x {indicatorCount}";
         }
     }
 
@@ -218,6 +226,12 @@ public class InGameUI : MonoBehaviour
         float totalWidth = pauseMenu.GetComponent<RectTransform>().rect.width;
         HorizontalLayoutGroup layoutGroup = pauseMenu.GetComponent<HorizontalLayoutGroup>();
 
+        if (layoutGroup == null)
+        {
+            Debug.LogError("HorizontalLayoutGroup is null. Ensure it is attached to the pause menu.");
+            return;
+        }
+
         // Animate the panels
         if (isOptionsActive)
         {
@@ -225,15 +239,23 @@ public class InGameUI : MonoBehaviour
             optionsPanelRect.DOSizeDelta(new Vector2(0, optionsPanelRect.sizeDelta.y), animationDuration)
                 .OnComplete(() => optionsPanel.SetActive(false)); // Collapse options panel and deactivate
             optionsPanelRect.DOScaleX(0, animationDuration);
-            DOTween.To(() => layoutGroup.spacing, x => layoutGroup.spacing = x, 0, animationDuration); // Tween spacing to 0
+            DOTween.To(() => layoutGroup.spacing, x => layoutGroup.spacing = x, 0, animationDuration)
+                .OnUpdate(() => Debug.Log($"Tweening spacing: {layoutGroup.spacing}")); // Log spacing during tween
         }
         else
         {
             buttonPanel.DOSizeDelta(new Vector2(totalWidth / 3, buttonPanel.sizeDelta.y), animationDuration); // Expand button panel
             optionsPanelRect.DOSizeDelta(new Vector2((totalWidth * 2) / 4, optionsPanelRect.sizeDelta.y), animationDuration); // Expand options panel
             optionsPanelRect.DOScaleX(1, animationDuration);
-            DOTween.To(() => layoutGroup.spacing, x => layoutGroup.spacing = x, 100, animationDuration); // Tween spacing to 100
+            DOTween.To(() => layoutGroup.spacing, x => layoutGroup.spacing = x, 100, animationDuration)
+                .OnUpdate(() => Debug.Log($"Tweening spacing: {layoutGroup.spacing}")); // Log spacing during tween
         }
+
+        // Log final spacing value after tween
+        DOTween.Sequence().AppendInterval(animationDuration).OnComplete(() =>
+        {
+            Debug.Log($"Final spacing: {layoutGroup.spacing}");
+        });
     }
 
     public void CreateFloatingWorldText(string text, Vector3 worldPosition, float scale, float fadeDuration, bool floatUpwards = false)
