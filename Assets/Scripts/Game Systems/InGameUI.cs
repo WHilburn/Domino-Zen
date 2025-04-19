@@ -19,12 +19,6 @@ public class InGameUI : MonoBehaviour
     [SerializeField] private RectTransform optionsPanelRect; // Reference to the options panel RectTransform
     [SerializeField] private float animationDuration = 0.5f; // Duration of the animation
     public Camera mainCamera; // Reference to the main camera
-    public Button cameraForwardButton;
-    public Button cameraLeftButton;
-    public Button cameraBackButton;
-    public Button cameraRightButton;
-    public Button cameraUpButton;
-    public Button cameraDownButton;
     public GameObject pauseMenu; // For enabling and disabling the pause menu
     public GameObject optionsPanel;
     public Button pauseButton;
@@ -39,6 +33,12 @@ public class InGameUI : MonoBehaviour
     public TextMeshProUGUI mysteryText;
     public TMP_Dropdown dominoSoundDropdown;
     public TMP_Dropdown difficultyDropdown;
+    public GameObject buttonPrompt1; // Refers to the buttom prompt reminders that pop up when mousing over interactable items
+    public GameObject buttonPrompt2;
+    public TextMeshProUGUI KeybindText1;
+    public TextMeshProUGUI KeybindText2;
+    public TextMeshProUGUI buttonActionText1;
+    public TextMeshProUGUI buttonActionText2;
     #endregion
 
     #region Static Variables
@@ -144,6 +144,83 @@ public class InGameUI : MonoBehaviour
         if (Input.GetButtonDown("Menu")) // Poll the input manager for the "Menu" input
         {
             TogglePauseMenu();
+        }
+
+        if (!paused || 
+            DominoResetManager.Instance != null && 
+            DominoResetManager.Instance.currentState == DominoResetManager.ResetState.Idle)
+        {
+            UpdateButtonPrompts(); // Call the new method to update button prompts
+        }
+    }
+
+    private void UpdateButtonPrompts()
+    {
+        // Retrieve input bindings
+        string interactKey = "C";
+        string rotatePositiveKey = "Q";
+        string rotateNegativeKey = "E";
+        string cancelKey = "Escape";
+        string spawnDominoKey = "Space";
+        string pickUpDominoKey = "Left Mouse";
+
+        // Update based on certain game states
+        if (PlayerDominoPlacement.heldDomino != null)
+        {
+            buttonPrompt1.SetActive(true);
+            buttonPrompt2.SetActive(true);
+            KeybindText1.text = $"{rotatePositiveKey}/{rotateNegativeKey}";
+            buttonActionText1.text = "Rotate Domino";
+            KeybindText2.text = cancelKey;
+            buttonActionText2.text = "Delete Domino";
+            return;
+        }
+        if (PlayerObjectMovement.isMovingObject)
+        {
+            buttonPrompt1.SetActive(true);
+            buttonPrompt2.SetActive(true);
+            KeybindText1.text = pickUpDominoKey;
+            buttonActionText1.text = "Place Object";
+            KeybindText2.text = cancelKey;
+            buttonActionText2.text = "Cancel";
+            return;
+        }
+        // Perform a raycast from the mouse position
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            // Check if the object under the cursor is a Domino
+            if (hit.collider.GetComponent<Domino>() != null && PlayerDominoPlacement.placementEnabled)
+            {
+                buttonPrompt1.SetActive(true);
+                buttonPrompt2.SetActive(true);
+                KeybindText1.text = pickUpDominoKey;
+                buttonActionText1.text = "Pick Up";
+                KeybindText2.text = interactKey;
+                buttonActionText2.text = "Knock Over";
+            }
+            // Check if the object under the cursor is a Bucket
+            else if (hit.collider.GetComponent<Bucket>() != null && PlayerDominoPlacement.placementEnabled)
+            {
+                buttonPrompt1.SetActive(true);
+                buttonPrompt2.SetActive(true);
+                KeybindText1.text = spawnDominoKey;
+                buttonActionText1.text = "Pick Up Domino";
+                KeybindText2.text = interactKey;
+                buttonActionText2.text = "Relocate";
+            }
+            else
+            {
+                // Disable button prompts if no relevant object is under the cursor
+                buttonPrompt1.SetActive(false);
+                buttonPrompt2.SetActive(false);
+            }
+        }
+        else
+        {
+            // Disable button prompts if no object is under the cursor
+            buttonPrompt1.SetActive(false);
+            buttonPrompt2.SetActive(false);
         }
     }
     #endregion

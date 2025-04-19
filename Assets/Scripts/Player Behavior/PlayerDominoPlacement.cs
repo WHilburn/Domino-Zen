@@ -80,6 +80,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         {
             DestroyHand(); // Destroy the hand if the game is paused or in a reset state
             placementDecalManager.UpdatePlacementDecal(false, heldDomino, savedRotation);
+            glowOutlineManager.RemoveGlowOutline();
             return;
         }
 
@@ -393,11 +394,13 @@ public class PlayerDominoPlacement : MonoBehaviour
     {
         float rotationDelta = 0f;
 
-        if (Input.GetKey(KeyCode.Q))
-            rotationDelta = -rotationSpeed * Time.deltaTime * 10f;
+        // if (Input.GetKey(KeyCode.Q))
+        //     rotationDelta = -rotationSpeed * Time.deltaTime * 10f;
 
-        if (Input.GetKey(KeyCode.E))
-            rotationDelta = rotationSpeed * Time.deltaTime * 10f;
+        // if (Input.GetKey(KeyCode.E))
+        //     rotationDelta = rotationSpeed * Time.deltaTime * 10f;
+
+        rotationDelta += Input.GetAxis("Rotation"); // Q and E keys for rotation by default
 
         if (Input.mouseScrollDelta.y != 0)
             rotationDelta += Input.mouseScrollDelta.y * rotationSpeed * Time.deltaTime * 30f;

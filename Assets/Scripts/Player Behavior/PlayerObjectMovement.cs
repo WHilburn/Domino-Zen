@@ -2,8 +2,9 @@ using UnityEngine;
 
 public class PlayerObjectMovement : MonoBehaviour
 {
-    private bool isMovingObject = false;
-    private GameObject selectedObject;
+    public static PlayerObjectMovement Instance { get; private set; }
+    public static bool isMovingObject = false;
+    private static GameObject selectedObject;
     private Camera activeCamera;
     private GameObject relocationIndicator; // Transparent cylinder for placement visualization
     private OverlapMesh overlapMesh; // Reference to the OverlapMesh script
@@ -15,6 +16,11 @@ public class PlayerObjectMovement : MonoBehaviour
 
     void Start()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(Instance.gameObject); // Destroy the previous instance if it exists
+        }
+        Instance = this;
         // Create the placement indicator and disable it initially
         relocationIndicator = Instantiate(PlayerDominoPlacement.Instance.cylinderPrefab, Vector3.zero, Quaternion.identity);
         overlapMesh = relocationIndicator.GetComponent<OverlapMesh>();

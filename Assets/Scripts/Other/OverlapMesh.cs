@@ -13,6 +13,8 @@ public class OverlapMesh : MonoBehaviour
     {
         objectRenderer = GetComponent<Renderer>(); // Initialize the Renderer component
         objectRenderer.material.color = NotColidingColor; // Set initial color
+        Rigidbody rb = gameObject.AddComponent<Rigidbody>();
+        rb.isKinematic = true;
     }
 
     void Update()
@@ -31,7 +33,7 @@ public class OverlapMesh : MonoBehaviour
     {
         if (!other.CompareTag("Bucket"))
         {
-            isOverlapping = true; // Set the flag to true if overlapping with an object tagged "Bucket"
+            isOverlapping = true;
         }
     }
 
@@ -39,7 +41,7 @@ public class OverlapMesh : MonoBehaviour
     {
         if (!other.CompareTag("Bucket"))
         {
-            isOverlapping = false; // Reset the flag when exiting the overlap with an object tagged "Bucket"
+            isOverlapping = false;
         }
     }
 }
