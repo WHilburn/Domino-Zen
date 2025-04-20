@@ -149,24 +149,28 @@ public class InGameUI : MonoBehaviour
         {
             TogglePauseMenu();
         }
-
-        if (!paused || 
-            DominoResetManager.Instance != null && 
-            DominoResetManager.Instance.currentState == DominoResetManager.ResetState.Idle)
-        {
-            UpdateButtonPrompts(); // Call the new method to update button prompts
-        }
+        
+        UpdateButtonPrompts(); // Call the new method to update button prompts
     }
 
     private void UpdateButtonPrompts()
     {
-        // Retrieve input bindings
+        // Retrieve input bindings, TEMP SOLUTION
         string interactKey = "C";
         string rotatePositiveKey = "Q";
         string rotateNegativeKey = "E";
         string cancelKey = "Escape";
         string spawnDominoKey = "Space";
         string pickUpDominoKey = "Left Mouse";
+
+        if (paused || 
+            DominoResetManager.Instance != null && 
+            DominoResetManager.Instance.currentState != DominoResetManager.ResetState.Idle)
+        {
+            buttonPrompt1.SetActive(false); // Hide button prompts if not paused or in reset state
+            buttonPrompt2.SetActive(false);
+            return;
+        }
 
         // Update based on certain game states
         if (PlayerDominoPlacement.heldDomino != null)

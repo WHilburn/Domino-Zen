@@ -119,7 +119,7 @@ public class DominoResetManager : MonoBehaviour
             fallenDominoes.Add(domino);
         }
 
-        if (!domino.CheckUpright()){ //Only start a domino reset if the domino is not upright
+        if (!domino.CheckUpright() || domino.stablePositionSet){ //Only start a domino reset if the domino is not upright
             CancelInvoke(nameof(ResetAllDominoes));
             Invoke(nameof(ResetAllDominoes), resetDelay);
             currentState = ResetState.ResetUpcoming; // Set the state to ResetUpcoming

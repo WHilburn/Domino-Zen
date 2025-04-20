@@ -61,7 +61,7 @@ public class Domino : DominoLike
         if (!CheckAndResolveOverlap() && currentState != DominoState.Held)
         {
             SnapToGround();
-            SaveStablePosition();
+            SaveStablePosition(); //Save stable state if the domino exists at the start of the scene
         }
     }
 
@@ -100,6 +100,7 @@ public class Domino : DominoLike
             if (currentState == DominoState.Stationary)
             {
                 OnDominoFall.Invoke(this);
+                StopCoroutine(CheckStablePositionRoutine());
             }
 
             currentState = DominoState.Moving;
@@ -150,6 +151,30 @@ public class Domino : DominoLike
             lastStablePosition = transform.position;
             lastStableRotation = transform.rotation;
         }
+
+        StartCoroutine(CheckStablePositionRoutine());
+    }
+
+    private IEnumerator CheckStablePositionRoutine()
+    {
+        const float positionThreshold = 0.05f; // Threshold for position difference
+        const float rotationThreshold = 1f; // Threshold for rotation difference in degrees
+        float checkInterval = .95f + Random.Range(0,.1f); // Time interval between checks
+
+        while (stablePositionSet)
+        {
+            yield return new WaitForSeconds(checkInterval);
+
+            // Check position and rotation thresholds
+            if (currentState == DominoState.Stationary && 
+            Vector3.Distance(transform.position, lastStablePosition) > positionThreshold ||
+                Quaternion.Angle(transform.rotation, lastStableRotation) > rotationThreshold)
+            {
+                Debug.Log("Domino is not stable anymore.");
+                OnDominoFall.Invoke(this); // Notify listeners of domino fall
+                yield break; // Stop the coroutine
+            }
+        }
     }
 
     public void AnimateDomino(DominoAnimation animation, float resetDuration = 1f)
@@ -190,6 +215,7 @@ public class Domino : DominoLike
         rb.transform.position = lastStablePosition;
         rb.transform.rotation = lastStableRotation;
         StartCoroutine(TogglePhysics(true));
+        StartCoroutine(CheckStablePositionRoutine());
     }
 
     private void PerformRotate(float resetDuration)
@@ -226,8 +252,7 @@ public class Domino : DominoLike
         // Ensure the position is reset to the original position at the end
         jiggleSequence.OnComplete(() =>
         {
-            rb.transform.position = originalPosition;
-            StartCoroutine(TogglePhysics(true));
+            PerformTeleport();
             currentState = DominoState.Stationary;
         });
 
@@ -276,6 +301,7 @@ public class Domino : DominoLike
             if (currentState == DominoState.Stationary)
             {
                 OnDominoFall.Invoke(this);
+                StopCoroutine(CheckStablePositionRoutine());
             }
             currentState = DominoState.Moving;
         }
