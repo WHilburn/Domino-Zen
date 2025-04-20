@@ -14,6 +14,7 @@ public class DominoResetManager : MonoBehaviour
     public HashSet<Domino> checkpointedDominoes = new(); // Dominoes locked at checkpoints
     private HashSet<Domino> waitingForCheckpoint = new(); // Dominoes that are waiting until the next checkpoint to lock
     public float resetDelay = 1f;
+    [HideInInspector]public float timeUntilReset;
     public float resetDuration = 1f;
     public Domino.DominoAnimation resetAnimation = Domino.DominoAnimation.Rotate;
     public int checkpointThreshold = 5; // Number of dominoes required for a checkpoint
@@ -30,6 +31,7 @@ public class DominoResetManager : MonoBehaviour
         Domino.OnDominoPlacedCorrectly.AddListener(RegisterDominoPlacement); // Subscribe to domino placement event
         GameManager.OnGameDifficultyChanged.AddListener(UpdateDifficulty); // Subscribe to difficulty change event
         Invoke(nameof(InvokeUpdateDifficulty), 0.05f);
+        timeUntilReset = resetDelay; // Initialize timeUntilReset to resetDelay
     }
 
     private void Start()
@@ -52,6 +54,8 @@ public class DominoResetManager : MonoBehaviour
         {
             ResetAllDominoes();
         }
+        timeUntilReset -= Time.deltaTime; // Decrease the time until reset
+        timeUntilReset = Mathf.Clamp(timeUntilReset, 0, resetDelay); // Clamp the time until reset to a minimum of 0
     }
 
     private void OnDestroy()
@@ -122,6 +126,7 @@ public class DominoResetManager : MonoBehaviour
         if (!domino.CheckUpright() || domino.stablePositionSet){ //Only start a domino reset if the domino is not upright
             CancelInvoke(nameof(ResetAllDominoes));
             Invoke(nameof(ResetAllDominoes), resetDelay);
+            timeUntilReset = resetDelay; // Reset the time until reset
             currentState = ResetState.ResetUpcoming; // Set the state to ResetUpcoming
         }
     }

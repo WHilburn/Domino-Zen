@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine.Events;
-using Unity.VisualScripting;
 
 [SelectionBase]
 public class Domino : DominoLike
@@ -159,7 +158,8 @@ public class Domino : DominoLike
     {
         const float positionThreshold = 0.05f; // Threshold for position difference
         const float rotationThreshold = 1f; // Threshold for rotation difference in degrees
-        float checkInterval = .95f + Random.Range(0,.1f); // Time interval between checks
+        float checkInterval = .5f; // Time interval between checks
+        yield return new WaitForSeconds(Random.Range(0,.1f)); // Wait for the first check for a random time so not all dominoes check at the same time
 
         while (stablePositionSet)
         {
@@ -170,7 +170,7 @@ public class Domino : DominoLike
             Vector3.Distance(transform.position, lastStablePosition) > positionThreshold ||
                 Quaternion.Angle(transform.rotation, lastStableRotation) > rotationThreshold)
             {
-                Debug.Log("Domino is not stable anymore.");
+                // Debug.Log("Domino is not stable anymore.");
                 OnDominoFall.Invoke(this); // Notify listeners of domino fall
                 yield break; // Stop the coroutine
             }
@@ -207,7 +207,6 @@ public class Domino : DominoLike
                 PerformJump(resetDuration, 1f);
                 break;
         }
-        
     }
 
     private void PerformTeleport()

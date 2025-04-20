@@ -18,6 +18,7 @@ public class CameraController : MonoBehaviour
     private Dictionary<Transform, float> dominoTimers = new(); // Tracks time remaining for each domino in the target group
     private const float dominoLifetime = .25f; // Time before domino is removed from the target group
     private HashSet<Transform> trackedDominoes = new(); // Tracks dominoes already added to the target group
+    public int minDominoesToTriggerTracking = 5; // Minimum dominoes to trigger tracking camera
     #endregion
 
     #region Unity Lifecycle
@@ -63,13 +64,15 @@ public class CameraController : MonoBehaviour
             return;
         }
 
-        if (dominoTimers.Count >= 2 && !isTracking)
+        if (dominoTimers.Count >= minDominoesToTriggerTracking && !isTracking)
         {
             EnableTrackingCamera();
+            Debug.Log($"Tracking camera enabled with {dominoTimers.Count} dominoes.");
         }
         else if (dominoTimers.Count == 0 && isTracking)
         {
             EnableFreeLook();
+            Debug.Log("Free look camera enabled, no dominoes in target group.");
         }
     }
     #endregion

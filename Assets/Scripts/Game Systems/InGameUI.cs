@@ -36,6 +36,8 @@ public class InGameUI : MonoBehaviour
     public TMP_Dropdown difficultyDropdown;
     public GameObject buttonPrompt1; // Refers to the buttom prompt reminders that pop up when mousing over interactable items
     public GameObject buttonPrompt2;
+    public GameObject resetWarning;
+    public Image resetCountdown;
     public TextMeshProUGUI KeybindText1;
     public TextMeshProUGUI KeybindText2;
     public TextMeshProUGUI buttonActionText1;
@@ -151,6 +153,15 @@ public class InGameUI : MonoBehaviour
         }
         
         UpdateButtonPrompts(); // Call the new method to update button prompts
+        if (DominoResetManager.Instance.currentState == DominoResetManager.ResetState.ResetUpcoming)
+        {
+            resetWarning.SetActive(true); // Show reset warning if in reset upcoming state
+            resetCountdown.fillAmount = 1- (DominoResetManager.Instance.timeUntilReset / DominoResetManager.Instance.resetDelay); // Update countdown fill amount
+        }
+        else
+        {
+            resetWarning.SetActive(false); // Hide reset warning otherwise
+        }
     }
 
     private void UpdateButtonPrompts()
