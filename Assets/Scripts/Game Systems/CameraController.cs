@@ -13,8 +13,7 @@ public class CameraController : MonoBehaviour
     public CinemachineTargetGroup targetGroup; // Group of falling dominoes
     public static UnityEvent OnFreeLookCameraEnabled = new();
     public static UnityEvent OnFreeLookCameraDisabled = new();
-
-    private bool isTracking = false;
+    public static bool isTracking = false;
     private Dictionary<Transform, float> dominoTimers = new(); // Tracks time remaining for each domino in the target group
     private const float dominoLifetime = .25f; // Time before domino is removed from the target group
     private HashSet<Transform> trackedDominoes = new(); // Tracks dominoes already added to the target group

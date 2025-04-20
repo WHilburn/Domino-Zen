@@ -13,9 +13,9 @@ public class DominoResetManager : MonoBehaviour
     public HashSet<Domino> fallenDominoes = new();
     public HashSet<Domino> checkpointedDominoes = new(); // Dominoes locked at checkpoints
     private HashSet<Domino> waitingForCheckpoint = new(); // Dominoes that are waiting until the next checkpoint to lock
-    public float resetDelay = 1f;
-    [HideInInspector]public float timeUntilReset;
-    public float resetDuration = 1f;
+    public static float resetDelay = 1f;
+    public static float timeUntilReset;
+    public static float resetDuration = 1f;
     public Domino.DominoAnimation resetAnimation = Domino.DominoAnimation.Rotate;
     public int checkpointThreshold = 5; // Number of dominoes required for a checkpoint
     public enum ResetState {Idle, ResetUpcoming, Resetting};
@@ -122,6 +122,7 @@ public class DominoResetManager : MonoBehaviour
             // Debug.Log("Registering domino as fallen: " + domino.name);
             fallenDominoes.Add(domino);
         }
+        else return; // A domino cannot trigger a reset more than once
 
         if (!domino.CheckUpright() || domino.stablePositionSet){ //Only start a domino reset if the domino is not upright
             CancelInvoke(nameof(ResetAllDominoes));

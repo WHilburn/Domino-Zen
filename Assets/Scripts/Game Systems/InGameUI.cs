@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using DG.Tweening;
 using UnityEngine.InputSystem;
+using TMPro.Examples;
 
 public class InGameUI : MonoBehaviour
 {
@@ -38,6 +39,7 @@ public class InGameUI : MonoBehaviour
     public GameObject buttonPrompt2;
     public GameObject resetWarning;
     public Image resetCountdown;
+    public TextMeshProUGUI resetWarningText;
     public TextMeshProUGUI KeybindText1;
     public TextMeshProUGUI KeybindText2;
     public TextMeshProUGUI buttonActionText1;
@@ -51,7 +53,7 @@ public class InGameUI : MonoBehaviour
     public Texture2D CursorTexture; // Texture for the custom cursor
     public PlayerControls playerControls; // Reference to the PlayerControls input actions
     private InputAction movementAction; // Reference to the movement action
-    
+    private bool isResetting = false; // Track if the resetting animation is already running
     #endregion
 
     #region Unity Methods
@@ -151,16 +153,49 @@ public class InGameUI : MonoBehaviour
         {
             TogglePauseMenu();
         }
-        
-        UpdateButtonPrompts(); // Call the new method to update button prompts
-        if (DominoResetManager.Instance.currentState == DominoResetManager.ResetState.ResetUpcoming)
+
+        UpdateResetWarning();
+        UpdateButtonPrompts();
+    }
+
+    private void UpdateResetWarning()
+    {
+        if (DominoResetManager.Instance.currentState == DominoResetManager.ResetState.ResetUpcoming &&
+            !CameraController.isTracking &&
+            DominoResetManager.timeUntilReset <= DominoResetManager.resetDelay - 0.17f)
         {
             resetWarning.SetActive(true); // Show reset warning if in reset upcoming state
-            resetCountdown.fillAmount = 1- (DominoResetManager.Instance.timeUntilReset / DominoResetManager.Instance.resetDelay); // Update countdown fill amount
+            resetCountdown.fillAmount = 1 - (DominoResetManager.timeUntilReset / (DominoResetManager.resetDelay - 0.17f)); // Update countdown fill amount
+            resetCountdown.rectTransform.Rotate(Vector3.forward, 180 * Time.deltaTime);
+            isResetting = false; // Reset the flag since we're not in the resetting state
+            resetWarningText.text = "Reset triggered";
+        }
+        else if (DominoResetManager.Instance.currentState == DominoResetManager.ResetState.Resetting)
+        {
+            resetWarning.SetActive(true); // Show reset warning if in resetting state
+            resetCountdown.fillAmount = 1; // Reset fill amount to 0
+            resetCountdown.rectTransform.Rotate(Vector3.forward, 360 * Time.deltaTime);
+            resetWarningText.text = "Resetting..."; // Update reset warning text
+            // Fade out the resetWarningText, resetCountdown, and resetWarning image
+            if (!isResetting)
+            {
+                isResetting = true; // Set the flag to prevent re-triggering animations
+                resetWarningText.DOFade(0, 1f);
+                resetCountdown.DOFade(0, 1f);
+                resetWarning.GetComponent<Image>().DOFade(0, 1f).OnComplete(() =>
+                {
+                    resetWarning.SetActive(false); // Deactivate resetWarning after fade-out
+                    resetWarningText.color = new Color(resetWarningText.color.r, resetWarningText.color.g, resetWarningText.color.b, 1); // Reset alpha
+                    resetCountdown.color = new Color(resetCountdown.color.r, resetCountdown.color.g, resetCountdown.color.b, 1); // Reset alpha
+                    resetWarning.GetComponent<Image>().color = new Color(resetWarning.GetComponent<Image>().color.r, resetWarning.GetComponent<Image>().color.g, resetWarning.GetComponent<Image>().color.b, 1); // Reset alpha
+                    isResetting = false; // Reset the flag after the animation completes
+                });
+            }
         }
         else
         {
             resetWarning.SetActive(false); // Hide reset warning otherwise
+            isResetting = false; // Reset the flag if not in resetting state
         }
     }
 
