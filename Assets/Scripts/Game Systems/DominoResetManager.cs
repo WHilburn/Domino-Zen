@@ -193,8 +193,7 @@ public class DominoResetManager : MonoBehaviour
         {
             currentState = ResetState.Idle;
             resetAnimation = Domino.DominoAnimation.Teleport;
-        } 
-        float resetDuration = 1f;
+        }
         Invoke(nameof(ResetToIdle), resetDuration * 1.5f); // Reset the state to Idle after the reset duration
         
         PlayerDominoPlacement.Instance.DeleteHeldDomino();

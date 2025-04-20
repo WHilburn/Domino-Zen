@@ -164,7 +164,7 @@ public class InGameUI : MonoBehaviour
             !CameraController.isTracking &&
             DominoResetManager.timeUntilReset <= DominoResetManager.resetDelay - 0.17f)
         {
-            resetWarning.SetActive(true); // Show reset warning if in reset upcoming state
+            resetWarning.SetActive(true);
             resetCountdown.fillAmount = 1 - (DominoResetManager.timeUntilReset / (DominoResetManager.resetDelay - 0.17f)); // Update countdown fill amount
             resetCountdown.rectTransform.Rotate(Vector3.forward, 180 * Time.deltaTime);
             isResetting = false; // Reset the flag since we're not in the resetting state
@@ -172,7 +172,7 @@ public class InGameUI : MonoBehaviour
         }
         else if (DominoResetManager.Instance.currentState == DominoResetManager.ResetState.Resetting)
         {
-            resetWarning.SetActive(true); // Show reset warning if in resetting state
+            resetWarning.SetActive(true);
             resetCountdown.fillAmount = 1; // Reset fill amount to 0
             resetCountdown.rectTransform.Rotate(Vector3.forward, 360 * Time.deltaTime);
             resetWarningText.text = "Resetting..."; // Update reset warning text
@@ -180,15 +180,15 @@ public class InGameUI : MonoBehaviour
             if (!isResetting)
             {
                 isResetting = true; // Set the flag to prevent re-triggering animations
-                resetWarningText.DOFade(0, 1f);
-                resetCountdown.DOFade(0, 1f);
-                resetWarning.GetComponent<Image>().DOFade(0, 1f).OnComplete(() =>
+                float duration = DominoResetManager.resetDuration * 1.5f; // Get the reset duration
+                resetWarningText.DOFade(0, duration);
+                resetCountdown.DOFade(0, duration);
+                resetWarning.GetComponent<Image>().DOFade(0, duration).OnComplete(() =>
                 {
                     resetWarning.SetActive(false); // Deactivate resetWarning after fade-out
                     resetWarningText.color = new Color(resetWarningText.color.r, resetWarningText.color.g, resetWarningText.color.b, 1); // Reset alpha
                     resetCountdown.color = new Color(resetCountdown.color.r, resetCountdown.color.g, resetCountdown.color.b, 1); // Reset alpha
-                    resetWarning.GetComponent<Image>().color = new Color(resetWarning.GetComponent<Image>().color.r, resetWarning.GetComponent<Image>().color.g, resetWarning.GetComponent<Image>().color.b, 1); // Reset alpha
-                    isResetting = false; // Reset the flag after the animation completes
+                    resetWarning.GetComponent<Image>().color = new Color(resetWarning.GetComponent<Image>().color.r, resetWarning.GetComponent<Image>().color.g, resetWarning.GetComponent<Image>().color.b, 0.5f); // Reset alpha
                 });
             }
         }
