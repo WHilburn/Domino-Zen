@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using DG.Tweening;
+using UnityEngine.InputSystem;
 
 public class InGameUI : MonoBehaviour
 {
@@ -46,6 +47,8 @@ public class InGameUI : MonoBehaviour
     public static int indicatorCount = 0;
     public static bool paused = false; // Static variable to track pause state
     public Texture2D CursorTexture; // Texture for the custom cursor
+    public PlayerControls playerControls; // Reference to the PlayerControls input actions
+    private InputAction movementAction; // Reference to the movement action
     
     #endregion
 
@@ -62,6 +65,7 @@ public class InGameUI : MonoBehaviour
             return;
         }
         Instance = this;
+        playerControls = new PlayerControls(); // Initialize the PlayerControls input actions
 
         // Ensure there is an Event System in the scene
         if (FindObjectOfType<EventSystem>() == null)

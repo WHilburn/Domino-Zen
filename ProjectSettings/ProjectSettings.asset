@@ -159,7 +159,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Standalone: com.DefaultCompany.Domino-Zen
+    Standalone: com.William-Hilburn.Domino-Zen
   buildNumber:
     Standalone: 0
     VisionOS: 0
