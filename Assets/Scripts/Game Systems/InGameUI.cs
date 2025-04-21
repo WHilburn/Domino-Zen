@@ -52,8 +52,6 @@ public class InGameUI : MonoBehaviour
     public static bool paused = false; // Static variable to track pause state
     public Texture2D CursorTexture; // Texture for the custom cursor
     public PlayerControls playerControls; // Reference to the PlayerControls input actions
-    private InputAction movementAction; // Reference to the movement action
-    private bool isResetting = false; // Track if the resetting animation is already running
     #endregion
 
     #region Unity Methods
@@ -167,7 +165,6 @@ public class InGameUI : MonoBehaviour
             resetWarning.SetActive(true);
             resetCountdown.fillAmount = 1;// - (DominoResetManager.timeUntilReset / (DominoResetManager.resetDelay - 0.17f)); // Update countdown fill amount
             resetCountdown.rectTransform.Rotate(Vector3.forward, 90 * Time.deltaTime);
-            isResetting = false; // Reset the flag since we're not in the resetting state
             resetWarningText.text = "Reset triggered";
         }
         else if (DominoResetManager.Instance.currentState == DominoResetManager.ResetState.Resetting)
@@ -176,26 +173,10 @@ public class InGameUI : MonoBehaviour
             resetCountdown.fillAmount = 1; // Reset fill amount to 0
             resetCountdown.rectTransform.Rotate(Vector3.forward, 360 * Time.deltaTime);
             resetWarningText.text = "Resetting..."; // Update reset warning text
-            // Fade out the resetWarningText, resetCountdown, and resetWarning image
-            if (!isResetting)
-            {
-                isResetting = true; // Set the flag to prevent re-triggering animations
-                float duration = DominoResetManager.resetDuration * 1.5f; // Get the reset duration
-                resetWarningText.DOFade(0, duration);
-                resetCountdown.DOFade(0, duration);
-                resetWarning.GetComponent<Image>().DOFade(0, duration).OnComplete(() =>
-                {
-                    resetWarning.SetActive(false); // Deactivate resetWarning after fade-out
-                    resetWarningText.color = new Color(resetWarningText.color.r, resetWarningText.color.g, resetWarningText.color.b, 1); // Reset alpha
-                    resetCountdown.color = new Color(resetCountdown.color.r, resetCountdown.color.g, resetCountdown.color.b, 1); // Reset alpha
-                    resetWarning.GetComponent<Image>().color = new Color(resetWarning.GetComponent<Image>().color.r, resetWarning.GetComponent<Image>().color.g, resetWarning.GetComponent<Image>().color.b, 0.5f); // Reset alpha
-                });
-            }
         }
         else
         {
             resetWarning.SetActive(false); // Hide reset warning otherwise
-            isResetting = false; // Reset the flag if not in resetting state
         }
     }
 
