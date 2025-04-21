@@ -19,6 +19,7 @@ public class CameraController : MonoBehaviour
     private HashSet<Transform> trackedDominoes = new(); // Tracks dominoes already added to the target group
     public int minDominoesToTriggerTracking = 5; // Minimum dominoes to trigger tracking camera
     public static float switchBackDelay = 1f; // Delay before switching back to free look camera
+    private bool readyToSwitch = false;
     #endregion
 
     #region Unity Lifecycle
@@ -58,21 +59,23 @@ public class CameraController : MonoBehaviour
         UpdateDominoTimers();
         DrawDebugLines(); // Draw debug lines to the target group
 
-        if (DominoResetManager.Instance.currentState == DominoResetManager.ResetState.Resetting)
-        {
-            EnableFreeLook();
-            return;
-        }
+        // if (DominoResetManager.Instance.currentState == DominoResetManager.ResetState.Resetting)
+        // {
+        //     EnableFreeLook();
+        //     return;
+        // }
 
         if (dominoTimers.Count >= minDominoesToTriggerTracking && !isTracking)
         {
             EnableTrackingCamera();
             Debug.Log($"Tracking camera enabled with {dominoTimers.Count} dominoes.");
         }
-        else if (dominoTimers.Count == 0 && isTracking)
+        else if (readyToSwitch && isTracking)
         {
+            readyToSwitch = false; // Reset the flag
             Invoke(nameof(EnableFreeLook), switchBackDelay); // Delay before switching to free look
             Debug.Log("Free look camera enabled, no dominoes in target group.");
+            isTracking = false; // Reset tracking state
         }
     }
     #endregion
@@ -103,6 +106,15 @@ public class CameraController : MonoBehaviour
         freeLookCamera.GetComponent<PlayerCameraController>().InitializeRotation();
         OnFreeLookCameraEnabled.Invoke();
         trackedDominoes.Clear(); // Allow dominoes to be tracked again
+        dominoTimers.Clear(); // Clear the timers for all dominoes
+        readyToSwitch = false; // Set the flag to switch back to free look camera
+        foreach (var member in new List<CinemachineTargetGroup.Target>(targetGroup.m_Targets))
+        {
+            if (member.target != null)
+            {
+                targetGroup.RemoveMember(member.target);
+            }
+        }
     }
 
     private void EnableTrackingCamera()
@@ -129,12 +141,15 @@ public class CameraController : MonoBehaviour
             {
                 weight = Mathf.Clamp01(dominoTimers[domino] / (dominoLifetime / 2)); // Fade out
             }
-
             targetGroup.m_Targets[targetGroup.FindMember(domino)].weight = weight;
 
             if (dominoTimers[domino] <= 0f && domino.GetComponent<Domino>().currentState != Domino.DominoState.Moving)
             {
-                RemoveDominoFromTargetGroup(domino);
+                if (dominoTimers.Count == 1) {
+                    readyToSwitch = true; // Set the flag to switch back to free look camera without removing the last domino from the tracking group
+                    targetGroup.m_Targets[targetGroup.FindMember(domino)].weight = 1;
+                }
+                else RemoveDominoFromTargetGroup(domino);
             }
         }
     }

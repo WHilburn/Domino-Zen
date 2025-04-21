@@ -179,7 +179,7 @@ public class Domino : DominoLike
 
     public void AnimateDomino(DominoAnimation animation, float resetDuration = 1f)
     {
-        if (currentState == DominoState.Held) return; // Don't reset if the domino is being held
+        if (currentState == DominoState.Held || currentState == DominoState.Animating) return; // Don't reset if the domino is being held or already animating
 
         currentState = DominoState.Animating; // Set state to animating
         if (DOTween.IsTweening(transform)) return; // Prevent additional animations if a tween is active
@@ -235,7 +235,11 @@ public class Domino : DominoLike
         float jiggleDuration = 0.2f;
         float noiseIntensity = 0.1f; // Intensity of the jiggle movement
         Vector3 originalPosition = lastStablePosition;
-        if (!stablePositionSet) originalPosition = transform.position; // If no stable position, use current position
+        Quaternion originalRotation = lastStableRotation;
+        if (!stablePositionSet){
+            originalPosition = transform.position; // If no stable position, use current position
+            originalRotation = transform.rotation; // If no stable rotation, use current rotation
+        } 
         
         StartCoroutine(TogglePhysics(false));
 
@@ -251,8 +255,11 @@ public class Domino : DominoLike
         // Ensure the position is reset to the original position at the end
         jiggleSequence.OnComplete(() =>
         {
-            PerformTeleport();
+            rb.transform.position = originalPosition;
+            rb.transform.rotation = originalRotation;
             currentState = DominoState.Stationary;
+            StartCoroutine(TogglePhysics(true));
+            StartCoroutine(CheckStablePositionRoutine());
         });
 
         jiggleSequence.Play();

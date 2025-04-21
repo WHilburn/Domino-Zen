@@ -256,7 +256,7 @@ public class DominoSoundManager : MonoBehaviour
             source.pitch = 1; // Set pitch to 1 for music notes
             PlayMusicNote(impactForce, source);
         }
-        else if (soundType == DominoSoundType.Click)
+        else if (soundType == DominoSoundType.Click || soundType == DominoSoundType.Default)
         {
             AudioClip clip = dominoClickSounds.sounds[Random.Range(0, dominoClickSounds.sounds.Length)];
             // Determine volume of individual clicks, subtract a portion of the cascade volume

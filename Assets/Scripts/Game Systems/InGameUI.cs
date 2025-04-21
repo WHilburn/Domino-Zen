@@ -37,13 +37,16 @@ public class InGameUI : MonoBehaviour
     public TMP_Dropdown difficultyDropdown;
     public GameObject buttonPrompt1; // Refers to the buttom prompt reminders that pop up when mousing over interactable items
     public GameObject buttonPrompt2;
+    public GameObject buttonPrompt3;
     public GameObject resetWarning;
     public Image resetCountdown;
     public TextMeshProUGUI resetWarningText;
     public TextMeshProUGUI KeybindText1;
     public TextMeshProUGUI KeybindText2;
+    public TextMeshProUGUI KeybindText3;
     public TextMeshProUGUI buttonActionText1;
     public TextMeshProUGUI buttonActionText2;
+    public TextMeshProUGUI buttonActionText3;
     #endregion
 
     #region Static Variables
@@ -187,7 +190,7 @@ public class InGameUI : MonoBehaviour
         string rotatePositiveKey = "Q";
         string rotateNegativeKey = "E";
         string cancelKey = "Escape";
-        string spawnDominoKey = "Space";
+        string spawnAndDropDominoKey = "Space";
         string pickUpDominoKey = "Left Mouse";
 
         if (paused || 
@@ -196,6 +199,7 @@ public class InGameUI : MonoBehaviour
         {
             buttonPrompt1.SetActive(false); // Hide button prompts if not paused or in reset state
             buttonPrompt2.SetActive(false);
+            buttonPrompt3.SetActive(false);
             return;
         }
 
@@ -204,16 +208,20 @@ public class InGameUI : MonoBehaviour
         {
             buttonPrompt1.SetActive(true);
             buttonPrompt2.SetActive(true);
+            buttonPrompt3.SetActive(true);
             KeybindText1.text = $"{rotatePositiveKey}/{rotateNegativeKey}";
-            buttonActionText1.text = "Rotate Domino";
-            KeybindText2.text = cancelKey;
-            buttonActionText2.text = "Delete Domino";
+            buttonActionText1.text = "Rotate";
+            KeybindText2.text = spawnAndDropDominoKey;
+            buttonActionText2.text = "Drop";
+            KeybindText3.text = cancelKey;
+            buttonActionText3.text = "Delete";
             return;
         }
         if (PlayerObjectMovement.isMovingObject)
         {
             buttonPrompt1.SetActive(true);
             buttonPrompt2.SetActive(true);
+            buttonPrompt3.SetActive(false);
             KeybindText1.text = pickUpDominoKey;
             buttonActionText1.text = "Place Object";
             KeybindText2.text = cancelKey;
@@ -229,6 +237,7 @@ public class InGameUI : MonoBehaviour
             {
                 buttonPrompt1.SetActive(true);
                 buttonPrompt2.SetActive(true);
+                buttonPrompt3.SetActive(false);
                 KeybindText1.text = pickUpDominoKey;
                 buttonActionText1.text = "Pick Up";
                 KeybindText2.text = interactKey;
@@ -239,7 +248,8 @@ public class InGameUI : MonoBehaviour
             {
                 buttonPrompt1.SetActive(true);
                 buttonPrompt2.SetActive(true);
-                KeybindText1.text = spawnDominoKey;
+                buttonPrompt3.SetActive(false);
+                KeybindText1.text = spawnAndDropDominoKey;
                 buttonActionText1.text = "Pick Up Domino";
                 KeybindText2.text = interactKey;
                 buttonActionText2.text = "Relocate";
@@ -249,6 +259,7 @@ public class InGameUI : MonoBehaviour
                 // Disable button prompts if no relevant object is under the cursor
                 buttonPrompt1.SetActive(false);
                 buttonPrompt2.SetActive(false);
+                buttonPrompt3.SetActive(false);
             }
         }
         else
@@ -256,6 +267,7 @@ public class InGameUI : MonoBehaviour
             // Disable button prompts if no object is under the cursor
             buttonPrompt1.SetActive(false);
             buttonPrompt2.SetActive(false);
+            buttonPrompt3.SetActive(false);
         }
     }
     #endregion
