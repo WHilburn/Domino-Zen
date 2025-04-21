@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class DominoSpawner : EditorWindow
 {
     #region Enums
-    private enum FormationType { Line, Triangle, Curve, Spiral }
+    private enum FormationType { Line, Triangle, Curve }
     private enum Direction { Left, Right, Both }
     #endregion
 
@@ -17,19 +17,17 @@ public class DominoSpawner : EditorWindow
     private float forwardSpacing = 0.35f;
     private float rowSpacing = 0.6f;
     private float curveAngle = 90f; // Angle of curve (5° - 360°)
-    private float spiralSpacing = 0.3f; // Shrinking radius spacing for spiral
 
     private bool gradientMode = false;
     private bool rainbowMode = false; // Toggle for Rainbow Mode
     private Color startColor = Color.white;
-    private Color endColor = Color.blue;
+    private Color endColor = Color.red;
     private int colorCycles = 1;
     private bool colorBounce = false;
     private string groupName = "Domino Group";
     private GameObject dominoPrefab;
     private GameObject indicatorPrefab;
     private DominoMaterialList dominoMaterialList;
-    private bool musicMode = false;
     private List<GameObject> previewShapes = new List<GameObject>(); // To store preview cubes
     private bool previewMode  = true;
     private int totalDominoes = -1; // Total dominoes in the scene
@@ -53,7 +51,6 @@ public class DominoSpawner : EditorWindow
         dominoPrefab = (GameObject)EditorGUILayout.ObjectField("Domino Prefab", dominoPrefab, typeof(GameObject), false);
         dominoMaterialList = (DominoMaterialList)EditorGUILayout.ObjectField("Domino Material", dominoMaterialList, typeof(DominoMaterialList), false);
         indicatorPrefab = (GameObject)EditorGUILayout.ObjectField("Indicator Prefab", indicatorPrefab, typeof(GameObject), false);
-        musicMode = EditorGUILayout.Toggle("Music Mode", musicMode);
         selectedFormation = (FormationType)EditorGUILayout.EnumPopup("Formation Type", selectedFormation);
         forwardSpacing = EditorGUILayout.Slider("Forward Spacing", forwardSpacing, .2f, .6f);
 
@@ -74,13 +71,6 @@ public class DominoSpawner : EditorWindow
             curveAngle = EditorGUILayout.Slider("Curve Angle", curveAngle, 5f, 360f);
             curveDirection = (Direction)EditorGUILayout.EnumPopup("Direction", curveDirection);
             groupName = "Domino Curve Length " + spawnCount  + " " + curveAngle + "° " + curveDirection;
-        }
-        else if (selectedFormation == FormationType.Spiral)
-        {
-            spawnCount = EditorGUILayout.IntField("Domino Count", spawnCount);
-            spiralSpacing = EditorGUILayout.FloatField("Spiral Spacing", spiralSpacing);
-            curveDirection = (Direction)EditorGUILayout.EnumPopup("Direction", curveDirection);
-            groupName = "Domino Spiral " + spawnCount + " Dominoes, " + curveDirection;
         }
         GeneratePreviewCubes(Selection.activeGameObject);
 
@@ -172,9 +162,6 @@ public class DominoSpawner : EditorWindow
             case FormationType.Curve:
                 spawnData = GetCurveFormationPositions(selected);
                 break;
-            case FormationType.Spiral:
-                spawnData = GetSpiralFormationPositions(selected);
-                break;
             default:
                 Debug.LogWarning("Unsupported formation type.");
                 return;
@@ -221,9 +208,6 @@ public class DominoSpawner : EditorWindow
                 break;
             case FormationType.Curve:
                 spawnData = GetCurveFormationPositions(selected);
-                break;
-            case FormationType.Spiral:
-                spawnData = GetSpiralFormationPositions(selected);
                 break;
             default:
                 Debug.LogWarning("Unsupported formation type.");
@@ -285,9 +269,6 @@ public class DominoSpawner : EditorWindow
                 break;
             case FormationType.Curve:
                 previewPositions = GetCurveFormationPositions(selected);
-                break;
-            case FormationType.Spiral:
-                previewPositions = GetSpiralFormationPositions(selected);
                 break;
             default:
                 Debug.LogWarning("Unsupported formation type.");
@@ -405,39 +386,6 @@ public class DominoSpawner : EditorWindow
 
         return spawnTransforms;
     }
-
-    private List<(Vector3 position, Quaternion rotation)> GetSpiralFormationPositions(GameObject selected)
-    {
-        if (curveDirection == Direction.Both) spawnCount *= 2;
-
-        List<(Vector3, Quaternion)> spawnTransforms = new List<(Vector3, Quaternion)>();
-        Vector3 startPos = selected.transform.position;
-        Quaternion rotation = selected.transform.rotation;
-        float angleStep = 360f / spawnCount;
-        float radius = spawnCount * spiralSpacing;
-
-        void CalculateSpiral(float directionMultiplier)
-        {
-            for (int i = 0; i < spawnCount; i++)
-            {
-                float angle = angleStep * i * Mathf.Deg2Rad * directionMultiplier;
-                float currentRadius = radius - (spiralSpacing * i);
-                Vector3 offset = new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle)) * currentRadius;
-                Vector3 spawnPos = startPos + selected.transform.right * offset.x + -selected.transform.forward * offset.z;
-                Quaternion newRotation = Quaternion.Euler(0, -angle * Mathf.Rad2Deg, 0) * rotation;
-
-                spawnTransforms.Add((spawnPos, newRotation));
-            }
-        }
-
-        if (curveDirection == Direction.Left || curveDirection == Direction.Both)
-            CalculateSpiral(1);
-        if (curveDirection == Direction.Right || curveDirection == Direction.Both)
-            CalculateSpiral(-1);
-
-        if (curveDirection == Direction.Both) spawnCount /= 2;
-        return spawnTransforms;
-    }
     #endregion
 
     #region Color Application
@@ -463,7 +411,7 @@ public class DominoSpawner : EditorWindow
                 float cycleIndex;
                 bool reversed = false;
 
-                if (curveDirection == Direction.Both && (selectedFormation == FormationType.Curve || selectedFormation == FormationType.Spiral))
+                if (curveDirection == Direction.Both && (selectedFormation == FormationType.Curve))
                 {
                     int localIndex = (i < halfCount) ? i : i - halfCount;
                     int localCount = halfCount;

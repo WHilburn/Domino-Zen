@@ -9,6 +9,7 @@ public class SceneObjectDebugger : MonoBehaviour
     private float nextUpdateTime = 0f;
     private float updateInterval = 0.5f; // Update every 0.5 seconds
 
+#if UNITY_EDITOR
     void OnEnable()
     {
         SceneView.duringSceneGui += OnSceneGUI;
@@ -35,4 +36,5 @@ public class SceneObjectDebugger : MonoBehaviour
         GUILayout.EndArea();
         Handles.EndGUI();
     }
+#endif
 }
