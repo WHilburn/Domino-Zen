@@ -165,8 +165,8 @@ public class InGameUI : MonoBehaviour
             DominoResetManager.timeUntilReset <= DominoResetManager.resetDelay - 0.17f)
         {
             resetWarning.SetActive(true);
-            resetCountdown.fillAmount = 1 - (DominoResetManager.timeUntilReset / (DominoResetManager.resetDelay - 0.17f)); // Update countdown fill amount
-            resetCountdown.rectTransform.Rotate(Vector3.forward, 180 * Time.deltaTime);
+            resetCountdown.fillAmount = 1;// - (DominoResetManager.timeUntilReset / (DominoResetManager.resetDelay - 0.17f)); // Update countdown fill amount
+            resetCountdown.rectTransform.Rotate(Vector3.forward, 90 * Time.deltaTime);
             isResetting = false; // Reset the flag since we're not in the resetting state
             resetWarningText.text = "Reset triggered";
         }
