@@ -343,13 +343,13 @@ public class DominoSpawner : EditorWindow
 
         float arcLength = spawnCount * forwardSpacing; 
         float radius = arcLength / Mathf.Abs(curveAngle * Mathf.Deg2Rad); 
-        float angleStep = curveAngle / (spawnCount);
+        float angleStep = curveAngle / spawnCount;
 
         void CalculateArc(Vector3 arcStartPos, float directionMultiplier)
         {
-            Vector3 center = arcStartPos - -selected.transform.right * directionMultiplier * radius;
+            Vector3 center = arcStartPos - directionMultiplier * radius * -selected.transform.right;
 
-            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere); // Create pivot preview sphere
             sphere.transform.position = center;
             sphere.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
             sphere.hideFlags = HideFlags.HideAndDontSave;
@@ -363,9 +363,7 @@ public class DominoSpawner : EditorWindow
                 float radian = angle * Mathf.Deg2Rad;
 
                 Vector3 spawnPos = center + new Vector3(Mathf.Cos(radian), 0, Mathf.Sin(radian)) * radius;
-
                 Quaternion newRotation = Quaternion.Euler(0, angleStep * i * -directionMultiplier, 0) * startRotation;
-
                 spawnTransforms.Add((spawnPos, newRotation * Quaternion.Euler(0, 0, 0f * directionMultiplier)));
             }
         }
