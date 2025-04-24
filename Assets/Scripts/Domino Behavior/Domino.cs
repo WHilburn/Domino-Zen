@@ -170,7 +170,7 @@ public class Domino : DominoLike
             Vector3.Distance(transform.position, lastStablePosition) > positionThreshold ||
                 Quaternion.Angle(transform.rotation, lastStableRotation) > rotationThreshold)
             {
-                Debug.Log("Domino is not stable anymore.");
+                // Debug.Log("Domino is not stable anymore.");
                 OnDominoFall.Invoke(this);
                 yield break; // Stop the coroutine
             }

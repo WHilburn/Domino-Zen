@@ -48,10 +48,12 @@ public class PlacementIndicator : DominoLike
             snapCollider = null; // Set to null to avoid further use
         }
         // InitializeLineRenderers();
+        InvokeRepeating("CheckDistanceToCamera",0f, .1f);
     }
 
     void Update()
     {
+        if (!Application.isPlaying) return;
         switch (currentState)
         {
             case IndicatorState.Empty:
@@ -250,10 +252,10 @@ public class PlacementIndicator : DominoLike
         // Create line renderers for bottom edges
         edgeLineRenderers = new LineRenderer[4];
         Vector3[] corners = {
-            new Vector3(-DominoLike.standardDimensions.x / 2, 0, -DominoLike.standardDimensions.z / 2) + transform.position + bottomPoint,
-            new Vector3(DominoLike.standardDimensions.x / 2, 0, -DominoLike.standardDimensions.z / 2)+ transform.position + bottomPoint,
-            new Vector3(DominoLike.standardDimensions.x / 2, 0, DominoLike.standardDimensions.z / 2)+ transform.position + bottomPoint,
-            new Vector3(-DominoLike.standardDimensions.x / 2, 0, DominoLike.standardDimensions.z / 2)+ transform.position + bottomPoint
+            new Vector3(-standardDimensions.x / 2, 0, -standardDimensions.z / 2) + transform.position + bottomPoint,
+            new Vector3(standardDimensions.x / 2, 0, -standardDimensions.z / 2)+ transform.position + bottomPoint,
+            new Vector3(standardDimensions.x / 2, 0, standardDimensions.z / 2)+ transform.position + bottomPoint,
+            new Vector3(-standardDimensions.x / 2, 0, standardDimensions.z / 2)+ transform.position + bottomPoint
         };
 
         for (int i = 0; i < 4; i++)
@@ -268,7 +270,7 @@ public class PlacementIndicator : DominoLike
         {
             sideLineRenderers[i] = CreateLineRenderer();
             Vector3 start = corners[i];
-            Vector3 end = corners[i] + Vector3.up * DominoLike.standardDimensions.y;
+            Vector3 end = corners[i] + Vector3.up * standardDimensions.y;
             sideLineRenderers[i].SetPositions(new[] { start, end });
 
             // Apply gradient to fade out at the top
@@ -291,6 +293,31 @@ public class PlacementIndicator : DominoLike
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         lineRenderer.useWorldSpace = false;
         return lineRenderer;
+    }
+    #endregion
+
+    #region Camera Distance Check
+    private void CheckDistanceToCamera()
+    {
+        if (!Application.isPlaying) return; // Skip if not in play mode
+        if (currentState == IndicatorState.Disabled || currentState == IndicatorState.Filled) return; // Skip if disabled
+
+        Vector3 cameraPosition = PlayerDominoPlacement.Instance.activeCamera.transform.position;
+        float manhattanDistance = Mathf.Abs(transform.position.x - cameraPosition.x) +
+                                  Mathf.Abs(transform.position.y - cameraPosition.y) +
+                                  Mathf.Abs(transform.position.z - cameraPosition.z);
+
+        bool shouldEnableLineRenderers = manhattanDistance <= 15;
+
+        foreach (var lineRenderer in edgeLineRenderers)
+        {
+            if (lineRenderer != null) lineRenderer.enabled = shouldEnableLineRenderers;
+        }
+
+        foreach (var lineRenderer in sideLineRenderers)
+        {
+            if (lineRenderer != null) lineRenderer.enabled = shouldEnableLineRenderers;
+        }
     }
     #endregion
 }

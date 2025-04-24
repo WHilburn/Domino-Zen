@@ -43,7 +43,7 @@ Shader "Custom/DashedOutline"
             Varyings vert (Attributes v)
             {
                 Varyings o;
-                o.positionHCS = TransformObjectToHClip(float4(v.positionOS.xyz, 1.0)); // Explicit cast
+                o.positionHCS = TransformObjectToHClip(v.positionOS.xyz); // Pass only xyz components
                 o.uv = v.uv;
                 return o;
             }
@@ -56,46 +56,6 @@ Shader "Custom/DashedOutline"
                     return _BaseColor;
                 }
                 return half4(0, 0, 0, 0); // Transparent
-            }
-            ENDHLSL
-        }
-
-        // Add a Decal Pass for URP
-        Pass
-        {
-            Name "DBufferMesh"
-            Tags { "LightMode"="DBufferMesh" }
-
-            HLSLPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl"
-
-            struct Attributes
-            {
-                float4 positionOS : POSITION;
-                float2 uv : TEXCOORD0;
-            };
-
-            struct Varyings
-            {
-                float2 uv : TEXCOORD0;
-                float4 positionHCS : SV_POSITION;
-            };
-
-            Varyings vert (Attributes v)
-            {
-                Varyings o;
-                o.positionHCS = TransformObjectToHClip(float4(v.positionOS.xyz, 1.0)); // Explicit cast
-                o.uv = v.uv;
-                return o;
-            }
-
-            half4 frag (Varyings i) : SV_Target
-            {
-                return half4(1, 1, 1, 1); // White decal for testing
             }
             ENDHLSL
         }

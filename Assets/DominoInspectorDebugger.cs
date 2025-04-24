@@ -4,12 +4,12 @@ using UnityEditor;
 [ExecuteInEditMode]
 public class SceneObjectDebugger : MonoBehaviour
 {
+#if UNITY_EDITOR
     private int dominoCount = 0;
     private int indicatorCount = 0;
     private float nextUpdateTime = 0f;
     private float updateInterval = 0.5f; // Update every 0.5 seconds
 
-#if UNITY_EDITOR
     void OnEnable()
     {
         SceneView.duringSceneGui += OnSceneGUI;
