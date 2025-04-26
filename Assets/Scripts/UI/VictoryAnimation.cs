@@ -1,18 +1,19 @@
 using UnityEngine;
 using DG.Tweening;
-using TMPro; // Import DOTween namespace
+using TMPro;
+using UnityEngine.UI; // Add this for Image component
 
 public class VictoryAnimation : MonoBehaviour
 {
     public GameObject dominoPrefab; // The Domino2D prefab to instantiate
+    public GameObject TextPrefab; // The TextMeshPro prefab to instantiate
+    public GameObject victoryMenu; // The Victory Menu object
     public Vector2 spawnPos = new Vector2(-7.5f, 0f); // Starting position for the first domino
     public int dominoCount = 20; // Number of dominoes to spawn
     public float spacing = 160f; // Spacing between dominoes on the x-axis
     public Vector2 forceDirection = new Vector2(0f, -1000f); // Direction of the force to apply
     public float scaleUpDuration = 0.25f; // Duration for scaling up the dominoes
     public AudioClip victorySound; // Sound to play on victory
-    public TextMeshProUGUI victoryText; // Reference to the TextMeshProUGUI component for the victory text
-
     private GameObject[] dominoes; // Array to store the spawned dominoes
 
     void Start()
@@ -32,10 +33,38 @@ public class VictoryAnimation : MonoBehaviour
             Transform dominoTransform = dominoes[i].transform;
             dominoTransform.localScale = new Vector3(dominoTransform.localScale.x, 0f, dominoTransform.localScale.z);
             dominoTransform.DOScaleY(1f, scaleUpDuration);
+
+            // Assign a pastel rainbow color
+            Image image = dominoes[i].GetComponent<Image>();
+            if (image != null)
+            {
+                float hue = (float)i / (dominoCount/1.5f); // Calculate hue based on position in the array
+                Color pastelColor = Color.HSVToRGB(hue, 0.5f, 1f); // Pastel colors have lower saturation
+                image.color = pastelColor;
+            }
         }
 
         // Apply force to the first domino after the scaling animation is complete
         Invoke(nameof(ApplyForceToFirstDomino), scaleUpDuration);
+
+        // Tween the victory text after 1 second
+        Invoke(nameof(ShowVictoryText), 1f);
+        Invoke(nameof(DisablePhysics), dominoCount * .125f); // Disable physics after 1 second
+        Invoke(nameof(ShowVictoryMenu), 4f); // Show victory menu after 5 seconds
+    }
+
+    private void ShowVictoryText()
+    {
+        // Instantiate the text prefab as a child of this object
+        GameObject victoryTextObject = Instantiate(TextPrefab, transform);
+        TextMeshProUGUI victoryText = victoryTextObject.GetComponent<TextMeshProUGUI>();
+
+        if (victoryText != null)
+        {
+            victoryTextObject.transform.localPosition = Vector3.zero; // Position it relative to the parent
+            victoryTextObject.transform.localScale = new Vector3(5f, 0f, 1f); // Start with wide and flat scale
+            victoryTextObject.transform.DOScale(new Vector3(1f, 1f, 1f), 0.5f); // Tween to normal size
+        }
     }
 
     void Update()
@@ -60,5 +89,47 @@ public class VictoryAnimation : MonoBehaviour
                 rb.AddForceAtPosition(forceDirection, topPosition, ForceMode2D.Impulse); // Apply a downward force at the top
             }
         }
+    }
+
+    public void DisablePhysics()
+    {
+        // Disable physics for all dominoes
+        foreach (GameObject domino in dominoes)
+        {
+            Rigidbody2D rb = domino.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                rb.simulated = false; // Disable physics simulation
+            }
+        }
+    }
+
+    private void ShowVictoryMenu()
+    {
+        // Tween dominoes and text upwards
+        foreach (GameObject domino in dominoes)
+        {
+            if (domino != null)
+            {
+                domino.transform.DOMoveY(domino.transform.position.y + 200f, 1f); // Move dominoes upwards
+            }
+        }
+
+        Transform victoryTextTransform = transform.Find(TextPrefab.name + "(Clone)");
+        if (victoryTextTransform != null)
+        {
+            victoryTextTransform.DOMoveY(victoryTextTransform.position.y + 200f, 1f); // Move text upwards
+        }
+
+        // Animate the victory menu
+        victoryMenu.SetActive(true); // Activate the victory menu
+        RectTransform victoryMenuTransform = victoryMenu.GetComponent<RectTransform>();
+        if (victoryMenuTransform != null)
+        {
+            victoryMenuTransform.anchoredPosition = new Vector2(0f, -Screen.height / 2f); // Start at the bottom center
+            victoryMenuTransform.DOAnchorPos(new Vector2(0f, -Screen.height / 4f), 1f); // Slide up to the lower center
+        }
+        victoryMenu.transform.localScale = new Vector3(5f, 0f, 1f); // Start with wide and flat scale
+        victoryMenu.transform.DOScale(new Vector3(1f, 1f, 1f), 0.5f); // Tween to normal size after sliding
     }
 }
