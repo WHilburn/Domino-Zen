@@ -80,9 +80,12 @@ public class GlowOutlineManager
                     outlineColor = new Color(1f - dominoColor.r, 1f - dominoColor.g, 1f - dominoColor.b);
                 }
             }
-
+            float scaleX = 0.16f / domino.transform.localScale.x;
+            float scaleY = 0.06f / domino.transform.localScale.y;
+            float scaleZ = 0.36f / domino.transform.localScale.z;
             glowOutlineMaterial.SetFloat("_Scale", 1.06f);
             glowOutlineMaterial.SetColor("_Color", outlineColor);
+            glowOutlineMaterial.SetVector("_ScaleVector", new Vector3(1f + scaleX, 1f + scaleY, 1f + scaleZ));
         }
     }
 
