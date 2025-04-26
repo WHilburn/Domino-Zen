@@ -2,6 +2,7 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UIElements;
 using UnityEngine.Events;
+using UnityEditor;
 
 [ExecuteInEditMode]
 public class PlacementIndicator : DominoLike
@@ -299,24 +300,47 @@ public class PlacementIndicator : DominoLike
     #region Camera Distance Check
     private void CheckDistanceToCamera()
     {
-        if (!Application.isPlaying) return; // Skip if not in play mode
-        if (currentState == IndicatorState.Disabled || currentState == IndicatorState.Filled) return; // Skip if disabled
+        Camera activeCamera = null;
 
-        Vector3 cameraPosition = PlayerDominoPlacement.Instance.activeCamera.transform.position;
-        float manhattanDistance = Mathf.Abs(transform.position.x - cameraPosition.x) +
-                                  Mathf.Abs(transform.position.y - cameraPosition.y) +
-                                  Mathf.Abs(transform.position.z - cameraPosition.z);
+        if (Application.isPlaying)
+        {
+            activeCamera = PlayerDominoPlacement.Instance.activeCamera;
+        }
+        else if (SceneView.lastActiveSceneView != null)
+        {
+            activeCamera = SceneView.lastActiveSceneView.camera;
+        }
 
-        bool shouldEnableLineRenderers = manhattanDistance <= 15;
+        if (activeCamera == null) return; // Skip if no active camera is found
+
+        Vector3 cameraPosition = activeCamera.transform.position;
+        float distance = Vector3.Distance(transform.position, cameraPosition);
+
+        float fadeFactor = Mathf.Clamp01((10f - distance) / 5f); // Smooth fade between 5 and 10
 
         foreach (var lineRenderer in edgeLineRenderers)
         {
-            if (lineRenderer != null) lineRenderer.enabled = shouldEnableLineRenderers;
+            if (lineRenderer != null)
+            {
+                lineRenderer.enabled = fadeFactor > 0;
+                Color color = lineRenderer.startColor;
+                color.a = fadeFactor;
+                lineRenderer.startColor = color;
+                lineRenderer.endColor = color;
+            }
         }
 
         foreach (var lineRenderer in sideLineRenderers)
         {
-            if (lineRenderer != null) lineRenderer.enabled = shouldEnableLineRenderers;
+            if (lineRenderer != null)
+            {
+                lineRenderer.enabled = fadeFactor > 0;
+                Gradient gradient = lineRenderer.colorGradient;
+                GradientAlphaKey[] alphaKeys = gradient.alphaKeys;
+                alphaKeys[0].alpha = fadeFactor; // Bottom alpha
+                gradient.alphaKeys = alphaKeys;
+                lineRenderer.colorGradient = gradient;
+            }
         }
     }
     #endregion
