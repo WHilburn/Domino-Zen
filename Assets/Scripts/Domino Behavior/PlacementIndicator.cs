@@ -252,6 +252,11 @@ public class PlacementIndicator : DominoLike
                 DOTween.To(() => end, x => end = x, targetEnd, fadeSpeed).OnUpdate(() =>
                 {
                     lineRenderer.SetPosition(1, end);
+                }).OnComplete(() =>
+                {
+                    // Reset the line renderer length to its default
+                    lineRenderer.SetPosition(1, positions[1]);
+                    lineRenderer.enabled = false; // Disable after animation
                 });
 
                 // Tween the alpha values
@@ -261,9 +266,6 @@ public class PlacementIndicator : DominoLike
                     Color startColor = lineRenderer.startColor;
                     startColor.a = alpha;
                     lineRenderer.startColor = startColor;
-                }).OnComplete(() =>
-                {
-                    lineRenderer.enabled = false; // Disable after animation
                 });
             }
         }

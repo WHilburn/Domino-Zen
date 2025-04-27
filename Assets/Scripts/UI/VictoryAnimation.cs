@@ -2,7 +2,6 @@ using UnityEngine;
 using DG.Tweening;
 using TMPro;
 using UnityEngine.UI;
-using System.Linq; // Add this for Image component
 
 public class VictoryAnimation : MonoBehaviour
 {
