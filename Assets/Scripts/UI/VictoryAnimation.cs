@@ -19,6 +19,7 @@ public class VictoryAnimation : MonoBehaviour
     public float scaleUpDuration = 0.25f; // Duration for scaling up the dominoes
     public AudioClip victorySound; // Sound to play on victory
     private GameObject[] dominoes; // Array to store the spawned dominoes
+    private bool isVictoryAnimationTriggered = false; // Flag to check if the victory animation has been triggered once
 
     void Start()
     {
@@ -46,10 +47,14 @@ public class VictoryAnimation : MonoBehaviour
         {
             Destroy(victoryTextObject);
         }
+        victoryMenu.SetActive(false); // Hide the victory menu
+
         // Initialize the dominoes array
         dominoes = new GameObject[dominoCount];
-
-        DominoSoundManager.Instance.PlayArbitrarySound(victorySound, .5f, 1f); // Play the victory sound
+        if (!isVictoryAnimationTriggered)
+        {
+            DominoSoundManager.Instance.PlayArbitrarySound(victorySound, .5f, 1f); // Play the victory sound if this is the first time
+        }
 
         // Spawn the dominoes
         for (int i = 0; i < dominoCount; i++)
@@ -79,6 +84,7 @@ public class VictoryAnimation : MonoBehaviour
         Invoke(nameof(ShowVictoryText), 1f);
         Invoke(nameof(DisablePhysics), dominoCount * .125f); // Disable physics after 1 second
         Invoke(nameof(ShowVictoryMenu), 4f); // Show victory menu after 5 seconds
+        isVictoryAnimationTriggered = true; // Set the flag to true
     }
 
     public void TriggerDominoReset()
