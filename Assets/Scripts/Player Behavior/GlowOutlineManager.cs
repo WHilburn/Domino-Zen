@@ -6,11 +6,13 @@ public class GlowOutlineManager
     private Material glowOutlineMaterial;
     private Domino hoveredDomino;
     private Camera activeCamera;
+    private Material instanceMaterial; // Add a field for the instance material
 
     public GlowOutlineManager(Material glowOutlineMaterial, Camera activeCamera)
     {
         this.glowOutlineMaterial = glowOutlineMaterial;
         this.activeCamera = activeCamera;
+        this.instanceMaterial = new Material(glowOutlineMaterial); // Create an instance material
     }
 
     public void HandleMouseHover(GameObject heldDomino)
@@ -61,7 +63,7 @@ public class GlowOutlineManager
                 meshFilter.sharedMesh = originalMeshFilter.sharedMesh;
             }
 
-            meshRenderer.material = glowOutlineMaterial;
+            meshRenderer.material = instanceMaterial; // Use the instance material
             glowOutlineTransform = glowOutlineObject.transform;
         }
 
@@ -87,8 +89,8 @@ public class GlowOutlineManager
                 0.36f / domino.transform.localScale.z
             );
 
-            glowOutlineMaterial.SetColor("_Color", outlineColor);
-            glowOutlineMaterial.SetVector("_ScaleVector", Vector3.one + scaleVector);
+            instanceMaterial.SetColor("_Color", outlineColor); // Modify the instance material
+            instanceMaterial.SetVector("_ScaleVector", Vector3.one + scaleVector);
         }
     }
 
