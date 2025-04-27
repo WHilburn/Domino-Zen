@@ -218,8 +218,55 @@ public class PlacementIndicator : DominoLike
             placementCollider.enabled = true;
         });
 
-        foreach (var lineRenderer in edgeLineRenderers) lineRenderer.enabled = false;
-        foreach (var lineRenderer in sideLineRenderers) lineRenderer.enabled = false;
+        foreach (var lineRenderer in edgeLineRenderers)
+        {
+            if (lineRenderer != null)
+            {
+                // Tween the alpha values
+                float alpha = 1f;
+                DOTween.To(() => alpha, x => alpha = x, 0f, fadeSpeed).OnUpdate(() =>
+                {
+                    Color startColor = lineRenderer.startColor;
+                    startColor.a = alpha;
+                    lineRenderer.startColor = startColor;
+                    lineRenderer.endColor = startColor;
+                }).OnComplete(() =>
+                {
+                    lineRenderer.enabled = false; // Disable after animation
+                });
+            }
+        }
+
+        foreach (var lineRenderer in sideLineRenderers) // Animate the side line renderers
+        {
+            if (lineRenderer != null)
+            {
+                // Animate elongation upwards
+                Vector3[] positions = new Vector3[2];
+                lineRenderer.GetPositions(positions);
+                Vector3 start = positions[0];
+                Vector3 end = positions[1];
+                Vector3 targetEnd = end + Vector3.up * (5 * standardDimensions.y); // Extend upwards to 6x height
+
+                // Tween the endpoint position
+                DOTween.To(() => end, x => end = x, targetEnd, fadeSpeed).OnUpdate(() =>
+                {
+                    lineRenderer.SetPosition(1, end);
+                });
+
+                // Tween the alpha values
+                float alpha = 1f;
+                DOTween.To(() => alpha, x => alpha = x, 0f, fadeSpeed).OnUpdate(() =>
+                {
+                    Color startColor = lineRenderer.startColor;
+                    startColor.a = alpha;
+                    lineRenderer.startColor = startColor;
+                }).OnComplete(() =>
+                {
+                    lineRenderer.enabled = false; // Disable after animation
+                });
+            }
+        }
     }
 
     public void FadeIn(bool playSound = true)
@@ -311,7 +358,7 @@ public class PlacementIndicator : DominoLike
             activeCamera = SceneView.lastActiveSceneView.camera;
         }
 
-        if (activeCamera == null) return; // Skip if no active camera is found
+        if (activeCamera == null || currentState == IndicatorState.Filled) return; // Skip if no active camera is found
 
         Vector3 cameraPosition = activeCamera.transform.position;
         float distance = Vector3.Distance(transform.position, cameraPosition);
