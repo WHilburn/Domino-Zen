@@ -24,6 +24,7 @@ public class DominoResetManager : MonoBehaviour
     public static UnityEvent OnResetStart = new();
     public static UnityEvent OnResetEnd = new();
     public static UnityEvent OnResetUpcoming = new();
+    public static UnityEvent OnDominoesStoppedFalling = new();
     #endregion
 
     #region Unity Lifecycle
@@ -121,6 +122,7 @@ public class DominoResetManager : MonoBehaviour
     private void RegisterDominoForReset(Domino domino) // Registers that a domino fell and needs to be reset
     {
         if (Instance == null || GameManager.Instance.gameDifficulty == GameManager.GameDifficulty.Hard) return; // Ensure the instance is not null
+        GameManager.Instance.levelCompletePopup.SetActive(false); // Hide the level complete popup
         if (!fallenDominoes.Contains(domino))
         {
             // Debug.Log("Registering domino as fallen: " + domino.name);
@@ -130,11 +132,14 @@ public class DominoResetManager : MonoBehaviour
 
         if (!domino.CheckUpright() || domino.stablePositionSet)
         {
-            CancelInvoke(nameof(ResetAllDominoes));
-            Invoke(nameof(ResetAllDominoes), resetDelay);
-            timeUntilReset = resetDelay; // Reset the time until reset
-            currentState = ResetState.ResetUpcoming; // Set the state to ResetUpcoming
-            OnResetUpcoming.Invoke(); // Trigger OnResetUpcoming event
+            CancelInvoke(nameof(HandleDominoesStoppedFalling));
+            Invoke(nameof(HandleDominoesStoppedFalling), resetDelay);
+            if (!GameManager.levelComplete)
+            {
+                currentState = ResetState.ResetUpcoming; // Set the state to ResetUpcoming
+                OnResetUpcoming.Invoke(); // Trigger OnResetUpcoming event
+                timeUntilReset = resetDelay; // Reset the time until reset
+            }
         }
     }
 
@@ -181,6 +186,18 @@ public class DominoResetManager : MonoBehaviour
     #endregion
 
     #region Reset Management
+
+    private void HandleDominoesStoppedFalling()
+    {
+        if (!GameManager.levelComplete){
+            ResetAllDominoes();
+        }
+        else
+        {
+            currentState = ResetState.Idle; // Set the state to Idle
+            OnDominoesStoppedFalling.Invoke(); // Trigger OnResetEnd event
+        }
+    }
     public void ResetAllDominoes()
     {
         // if (fallenDominoes.Count == 0) return; // No dominoes to reset

@@ -1,7 +1,8 @@
 using UnityEngine;
 using DG.Tweening;
 using TMPro;
-using UnityEngine.UI; // Add this for Image component
+using UnityEngine.UI;
+using System.Linq; // Add this for Image component
 
 public class VictoryAnimation : MonoBehaviour
 {
@@ -21,13 +22,13 @@ public class VictoryAnimation : MonoBehaviour
 
     void Start()
     {
-        DominoResetManager.OnResetEnd.AddListener(HandleResetEnd); // Subscribe to OnResetEnd event
+        DominoResetManager.OnDominoesStoppedFalling.AddListener(HandleDominoesStoppedFalling); // Subscribe to OnResetEnd event
         // TriggerVictoryAnimation();
     }
 
     private void OnDestroy()
     {
-        DominoResetManager.OnResetEnd.RemoveListener(HandleResetEnd); // Unsubscribe to avoid memory leaks
+        DominoResetManager.OnDominoesStoppedFalling.RemoveListener(HandleDominoesStoppedFalling); // Unsubscribe to avoid memory leaks
     }
 
     public void TriggerVictoryAnimation()
@@ -48,7 +49,7 @@ public class VictoryAnimation : MonoBehaviour
         // Initialize the dominoes array
         dominoes = new GameObject[dominoCount];
 
-        DominoSoundManager.Instance.PlayArbitrarySound(victorySound, 1f, 1f); // Play the victory sound
+        DominoSoundManager.Instance.PlayArbitrarySound(victorySound, .5f, 1f); // Play the victory sound
 
         // Spawn the dominoes
         for (int i = 0; i < dominoCount; i++)
@@ -102,8 +103,13 @@ public class VictoryAnimation : MonoBehaviour
         DominoResetManager.Instance.ResetAllDominoes();
     }
 
-    private void HandleResetEnd()
+    private void HandleDominoesStoppedFalling()
     {
+        if (!GameManager.levelComplete) return;
+
+        // Check if dominoes array is null or empty
+        if (dominoes == null || dominoes.Length == 0) return;
+
         // Reappear text, dominoes, and menu
         foreach (GameObject domino in dominoes)
         {

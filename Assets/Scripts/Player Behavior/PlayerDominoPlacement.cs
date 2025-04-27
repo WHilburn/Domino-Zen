@@ -561,6 +561,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private void FlickDomino(Domino domino)
     {
         Rigidbody rb = domino.GetComponent<Rigidbody>();
+        GameManager.Instance.levelCompletePopup.SetActive(false); // Hide the level complete popup
         if (rb)
         {
             rb.isKinematic = false;

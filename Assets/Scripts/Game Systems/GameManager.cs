@@ -15,7 +15,8 @@ public class GameManager : MonoBehaviour
     public static float elapsedTime = 0f; // Time elapsed since the level started
     public static int resetsTriggered = 0;
     private bool isTiming = false; // Flag to track if the timer is running
-
+    public GameObject originatorDomino; // Reference to the domino or placement indicator at the start of the chain in each level
+    public GameObject levelCompletePopup;
 
     public enum GameDifficulty
     {
@@ -40,7 +41,7 @@ public class GameManager : MonoBehaviour
         RebuildAllIndicators(); // Initial rebuild
         elapsedTime = 0f; // Reset elapsed time at the start of the level
         isTiming = true; // Start the timer
-        
+        DominoResetManager.OnDominoesStoppedFalling.AddListener(OnDominoesStoppedFalling);
     }
 
     void OnDestroy()
@@ -49,6 +50,7 @@ public class GameManager : MonoBehaviour
         {
             SceneManager.sceneLoaded -= OnSceneLoaded; // Unsubscribe from sceneLoaded event
             DominoResetManager.OnResetStart.RemoveListener(OnResetStartHandler); // Unsubscribe from OnResetStart event
+            DominoResetManager.OnDominoesStoppedFalling.RemoveListener(OnDominoesStoppedFalling);
         }
     }
 
@@ -111,9 +113,7 @@ public class GameManager : MonoBehaviour
             {
                 isTiming = false; // Stop the timer
                 Debug.Log($"Level completed in {elapsedTime} seconds.");
-                // Trigger victory animation
-                victoryAnimation.TriggerVictoryAnimation();
-                Debug.Log("Victory animation triggered!");
+                levelCompletePopup.SetActive(true); // Show the level complete popup
             }
             else
             {
@@ -135,6 +135,15 @@ public class GameManager : MonoBehaviour
         if (!levelComplete)
         {
             resetsTriggered++; // Increment resetsTriggered if the level is not complete
+        }
+    }
+
+    private void OnDominoesStoppedFalling()
+    {
+        if (levelComplete)
+        {
+            victoryAnimation.TriggerVictoryAnimation();
+            Debug.Log("Victory animation triggered!");
         }
     }
 }
