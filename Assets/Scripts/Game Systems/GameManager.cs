@@ -2,12 +2,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     public List<PlacementIndicator> allIndicators;  // List of all dominoes in the scene
     public bool debugMode = true; // Debug mode toggle
+    public static bool levelComplete = false; // Flag to indicate if the level is complete
+    public static bool gamePaused = false; // Flag to indicate if the game is paused
+    public VictoryAnimation victoryAnimation; // Reference to the VictoryAnimation script
+    public static float elapsedTime = 0f; // Time elapsed since the level started
+    public static int resetsTriggered = 0;
+    private bool isTiming = false; // Flag to track if the timer is running
+
 
     public enum GameDifficulty
     {
@@ -27,10 +35,36 @@ public class GameManager : MonoBehaviour
             Destroy(Instance.gameObject); // Destroy the previous instance if it exists
         }
         Instance = this;
+        SceneManager.sceneLoaded += OnSceneLoaded; // Subscribe to sceneLoaded event
+        DominoResetManager.OnResetStart.AddListener(OnResetStartHandler); // Subscribe to OnResetStart event
+        RebuildAllIndicators(); // Initial rebuild
+        elapsedTime = 0f; // Reset elapsed time at the start of the level
+        isTiming = true; // Start the timer
+        
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded; // Unsubscribe from sceneLoaded event
+            DominoResetManager.OnResetStart.RemoveListener(OnResetStartHandler); // Unsubscribe from OnResetStart event
+        }
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        RebuildAllIndicators(); // Rebuild the list when a new scene is loaded
+    }
+
+    private void RebuildAllIndicators()
+    {
+        allIndicators.Clear();
         foreach (var indicator in FindObjectsOfType<PlacementIndicator>())
         {
             allIndicators.Add(indicator);
         }
+        Debug.Log($"Rebuilt allIndicators list with {allIndicators.Count} indicators.");
     }
 
     void Update()
@@ -51,6 +85,11 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+
+        if (isTiming && !gamePaused && !levelComplete)
+        {
+            elapsedTime += Time.deltaTime; // Increment elapsed time
+        }
     }
 
     public void CheckCompletion()
@@ -67,7 +106,20 @@ public class GameManager : MonoBehaviour
         }
         if (allIndicatorsFilled)
         {
-            Debug.Log("***********All indicators have been filled!*************");
+            Debug.Log("*** All indicators have been filled! ***");
+            if (!levelComplete)
+            {
+                isTiming = false; // Stop the timer
+                Debug.Log($"Level completed in {elapsedTime} seconds.");
+                // Trigger victory animation
+                victoryAnimation.TriggerVictoryAnimation();
+                Debug.Log("Victory animation triggered!");
+            }
+            else
+            {
+                Debug.Log("Level already completed.");
+            }
+            levelComplete = true;
         }
     }
 
@@ -76,5 +128,13 @@ public class GameManager : MonoBehaviour
         gameDifficulty = newDifficulty;
         Debug.Log($"Game difficulty set to {gameDifficulty}");
         OnGameDifficultyChanged.Invoke(newDifficulty); // Trigger the event
+    }
+
+    private void OnResetStartHandler()
+    {
+        if (!levelComplete)
+        {
+            resetsTriggered++; // Increment resetsTriggered if the level is not complete
+        }
     }
 }

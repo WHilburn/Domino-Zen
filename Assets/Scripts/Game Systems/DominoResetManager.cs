@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEngine.Events;
 
 public class DominoResetManager : MonoBehaviour
 {
@@ -20,6 +21,9 @@ public class DominoResetManager : MonoBehaviour
     public int checkpointThreshold = 5; // Number of dominoes required for a checkpoint
     public enum ResetState {Idle, ResetUpcoming, Resetting};
     public ResetState currentState = ResetState.Idle; // Current state of the reset manager
+    public static UnityEvent OnResetStart = new();
+    public static UnityEvent OnResetEnd = new();
+    public static UnityEvent OnResetUpcoming = new();
     #endregion
 
     #region Unity Lifecycle
@@ -124,11 +128,13 @@ public class DominoResetManager : MonoBehaviour
         }
         else return; // A domino cannot trigger a reset more than once
 
-        if (!domino.CheckUpright() || domino.stablePositionSet){ //Only start a domino reset if the domino is not upright
+        if (!domino.CheckUpright() || domino.stablePositionSet)
+        {
             CancelInvoke(nameof(ResetAllDominoes));
             Invoke(nameof(ResetAllDominoes), resetDelay);
             timeUntilReset = resetDelay; // Reset the time until reset
             currentState = ResetState.ResetUpcoming; // Set the state to ResetUpcoming
+            OnResetUpcoming.Invoke(); // Trigger OnResetUpcoming event
         }
     }
 
@@ -175,7 +181,7 @@ public class DominoResetManager : MonoBehaviour
     #endregion
 
     #region Reset Management
-    private void ResetAllDominoes()
+    public void ResetAllDominoes()
     {
         // if (fallenDominoes.Count == 0) return; // No dominoes to reset
         if (currentState == ResetState.Resetting || GameManager.Instance.gameDifficulty == GameManager.GameDifficulty.Hard)
@@ -183,6 +189,8 @@ public class DominoResetManager : MonoBehaviour
             return;
         }
         else Debug.Log("Resetting all dominoes. Count: " + allDominoes.Count);
+
+        OnResetStart.Invoke(); // Trigger OnResetStart event
 
         if (allDominoes.Count < 2000)
         {
@@ -218,6 +226,7 @@ public class DominoResetManager : MonoBehaviour
     private void ResetToIdle()
     {
         currentState = ResetState.Idle; // Set the state to Idle
+        OnResetEnd.Invoke(); // Trigger OnResetEnd event
     }
     #endregion
 }

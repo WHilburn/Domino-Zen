@@ -8,6 +8,9 @@ public class VictoryAnimation : MonoBehaviour
     public GameObject dominoPrefab; // The Domino2D prefab to instantiate
     public GameObject TextPrefab; // The TextMeshPro prefab to instantiate
     public GameObject victoryMenu; // The Victory Menu object
+    private GameObject victoryTextObject; // Reference to the instantiated text object
+    public TextMeshProUGUI timeElapsedText;
+    public TextMeshProUGUI resetsText;
     public Vector2 spawnPos = new Vector2(-7.5f, 0f); // Starting position for the first domino
     public int dominoCount = 20; // Number of dominoes to spawn
     public float spacing = 160f; // Spacing between dominoes on the x-axis
@@ -18,6 +21,30 @@ public class VictoryAnimation : MonoBehaviour
 
     void Start()
     {
+        DominoResetManager.OnResetEnd.AddListener(HandleResetEnd); // Subscribe to OnResetEnd event
+        // TriggerVictoryAnimation();
+    }
+
+    private void OnDestroy()
+    {
+        DominoResetManager.OnResetEnd.RemoveListener(HandleResetEnd); // Unsubscribe to avoid memory leaks
+    }
+
+    public void TriggerVictoryAnimation()
+    {
+        // Delete existing dominoes if they exist
+        if (dominoes != null)
+        {
+            foreach (GameObject domino in dominoes)
+            {
+                Destroy(domino);
+            }
+        }
+        // Delete existing victory text if it exists
+        if (victoryTextObject != null)
+        {
+            Destroy(victoryTextObject);
+        }
         // Initialize the dominoes array
         dominoes = new GameObject[dominoCount];
 
@@ -53,10 +80,51 @@ public class VictoryAnimation : MonoBehaviour
         Invoke(nameof(ShowVictoryMenu), 4f); // Show victory menu after 5 seconds
     }
 
+    public void TriggerDominoReset()
+    {
+        // Hide text, dominoes, and menu
+        foreach (GameObject domino in dominoes)
+        {
+            if (domino != null)
+            {
+                domino.SetActive(false);
+            }
+        }
+
+        if (victoryTextObject != null)
+        {
+            victoryTextObject.SetActive(false);
+        }
+
+        victoryMenu.SetActive(false);
+
+        // Trigger the domino reset
+        DominoResetManager.Instance.ResetAllDominoes();
+    }
+
+    private void HandleResetEnd()
+    {
+        // Reappear text, dominoes, and menu
+        foreach (GameObject domino in dominoes)
+        {
+            if (domino != null)
+            {
+                domino.SetActive(true);
+            }
+        }
+
+        if (victoryTextObject != null)
+        {
+            victoryTextObject.SetActive(true);
+        }
+
+        victoryMenu.SetActive(true);
+    }
+
     private void ShowVictoryText()
     {
         // Instantiate the text prefab as a child of this object
-        GameObject victoryTextObject = Instantiate(TextPrefab, transform);
+        victoryTextObject = Instantiate(TextPrefab, transform);
         TextMeshProUGUI victoryText = victoryTextObject.GetComponent<TextMeshProUGUI>();
 
         if (victoryText != null)
@@ -64,6 +132,21 @@ public class VictoryAnimation : MonoBehaviour
             victoryTextObject.transform.localPosition = Vector3.zero; // Position it relative to the parent
             victoryTextObject.transform.localScale = new Vector3(5f, 0f, 1f); // Start with wide and flat scale
             victoryTextObject.transform.DOScale(new Vector3(1f, 1f, 1f), 0.5f); // Tween to normal size
+        }
+
+        // Update timeElapsedText and resetsText
+        if (timeElapsedText != null)
+        {
+            float elapsedTime = GameManager.elapsedTime;
+            int hours = Mathf.FloorToInt(elapsedTime / 3600);
+            int minutes = Mathf.FloorToInt((elapsedTime % 3600) / 60);
+            int seconds = Mathf.FloorToInt(elapsedTime % 60);
+            timeElapsedText.text = $"Time Elapsed:\n {hours:D2}:{minutes:D2}:{seconds:D2}";
+        }
+
+        if (resetsText != null)
+        {
+            resetsText.text = $"Resets:\n {GameManager.resetsTriggered}";
         }
     }
 
