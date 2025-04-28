@@ -134,7 +134,7 @@ public class InGameUI : MonoBehaviour
         // Initialize difficulty dropdown to the current difficulty
         if (GameManager.Instance != null && difficultyDropdown != null)
         {
-            difficultyDropdown.value = (int)GameManager.Instance.gameDifficulty;
+            difficultyDropdown.value = (int)GameManager.gameDifficulty;
             difficultyDropdown.RefreshShownValue(); // Refresh the dropdown to display the correct value
         }
     }

@@ -17,6 +17,10 @@ public class GameManager : MonoBehaviour
     private bool isTiming = false; // Flag to track if the timer is running
     public GameObject originatorDomino; // Reference to the domino or placement indicator at the start of the chain in each level
     public GameObject levelCompletePopup;
+    public static UnityEvent OnLevelComplete = new UnityEvent(); // Event triggered when the level is completed
+
+    [SerializeField]
+    private GameDifficulty editorGameDifficulty = GameDifficulty.Easy; // Backing field for editor
 
     public enum GameDifficulty
     {
@@ -24,7 +28,7 @@ public class GameManager : MonoBehaviour
         Medium,
         Hard
     }
-    public GameDifficulty gameDifficulty = GameDifficulty.Easy; // Default difficulty
+    public static GameDifficulty gameDifficulty = GameDifficulty.Easy; // Default difficulty
     public static UnityEvent<GameDifficulty> OnGameDifficultyChanged = new UnityEvent<GameDifficulty>();
 
     void Start()
@@ -42,6 +46,7 @@ public class GameManager : MonoBehaviour
         elapsedTime = 0f; // Reset elapsed time at the start of the level
         isTiming = true; // Start the timer
         DominoResetManager.OnDominoesStoppedFalling.AddListener(OnDominoesStoppedFalling);
+        gameDifficulty = editorGameDifficulty; // Synchronize static field with editor value
     }
 
     void OnDestroy()
@@ -120,12 +125,14 @@ public class GameManager : MonoBehaviour
                 Debug.Log("Level already completed.");
             }
             levelComplete = true;
+            OnLevelComplete.Invoke();
         }
     }
 
     public void SetGameDifficulty(GameDifficulty newDifficulty)
     {
         gameDifficulty = newDifficulty;
+        editorGameDifficulty = newDifficulty; // Update editor field
         Debug.Log($"Game difficulty set to {gameDifficulty}");
         OnGameDifficultyChanged.Invoke(newDifficulty); // Trigger the event
     }

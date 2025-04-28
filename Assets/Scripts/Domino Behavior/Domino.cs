@@ -31,7 +31,6 @@ public class Domino : DominoLike
     }
 
     public DominoState currentState = DominoState.Stationary;
-    [HideInInspector]
     public bool stablePositionSet = false;
     [HideInInspector]
     public PlacementIndicator placementIndicator; // Reference to the placement indicator the domino is placed inside
