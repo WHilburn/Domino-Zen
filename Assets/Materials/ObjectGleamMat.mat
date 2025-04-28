@@ -114,9 +114,9 @@ Material:
     - _EnvironmentReflections: 1
     - _GleamSpeed: 5
     - _GleamWidth: 0.124
-    - _Gleam_Opacity: 1
+    - _Gleam_Opacity: 0
     - _Gleam_Speed: 2
-    - _Gleam_Width: 0.25
+    - _Gleam_Width: 0.175
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0

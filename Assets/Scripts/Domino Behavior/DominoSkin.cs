@@ -10,7 +10,10 @@ public class DominoSkin : MonoBehaviour
 
     void Awake()
     {
-        ApplyRandomMaterial();
+        if (Application.isPlaying)
+        {
+            ApplyRandomMaterial();
+        }
     }
 
 #if UNITY_EDITOR
@@ -40,22 +43,16 @@ public class DominoSkin : MonoBehaviour
         MeshRenderer[] meshRenderers = GetComponentsInChildren<MeshRenderer>();
         foreach (MeshRenderer renderer in meshRenderers)
         {
-            renderer.material = instanceMaterial; // Assign instance to avoid modifying sharedMaterial
-        }
-    }
-    public void TweenColor(Color targetColor, float duration)
-    {
-        if (instanceMaterial == null)
-        {
-            Debug.LogWarning("Material instance is not initialized. Ensure ApplyRandomMaterial() is called first.");
-            return;
-        }
+            // Get the current materials array
+            Material[] materials = renderer.materials;
 
-        // Use DOTween to tween the material's color to the target color
-        instanceMaterial.DOColor(targetColor, duration).OnComplete(() =>
-        {
-            // Update the colorOverride to match the new color after the tween
-            colorOverride = targetColor;
-        });
+            // Ensure there is at least one material slot
+            if (materials.Length > 0)
+            {
+                // Replace only the material in slot 0
+                materials[0] = instanceMaterial;
+                renderer.materials = materials; // Reassign the modified materials array
+            }
+        }
     }
 }

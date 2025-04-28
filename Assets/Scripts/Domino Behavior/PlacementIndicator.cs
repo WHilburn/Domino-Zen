@@ -187,7 +187,7 @@ public class PlacementIndicator : DominoLike
         // Assign the sound type to the domino
         if (soundType != DominoSoundManager.DominoSoundType.Default) trackedDomino.soundType = soundType;
         // Reset the domino's position using the rotate reset animation
-        trackedDominoRb.GetComponent<DominoSkin>().TweenColor(indicatorColor, 1f); // Tween the color of the domino
+        trackedDominoRb.GetComponent<DominoSkin>().colorOverride = indicatorColor; // Set the color so it can be tweened
         trackedDomino.AnimateDomino(Domino.DominoAnimation.Rotate);
 
         // Fade out the indicator
