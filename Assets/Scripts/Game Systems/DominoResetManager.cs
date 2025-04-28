@@ -121,7 +121,7 @@ public class DominoResetManager : MonoBehaviour
 
     private void RegisterDominoForReset(Domino domino) // Registers that a domino fell and needs to be reset
     {
-        if (Instance == null || GameManager.Instance.gameDifficulty == GameManager.GameDifficulty.Hard) return; // Ensure the instance is not null
+        if (Instance == null) return; // Ensure the instance is not null
         GameManager.Instance.levelCompletePopup.SetActive(false); // Hide the level complete popup
         if (!fallenDominoes.Contains(domino))
         {
@@ -189,7 +189,7 @@ public class DominoResetManager : MonoBehaviour
 
     private void HandleDominoesStoppedFalling()
     {
-        if (!GameManager.levelComplete){
+        if (!GameManager.levelComplete && GameManager.Instance.gameDifficulty == GameManager.GameDifficulty.Hard){
             ResetAllDominoes();
         }
         else
@@ -201,7 +201,7 @@ public class DominoResetManager : MonoBehaviour
     public void ResetAllDominoes()
     {
         // if (fallenDominoes.Count == 0) return; // No dominoes to reset
-        if (currentState == ResetState.Resetting || GameManager.Instance.gameDifficulty == GameManager.GameDifficulty.Hard)
+        if (currentState == ResetState.Resetting)
         {
             return;
         }
