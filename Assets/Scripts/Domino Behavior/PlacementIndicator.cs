@@ -359,7 +359,7 @@ public class PlacementIndicator : DominoLike
             activeCamera = SceneView.lastActiveSceneView.camera;
         }
 
-        if (activeCamera == null || currentState == IndicatorState.Filled) return; // Skip if no active camera is found
+        if (activeCamera == null || currentState == IndicatorState.Filled || currentState == IndicatorState.Disabled) return; // Skip if no active camera is found
 
         Vector3 cameraPosition = activeCamera.transform.position;
         float distance = Vector3.Distance(transform.position, cameraPosition);

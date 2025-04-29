@@ -113015,6 +113015,32 @@ MonoBehaviour:
   originatorDomino: {fileID: 0}
   levelCompletePopup: {fileID: 0}
   editorGameDifficulty: 0
+  levels:
+  - levelName: Tutorial
+    sceneName: Tutorial Level
+    description: 'Kid...I''m so proud of you. But before I entrust the family domino
+      business to you, I just gotta make sure you remember all the controls. Knock
+      em dead kiddo.
+
+      - Dad'
+    levelImage: {fileID: 21300000, guid: 0818a25d125f70f4290925b8ba126b7a, type: 3}
+  - levelName: Beginner
+    sceneName: Beginner Level
+    description: 'Ok, now that we''ve made sure you remember the basics, lets just
+      see real quick-like if you can fill the whole table with dominoes yourself.
+      You got this!
+
+      - Dad'
+    levelImage: {fileID: 21300000, guid: c8c9c30ae8bfe2a44bbd50ca77cc1e28, type: 3}
+  - levelName: Progress
+    sceneName: Progress Level
+    description: 'So I hear you do custom domino designs? Ok, well, my kid is real
+      upset. She and her mom had, well, lets just call it a falling out. I just want
+      to make sure Gwen knows she''s loved and supported, no matter what.
+
+      -
+      Bill Orchard'
+    levelImage: {fileID: 21300000, guid: aa3df0775a16b8d458a3d3e55d9e8b28, type: 3}
 --- !u!114 &9075005502202612505
 MonoBehaviour:
   m_ObjectHideFlags: 0

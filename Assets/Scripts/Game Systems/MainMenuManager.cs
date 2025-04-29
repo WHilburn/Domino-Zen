@@ -8,15 +8,6 @@ using DG.Tweening;
 using System.Collections.Generic;
 using System;
 
-[Serializable]
-public class LevelData
-{
-    public string levelName; // Name of the level
-    public string sceneName; // Unity scene associated with the level
-    [TextArea] public string description; // Description text for the level
-    public Sprite levelImage; // Image associated with the level
-}
-
 public class MainMenuManager : MonoBehaviour
 {
     public TextMeshProUGUI loadingText;
@@ -45,9 +36,9 @@ public class MainMenuManager : MonoBehaviour
     public Button mediumButton;
     public Button hardButton;
 
-    public List<LevelData> levels = new List<LevelData>(); // List of levels, editable in the Unity Editor
+    private List<GameManager.LevelData> levels = new List<GameManager.LevelData>(); // List of levels, editable in the Unity Editor
 
-    private LevelData selectedLevel; // Currently selected level
+    private GameManager.LevelData selectedLevel; // Currently selected level
 
     private void Start()
     {
@@ -55,13 +46,19 @@ public class MainMenuManager : MonoBehaviour
         SetActiveCamera(mainMenuCamera);
         DOTween.defaultRecyclable = true;
 
+        Invoke(nameof(DelayedStart), 0.1f); // Delay the start to allow for camera blending
+    }
+
+    private void DelayedStart()
+    {
+        levels = GameManager.Instance.levels; // Get the list of levels from GameManager
         PopulateLevelSelectButtons(); // Create level select buttons
         InitializeDifficultyButtons();
         SetSelectedLevel(levels.Count > 0 ? levels[0] : null); // Set the default selected level
         UpdateLevelPreviewImage(); // Update the preview image for the default selected level
     }
 
-    public void SetSelectedLevel(LevelData level)
+    public void SetSelectedLevel(GameManager.LevelData level)
     {
         selectedLevel = level;
         beginLevelButton.interactable = level != null; // Enable the button when a level is selected
@@ -143,7 +140,41 @@ public class MainMenuManager : MonoBehaviour
             }
 
             button.onClick.AddListener(() => SetSelectedLevel(level)); // Assign the level selection action
+            UpdateLevelStatsUI(buttonObject, level); // Update the level stats UI
         }
+    }
+
+    private void UpdateLevelStatsUI(GameObject buttonObject, GameManager.LevelData level)
+    {
+        TextMeshProUGUI statsText = buttonObject.transform.Find("Level Stats Text").GetComponent<TextMeshProUGUI>();
+        var stats = GameManager.levelStats.TryGetValue(level.sceneName, out var levelStats) ? levelStats : null; // Get the stats for the level
+        if (stats != null)
+        {
+            if (stats.isInProgress)
+            {
+                statsText.text = $"<b>In Progress Time:</b> {FormatTime(stats.inProgressTime)}\n\n<b>Difficulty:</b> {stats.hardestDifficulty}";
+            }
+            else if (stats.bestTime < float.MaxValue)
+            {
+                statsText.text = $"<b>Best Time:</b> {FormatTime(stats.bestTime)}\n\n<b>Hardest Difficulty Completed:</b> {stats.hardestDifficulty}";
+            }
+            else
+            {
+                statsText.text = ""; // Blank if not played yet
+            }
+        }
+        else
+        {
+            statsText.text = ""; // Blank if no stats available
+        }
+    }
+
+    private string FormatTime(float timeInSeconds)
+    {
+        int minutes = Mathf.FloorToInt(timeInSeconds / 60);
+        int seconds = Mathf.FloorToInt(timeInSeconds % 60);
+        int milliseconds = Mathf.FloorToInt((timeInSeconds * 1000) % 1000);
+        return $"{minutes:D2}:{seconds:D2}:{milliseconds:D3}";
     }
 
     public void SetActiveCamera(CinemachineVirtualCamera newCamera)

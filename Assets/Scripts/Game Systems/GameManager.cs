@@ -3,6 +3,7 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using System;
 
 public class GameManager : MonoBehaviour
 {
@@ -30,6 +31,52 @@ public class GameManager : MonoBehaviour
     }
     public static GameDifficulty gameDifficulty = GameDifficulty.Easy; // Default difficulty
     public static UnityEvent<GameDifficulty> OnGameDifficultyChanged = new UnityEvent<GameDifficulty>();
+
+    [Serializable]
+    public class LevelData
+    {
+        public string levelName; // Name of the level
+        public string sceneName; // Unity scene associated with the level
+        [TextArea] public string description; // Description text for the level
+        public Sprite levelImage; // Image associated with the level
+    }
+
+    [System.Serializable]
+    public class LevelStats
+    {
+        public float bestTime = float.MaxValue; // Best completion time (in seconds)
+        public GameDifficulty hardestDifficulty = GameDifficulty.Easy; // Hardest difficulty completed
+        public bool isInProgress = false; // Whether the level is currently in progress
+        public float inProgressTime = 0f; // Time elapsed for the current in-progress attempt
+    }
+
+    public static Dictionary<string, LevelStats> levelStats = new Dictionary<string, LevelStats>(); // Store stats for each level
+
+    public void SaveLevelStats()
+    {
+        foreach (var level in levels)
+        {
+            if (levelStats.TryGetValue(level.sceneName, out var stats))
+            {
+                PlayerPrefs.SetFloat(level.sceneName + "_BestTime", stats.bestTime);
+                PlayerPrefs.SetInt(level.sceneName + "_HardestDifficulty", (int)stats.hardestDifficulty);
+            }
+        }
+        PlayerPrefs.Save();
+    }
+
+    public void LoadLevelStats()
+    {
+        foreach (var level in levels)
+        {
+            var stats = new LevelStats();
+            stats.bestTime = PlayerPrefs.GetFloat(level.sceneName + "_BestTime", float.MaxValue);
+            stats.hardestDifficulty = (GameDifficulty)PlayerPrefs.GetInt(level.sceneName + "_HardestDifficulty", (int)GameDifficulty.Easy);
+            levelStats[level.sceneName] = stats;
+        }
+    }
+
+    public List<LevelData> levels = new List<LevelData>(); // List of levels, editable in the Unity Editor
 
     void Start()
     {
@@ -119,6 +166,7 @@ public class GameManager : MonoBehaviour
                 isTiming = false; // Stop the timer
                 Debug.Log($"Level completed in {elapsedTime} seconds.");
                 levelCompletePopup.SetActive(true); // Show the level complete popup
+                RecordLevelStats(); // Record level stats
             }
             else
             {
@@ -152,5 +200,35 @@ public class GameManager : MonoBehaviour
             victoryAnimation.TriggerVictoryAnimation();
             Debug.Log("Victory animation triggered!");
         }
+    }
+
+    public void RecordLevelStats()
+    {
+        string currentSceneName = SceneManager.GetActiveScene().name;
+
+        if (!levelStats.TryGetValue(currentSceneName, out var stats))
+        {
+            stats = new LevelStats();
+            levelStats[currentSceneName] = stats;
+        }
+
+        // Update best time if the current time is better
+        if (elapsedTime < stats.bestTime)
+        {
+            stats.bestTime = elapsedTime;
+        }
+
+        // Update hardest difficulty if the current difficulty is harder
+        if (gameDifficulty > stats.hardestDifficulty)
+        {
+            stats.hardestDifficulty = gameDifficulty;
+        }
+
+        stats.isInProgress = false; // Mark the level as not in progress
+
+        Debug.Log($"Level stats updated: Best Time = {stats.bestTime}, Hardest Difficulty = {stats.hardestDifficulty}");
+
+        // Save the updated stats
+        SaveLevelStats();
     }
 }
