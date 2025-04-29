@@ -13,7 +13,7 @@ public class LevelData
 {
     public string levelName; // Name of the level
     public string sceneName; // Unity scene associated with the level
-    public string description; // Description text for the level
+    [TextArea] public string description; // Description text for the level
     public Sprite levelImage; // Image associated with the level
 }
 
@@ -32,6 +32,7 @@ public class MainMenuManager : MonoBehaviour
 
     public Image circularProgressBar; // Reference to the circular progress bar image
     public TextMeshProUGUI levelDescription; // Text to display the level description
+    public Image levelPreviewImage; // Reference to the large preview image for the selected level
     
     // Store current active camera
     private CinemachineVirtualCamera activeCamera;
@@ -57,6 +58,7 @@ public class MainMenuManager : MonoBehaviour
         PopulateLevelSelectButtons(); // Create level select buttons
         InitializeDifficultyButtons();
         SetSelectedLevel(levels.Count > 0 ? levels[0] : null); // Set the default selected level
+        UpdateLevelPreviewImage(); // Update the preview image for the default selected level
     }
 
     public void SetSelectedLevel(LevelData level)
@@ -69,6 +71,8 @@ public class MainMenuManager : MonoBehaviour
         {
             levelDescription.text = $"{level.levelName}\n<size=12>{level.description}</size>";
         }
+
+        UpdateLevelPreviewImage(); // Update the preview image when a new level is selected
 
         // Force easy difficulty for the tutorial level (if applicable)
         if (level != null && level.levelName == "Tutorial")
@@ -83,6 +87,15 @@ public class MainMenuManager : MonoBehaviour
             easyButton.gameObject.SetActive(true);
             mediumButton.gameObject.SetActive(true);
             hardButton.gameObject.SetActive(true);
+        }
+    }
+
+    private void UpdateLevelPreviewImage()
+    {
+        if (levelPreviewImage != null && selectedLevel != null)
+        {
+            levelPreviewImage.sprite = selectedLevel.levelImage; // Set the preview image to the selected level's image
+            levelPreviewImage.enabled = selectedLevel.levelImage != null; // Enable or disable the image based on its availability
         }
     }
 
@@ -116,10 +129,17 @@ public class MainMenuManager : MonoBehaviour
             GameObject buttonObject = Instantiate(levelSelectButtonPrefab, levelSelectScrollViewContent);
             Button button = buttonObject.GetComponent<Button>();
             TextMeshProUGUI buttonText = buttonObject.GetComponentInChildren<TextMeshProUGUI>();
+            Image buttonImage = buttonObject.transform.Find("Level Image").GetComponent<Image>(); // Find the "Level Image" component
 
             if (buttonText != null)
             {
                 buttonText.text = level.levelName; // Set button text to the level name
+            }
+
+            if (buttonImage != null)
+            {
+                buttonImage.sprite = level.levelImage; // Set the button image to the level's image
+                buttonImage.enabled = level.levelImage != null; // Enable or disable the image based on its availability
             }
 
             button.onClick.AddListener(() => SetSelectedLevel(level)); // Assign the level selection action
