@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class VictoryAnimation : MonoBehaviour
 {
+    public static VictoryAnimation Instance { get; private set; }
     public GameObject dominoPrefab; // The Domino2D prefab to instantiate
     public GameObject TextPrefab; // The TextMeshPro prefab to instantiate
     public GameObject victoryMenu; // The Victory Menu object
@@ -22,6 +23,11 @@ public class VictoryAnimation : MonoBehaviour
 
     void Start()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(Instance.gameObject); // Destroy the previous instance if it exists
+        }
+        Instance = this;
         DominoResetManager.OnDominoesStoppedFalling.AddListener(HandleDominoesStoppedFalling); // Subscribe to OnResetEnd event
         // TriggerVictoryAnimation();
     }
@@ -200,6 +206,7 @@ public class VictoryAnimation : MonoBehaviour
 
     private void ShowVictoryMenu()
     {
+        DisablePhysics(); // Disable physics for all dominoes if they aren't already
         // Tween dominoes and text upwards
         foreach (GameObject domino in dominoes)
         {

@@ -154,7 +154,6 @@ public class InGameUI : MonoBehaviour
         {
             TogglePauseMenu();
         }
-
         UpdateResetWarning();
         UpdateButtonPrompts();
     }
@@ -193,11 +192,9 @@ public class InGameUI : MonoBehaviour
         string spawnAndDropDominoKey = "Space";
         string pickUpDominoKey = "Left Mouse";
 
-        if (paused || 
-            DominoResetManager.Instance != null && 
-            DominoResetManager.Instance.currentState != DominoResetManager.ResetState.Idle)
+        if (!PlayerDominoPlacement.Instance.ControlsActive()) // Hide button prompts if paused or in reset state
         {
-            buttonPrompt1.SetActive(false); // Hide button prompts if not paused or in reset state
+            buttonPrompt1.SetActive(false); 
             buttonPrompt2.SetActive(false);
             buttonPrompt3.SetActive(false);
             return;

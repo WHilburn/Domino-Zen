@@ -126,7 +126,6 @@ public class DominoResetManager : MonoBehaviour
         GameManager.Instance.levelCompletePopup.SetActive(false); // Hide the level complete popup
         if (!fallenDominoes.Contains(domino))
         {
-            // Debug.Log("Registering domino as fallen: " + domino.name);
             fallenDominoes.Add(domino);
         }
         else return; // A domino cannot trigger a reset more than once
@@ -136,17 +135,12 @@ public class DominoResetManager : MonoBehaviour
             CancelInvoke(nameof(HandleDominoesStoppedFalling));
             Invoke(nameof(HandleDominoesStoppedFalling), resetDelay);
             if (GameManager.gameDifficulty == GameManager.GameDifficulty.Hard) return;
-            if (!GameManager.levelComplete)
-            {
-                currentState = ResetState.Resetting; // Set the state to Resetting
-                OnResetStart.Invoke(); // Trigger OnResetStart event
-            }
-            else if (timeUntilReset <= 0 && currentState != ResetState.ResetUpcoming) // Check if the reset delay has passed and the state is not already ResetUpcoming
+            if (currentState != ResetState.ResetUpcoming)
             {
                 currentState = ResetState.ResetUpcoming; // Set the state to ResetUpcoming
                 OnResetUpcoming.Invoke(); // Trigger OnResetUpcoming event
-                timeUntilReset = resetDelay; // Reset the time until reset
             }
+            timeUntilReset = resetDelay; // Reset the time until reset
         }
     }
 
@@ -256,7 +250,6 @@ public class DominoResetManager : MonoBehaviour
     #region Event Handlers
     private void OnLevelCompleteHandler()
     {
-        Debug.Log("Level complete! Checkpointing all upright dominoes with stable positions.");
         foreach (var domino in allDominoes)
         {
             if (domino.CheckUpright() && domino.stablePositionSet)

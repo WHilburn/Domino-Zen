@@ -17,7 +17,7 @@ public class GlowOutlineManager
 
     public void HandleMouseHover(GameObject heldDomino)
     {
-        if (heldDomino != null || !IsCameraActive())
+        if (heldDomino != null || !PlayerDominoPlacement.Instance.ControlsActive())
         {
             RemoveGlowOutline();
             return;

@@ -21,6 +21,7 @@ public class MainMenuManager : MonoBehaviour
     public CinemachineVirtualCamera mainMenuCamera;
 
     public Image circularProgressBar; // Reference to the circular progress bar image
+    public TextMeshProUGUI levelDescription; // Text to display the level description
     
     // Store current active camera
     private CinemachineVirtualCamera activeCamera;
@@ -28,6 +29,10 @@ public class MainMenuManager : MonoBehaviour
     public DominoRain dominoRain; // Reference to the DominoRain script for scene transitions
     public GameObject levelSelectButtonPrefab; // Prefab for level select buttons
     public Transform levelSelectScrollViewContent; // Content transform of the scroll view
+
+    public Button easyButton;
+    public Button mediumButton;
+    public Button hardButton;
 
     public enum Level // Add new level titles here and in the dictionary below
     {
@@ -43,23 +48,75 @@ public class MainMenuManager : MonoBehaviour
         { Level.Progress, "Progress Level" }
     };
 
+    private Dictionary<Level, string> levelDescriptionMap = new()
+    {
+        { Level.Tutorial, "Kid...I'm so proud of you. But before I entrust the family domino business to you, I just gotta make sure you remember all the controls. Knock em dead kiddo. \n - Dad" },
+        { Level.Beginner, "Ok, now that we've made sure you remember the basics, lets just see real quick-like if you can fill the whole table with dominoes yourself. You got this! \n - Dad" },
+        { Level.Progress, "So I hear you do custom domino designs? Ok, well, my kid is real upset. She and her mom had, well, lets just call it a falling out. I just want to make sure Gwen knows she's loved and supported, no matter what. \n - Bill Orchard" }
+    };
+
     private Level selectedLevel = Level.Tutorial; // Default selected level
 
-    public void SetSelectedLevel(Level level)
-    {
-        selectedLevel = level;
-        // Debug.Log($"Selected level set to: {level}");
-        beginLevelButton.interactable = true; // Enable the button when a level is selected
-    }
     
     private void Start()
     {
-        
         // Set the main menu camera as the default
         SetActiveCamera(mainMenuCamera);
         DOTween.defaultRecyclable = true;
 
         PopulateLevelSelectButtons(); // Create level select buttons
+        InitializeDifficultyButtons();
+        SetSelectedLevel(selectedLevel); // Set the default selected level
+    }
+
+    public void SetSelectedLevel(Level level)
+    {
+        selectedLevel = level;
+        beginLevelButton.interactable = true; // Enable the button when a level is selected
+
+        // Update the level description text
+        if (levelDescription != null && levelNameMap.TryGetValue(level, out string levelName) && levelDescriptionMap.TryGetValue(level, out string description))
+        {
+            levelDescription.text = $"{levelName}\n<size=12>{description}</size>";
+        }
+
+        // Force easy difficulty for the tutorial level
+        if (level == Level.Tutorial)
+        {
+            SetGameDifficulty(GameManager.GameDifficulty.Easy);
+            easyButton.gameObject.SetActive(false); // Disable the easy button to prevent changing difficulty
+            mediumButton.gameObject.SetActive(false);
+            hardButton.gameObject.SetActive(false);
+        }
+        else
+        {
+            easyButton.gameObject.SetActive(true);
+            mediumButton.gameObject.SetActive(true);
+            hardButton.gameObject.SetActive(true);
+        }
+    }
+
+    private void InitializeDifficultyButtons()
+    {
+        easyButton.onClick.AddListener(() => SetGameDifficulty(GameManager.GameDifficulty.Easy));
+        mediumButton.onClick.AddListener(() => SetGameDifficulty(GameManager.GameDifficulty.Medium));
+        hardButton.onClick.AddListener(() => SetGameDifficulty(GameManager.GameDifficulty.Hard));
+
+        UpdateDifficultyButtonVisuals(GameManager.gameDifficulty); // Set initial visuals
+    }
+
+    private void SetGameDifficulty(GameManager.GameDifficulty difficulty)
+    {
+        GameManager.Instance.SetGameDifficulty(difficulty); // Set difficulty in GameManager
+        UpdateDifficultyButtonVisuals(difficulty); // Update button visuals
+    }
+
+    private void UpdateDifficultyButtonVisuals(GameManager.GameDifficulty selectedDifficulty)
+    {
+        // Highlight the selected button and dim the others
+        easyButton.interactable = selectedDifficulty != GameManager.GameDifficulty.Easy;
+        mediumButton.interactable = selectedDifficulty != GameManager.GameDifficulty.Medium;
+        hardButton.interactable = selectedDifficulty != GameManager.GameDifficulty.Hard;
     }
 
     private void PopulateLevelSelectButtons()

@@ -74,9 +74,7 @@ public class PlayerDominoPlacement : MonoBehaviour
 
     void Update()
     {
-        if (InGameUI.paused || 
-            DominoResetManager.Instance != null && 
-            DominoResetManager.Instance.currentState != DominoResetManager.ResetState.Idle)
+        if (!ControlsActive())
         {
             DestroyHand(); // Destroy the hand if the game is paused or in a reset state
             placementDecalManager.UpdatePlacementDecal(false, heldDomino, savedRotation);
@@ -124,6 +122,19 @@ public class PlayerDominoPlacement : MonoBehaviour
         glowOutlineManager.HandleMouseHover(heldDomino);
         placementDecalManager.UpdatePlacementDecal(placementEnabled, heldDomino, savedRotation); // Update the placement decal position and visibility
         HandleRotation(); // Handle rotation even when no domino is held
+    }
+
+    public bool ControlsActive()
+    {
+        if (InGameUI.paused || // Disable if the game is paused
+            !IsCameraActive() || // Disable if camera is not active
+            CameraController.isTracking || // Disable if the camera is tracking a domino fall
+            (DominoResetManager.Instance != null && DominoResetManager.Instance.currentState != DominoResetManager.ResetState.Idle) || //Disable is resetting
+            (VictoryAnimation.Instance != null && VictoryAnimation.Instance.victoryMenu.activeSelf)) // Disable if the victory menu is open
+            {
+                return false; // Controls are not active
+            }
+        return true; // Controls are active
     }
     #endregion
     #region Placement Controls
