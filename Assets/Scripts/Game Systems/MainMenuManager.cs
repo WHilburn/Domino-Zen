@@ -6,6 +6,16 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using DG.Tweening;
 using System.Collections.Generic;
+using System;
+
+[Serializable]
+public class LevelData
+{
+    public string levelName; // Name of the level
+    public string sceneName; // Unity scene associated with the level
+    public string description; // Description text for the level
+    public Sprite levelImage; // Image associated with the level
+}
 
 public class MainMenuManager : MonoBehaviour
 {
@@ -34,30 +44,10 @@ public class MainMenuManager : MonoBehaviour
     public Button mediumButton;
     public Button hardButton;
 
-    public enum Level // Add new level titles here and in the dictionary below
-    {
-        Tutorial,
-        Beginner,
-        Progress
-    }
+    public List<LevelData> levels = new List<LevelData>(); // List of levels, editable in the Unity Editor
 
-    private Dictionary<Level, string> levelNameMap = new()
-    {
-        { Level.Tutorial, "Tutorial Level" },
-        { Level.Beginner, "Beginner Level" },
-        { Level.Progress, "Progress Level" }
-    };
+    private LevelData selectedLevel; // Currently selected level
 
-    private Dictionary<Level, string> levelDescriptionMap = new()
-    {
-        { Level.Tutorial, "Kid...I'm so proud of you. But before I entrust the family domino business to you, I just gotta make sure you remember all the controls. Knock em dead kiddo. \n - Dad" },
-        { Level.Beginner, "Ok, now that we've made sure you remember the basics, lets just see real quick-like if you can fill the whole table with dominoes yourself. You got this! \n - Dad" },
-        { Level.Progress, "So I hear you do custom domino designs? Ok, well, my kid is real upset. She and her mom had, well, lets just call it a falling out. I just want to make sure Gwen knows she's loved and supported, no matter what. \n - Bill Orchard" }
-    };
-
-    private Level selectedLevel = Level.Tutorial; // Default selected level
-
-    
     private void Start()
     {
         // Set the main menu camera as the default
@@ -66,22 +56,22 @@ public class MainMenuManager : MonoBehaviour
 
         PopulateLevelSelectButtons(); // Create level select buttons
         InitializeDifficultyButtons();
-        SetSelectedLevel(selectedLevel); // Set the default selected level
+        SetSelectedLevel(levels.Count > 0 ? levels[0] : null); // Set the default selected level
     }
 
-    public void SetSelectedLevel(Level level)
+    public void SetSelectedLevel(LevelData level)
     {
         selectedLevel = level;
-        beginLevelButton.interactable = true; // Enable the button when a level is selected
+        beginLevelButton.interactable = level != null; // Enable the button when a level is selected
 
         // Update the level description text
-        if (levelDescription != null && levelNameMap.TryGetValue(level, out string levelName) && levelDescriptionMap.TryGetValue(level, out string description))
+        if (levelDescription != null && level != null)
         {
-            levelDescription.text = $"{levelName}\n<size=12>{description}</size>";
+            levelDescription.text = $"{level.levelName}\n<size=12>{level.description}</size>";
         }
 
-        // Force easy difficulty for the tutorial level
-        if (level == Level.Tutorial)
+        // Force easy difficulty for the tutorial level (if applicable)
+        if (level != null && level.levelName == "Tutorial")
         {
             SetGameDifficulty(GameManager.GameDifficulty.Easy);
             easyButton.gameObject.SetActive(false); // Disable the easy button to prevent changing difficulty
@@ -121,7 +111,7 @@ public class MainMenuManager : MonoBehaviour
 
     private void PopulateLevelSelectButtons()
     {
-        foreach (var level in levelNameMap.Keys)
+        foreach (var level in levels)
         {
             GameObject buttonObject = Instantiate(levelSelectButtonPrefab, levelSelectScrollViewContent);
             Button button = buttonObject.GetComponent<Button>();
@@ -129,7 +119,7 @@ public class MainMenuManager : MonoBehaviour
 
             if (buttonText != null)
             {
-                buttonText.text = level.ToString(); // Set button text to the level name
+                buttonText.text = level.levelName; // Set button text to the level name
             }
 
             button.onClick.AddListener(() => SetSelectedLevel(level)); // Assign the level selection action
@@ -148,11 +138,9 @@ public class MainMenuManager : MonoBehaviour
         activeCamera.Priority = 10; // Higher priority to make it active
     }
 
-    // Modified LoadLevel to use the selected level
     public void LoadLevel()
     {
-        // Debug.Log($"Loading selected level: {selectedLevel}");
-        if (levelNameMap.TryGetValue(selectedLevel, out string levelName))
+        if (selectedLevel != null)
         {
             SetActiveCamera(mainMenuCamera); // Set the loading screen camera as active
             List<Button> buttons = new(FindObjectsOfType<Button>());
@@ -161,11 +149,11 @@ public class MainMenuManager : MonoBehaviour
                 button.interactable = false; // Disable all buttons
             }
             // Start loading the level asynchronously
-            StartCoroutine(LoadLevelAsync(levelName));
+            StartCoroutine(LoadLevelAsync(selectedLevel.sceneName));
         }
         else
         {
-            Debug.LogError($"Level name not found for selected level: {selectedLevel}");
+            Debug.LogError("No level selected to load.");
         }
     }
 
@@ -199,7 +187,7 @@ public class MainMenuManager : MonoBehaviour
             // Simulate gradual progress with noise
             if (fakeProgress <= 1f)
             {
-                fakeProgress += Time.deltaTime / minimumLoadingTime + Random.Range(0.002f, 0.05f) * Time.deltaTime;
+                fakeProgress += Time.deltaTime / minimumLoadingTime + UnityEngine.Random.Range(0.002f, 0.05f) * Time.deltaTime;
                 fakeProgress = Mathf.Clamp(fakeProgress, 0f, 1f);
             }
 
