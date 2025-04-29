@@ -21,15 +21,15 @@ public class GameManager : MonoBehaviour
     public static UnityEvent OnLevelComplete = new UnityEvent(); // Event triggered when the level is completed
 
     [SerializeField]
-    private GameDifficulty editorGameDifficulty = GameDifficulty.Easy; // Backing field for editor
+    private GameDifficulty editorGameDifficulty = GameDifficulty.Relaxed; // Backing field for editor
 
     public enum GameDifficulty
     {
-        Easy,
-        Medium,
-        Hard
+        Relaxed,
+        Focused,
+        Intense
     }
-    public static GameDifficulty gameDifficulty = GameDifficulty.Easy; // Default difficulty
+    public static GameDifficulty gameDifficulty = GameDifficulty.Relaxed; // Default difficulty
     public static UnityEvent<GameDifficulty> OnGameDifficultyChanged = new UnityEvent<GameDifficulty>();
 
     [Serializable]
@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour
     public class LevelStats
     {
         public float bestTime = float.MaxValue; // Best completion time (in seconds)
-        public GameDifficulty hardestDifficulty = GameDifficulty.Easy; // Hardest difficulty completed
+        public GameDifficulty hardestDifficulty = GameDifficulty.Relaxed; // Hardest difficulty completed
         public bool isInProgress = false; // Whether the level is currently in progress
         public float inProgressTime = 0f; // Time elapsed for the current in-progress attempt
     }
@@ -72,13 +72,13 @@ public class GameManager : MonoBehaviour
         if (PlayerPrefs.HasKey(levelName + "_BestTime") && PlayerPrefs.HasKey(levelName + "_HardestDifficulty"))
         {
             stats.bestTime = PlayerPrefs.GetFloat(levelName + "_BestTime", float.MaxValue);
-            stats.hardestDifficulty = (GameDifficulty)PlayerPrefs.GetInt(levelName + "_HardestDifficulty", (int)GameDifficulty.Easy);
+            stats.hardestDifficulty = (GameDifficulty)PlayerPrefs.GetInt(levelName + "_HardestDifficulty", (int)GameDifficulty.Relaxed);
         }
         else
         {
             Debug.LogWarning($"No saved stats found for level: {levelName}. Using default values.");
             stats.bestTime = float.MaxValue;
-            stats.hardestDifficulty = GameDifficulty.Easy;
+            stats.hardestDifficulty = GameDifficulty.Relaxed;
         }
 
         levelStats[levelName] = stats;

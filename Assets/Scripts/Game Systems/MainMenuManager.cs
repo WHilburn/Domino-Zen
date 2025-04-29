@@ -74,14 +74,12 @@ public class MainMenuManager : MonoBehaviour
         // Force easy difficulty for the tutorial level (if applicable)
         if (level != null && level.levelName == "Tutorial")
         {
-            SetGameDifficulty(GameManager.GameDifficulty.Easy);
-            easyButton.gameObject.SetActive(false); // Disable the easy button to prevent changing difficulty
+            SetGameDifficulty(GameManager.GameDifficulty.Relaxed);
             mediumButton.gameObject.SetActive(false);
             hardButton.gameObject.SetActive(false);
         }
         else
         {
-            easyButton.gameObject.SetActive(true);
             mediumButton.gameObject.SetActive(true);
             hardButton.gameObject.SetActive(true);
         }
@@ -98,9 +96,9 @@ public class MainMenuManager : MonoBehaviour
 
     private void InitializeDifficultyButtons()
     {
-        easyButton.onClick.AddListener(() => SetGameDifficulty(GameManager.GameDifficulty.Easy));
-        mediumButton.onClick.AddListener(() => SetGameDifficulty(GameManager.GameDifficulty.Medium));
-        hardButton.onClick.AddListener(() => SetGameDifficulty(GameManager.GameDifficulty.Hard));
+        easyButton.onClick.AddListener(() => SetGameDifficulty(GameManager.GameDifficulty.Relaxed));
+        mediumButton.onClick.AddListener(() => SetGameDifficulty(GameManager.GameDifficulty.Focused));
+        hardButton.onClick.AddListener(() => SetGameDifficulty(GameManager.GameDifficulty.Intense));
 
         UpdateDifficultyButtonVisuals(GameManager.gameDifficulty); // Set initial visuals
     }
@@ -114,9 +112,9 @@ public class MainMenuManager : MonoBehaviour
     private void UpdateDifficultyButtonVisuals(GameManager.GameDifficulty selectedDifficulty)
     {
         // Highlight the selected button and dim the others
-        easyButton.interactable = selectedDifficulty != GameManager.GameDifficulty.Easy;
-        mediumButton.interactable = selectedDifficulty != GameManager.GameDifficulty.Medium;
-        hardButton.interactable = selectedDifficulty != GameManager.GameDifficulty.Hard;
+        easyButton.interactable = selectedDifficulty != GameManager.GameDifficulty.Relaxed;
+        mediumButton.interactable = selectedDifficulty != GameManager.GameDifficulty.Focused;
+        hardButton.interactable = selectedDifficulty != GameManager.GameDifficulty.Intense;
     }
 
     private void PopulateLevelSelectButtons()

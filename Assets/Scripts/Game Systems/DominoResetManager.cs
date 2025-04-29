@@ -76,13 +76,13 @@ public class DominoResetManager : MonoBehaviour
     {
         switch (difficulty)
         {
-            case GameManager.GameDifficulty.Easy:
+            case GameManager.GameDifficulty.Relaxed:
                 checkpointThreshold = 1;
                 break;
-            case GameManager.GameDifficulty.Medium:
+            case GameManager.GameDifficulty.Focused:
                 checkpointThreshold = 100;
                 break;
-            case GameManager.GameDifficulty.Hard:
+            case GameManager.GameDifficulty.Intense:
                 checkpointThreshold = 10000;
                 checkpointedDominoes.Clear(); // Clear checkpointed dominoes on hard mode
                 foreach (var domino in allDominoes)
@@ -134,7 +134,7 @@ public class DominoResetManager : MonoBehaviour
         {
             CancelInvoke(nameof(HandleDominoesStoppedFalling));
             Invoke(nameof(HandleDominoesStoppedFalling), resetDelay);
-            if (GameManager.gameDifficulty == GameManager.GameDifficulty.Hard) return;
+            if (GameManager.gameDifficulty == GameManager.GameDifficulty.Intense) return;
             if (currentState != ResetState.ResetUpcoming)
             {
                 currentState = ResetState.ResetUpcoming; // Set the state to ResetUpcoming
@@ -190,7 +190,7 @@ public class DominoResetManager : MonoBehaviour
 
     private void HandleDominoesStoppedFalling()
     {
-        if (!GameManager.levelComplete && GameManager.gameDifficulty != GameManager.GameDifficulty.Hard){
+        if (!GameManager.levelComplete && GameManager.gameDifficulty != GameManager.GameDifficulty.Intense){
             ResetAllDominoes();
         }
         else
