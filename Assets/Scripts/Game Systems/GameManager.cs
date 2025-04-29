@@ -65,15 +65,24 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    public void LoadLevelStats()
+    public LevelStats LoadLevelStats(string levelName)
     {
-        foreach (var level in levels)
+        var stats = new LevelStats();
+
+        if (PlayerPrefs.HasKey(levelName + "_BestTime") && PlayerPrefs.HasKey(levelName + "_HardestDifficulty"))
         {
-            var stats = new LevelStats();
-            stats.bestTime = PlayerPrefs.GetFloat(level.sceneName + "_BestTime", float.MaxValue);
-            stats.hardestDifficulty = (GameDifficulty)PlayerPrefs.GetInt(level.sceneName + "_HardestDifficulty", (int)GameDifficulty.Easy);
-            levelStats[level.sceneName] = stats;
+            stats.bestTime = PlayerPrefs.GetFloat(levelName + "_BestTime", float.MaxValue);
+            stats.hardestDifficulty = (GameDifficulty)PlayerPrefs.GetInt(levelName + "_HardestDifficulty", (int)GameDifficulty.Easy);
         }
+        else
+        {
+            Debug.LogWarning($"No saved stats found for level: {levelName}. Using default values.");
+            stats.bestTime = float.MaxValue;
+            stats.hardestDifficulty = GameDifficulty.Easy;
+        }
+
+        levelStats[levelName] = stats;
+        return stats;
     }
 
     public List<LevelData> levels = new List<LevelData>(); // List of levels, editable in the Unity Editor
@@ -94,6 +103,20 @@ public class GameManager : MonoBehaviour
         isTiming = true; // Start the timer
         DominoResetManager.OnDominoesStoppedFalling.AddListener(OnDominoesStoppedFalling);
         gameDifficulty = editorGameDifficulty; // Synchronize static field with editor value
+
+        // Debug.Log("Level Stats on Start:");
+        // foreach (var level in levels)
+        // {
+        //     var stats = LoadLevelStats(level.sceneName);
+        //     if (stats.bestTime != float.MaxValue)
+        //     {
+        //         Debug.Log($"Level: {level.levelName}, Best Time: {stats.bestTime}, Hardest Difficulty: {stats.hardestDifficulty}");
+        //     }
+        //     else
+        //     {
+        //         Debug.Log($"Level: {level.levelName}, No stats available.");
+        //     }
+        // }
     }
 
     void OnDestroy()
@@ -118,7 +141,7 @@ public class GameManager : MonoBehaviour
         {
             allIndicators.Add(indicator);
         }
-        Debug.Log($"Rebuilt allIndicators list with {allIndicators.Count} indicators.");
+        // Debug.Log($"Rebuilt allIndicators list with {allIndicators.Count} indicators.");
     }
 
     void Update()
@@ -144,6 +167,12 @@ public class GameManager : MonoBehaviour
         {
             elapsedTime += Time.deltaTime; // Increment elapsed time
         }
+
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            Debug.Log("K key pressed - triggering level completion.");
+            CheckCompletion();
+        }
     }
 
     public void CheckCompletion()
@@ -158,7 +187,7 @@ public class GameManager : MonoBehaviour
                 break;
             }
         }
-        if (allIndicatorsFilled)
+        if (allIndicatorsFilled || Input.GetKeyDown(KeyCode.K))
         {
             Debug.Log("*** All indicators have been filled! ***");
             if (!levelComplete)

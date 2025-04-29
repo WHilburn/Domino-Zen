@@ -147,7 +147,7 @@ public class MainMenuManager : MonoBehaviour
     private void UpdateLevelStatsUI(GameObject buttonObject, GameManager.LevelData level)
     {
         TextMeshProUGUI statsText = buttonObject.transform.Find("Level Stats Text").GetComponent<TextMeshProUGUI>();
-        var stats = GameManager.levelStats.TryGetValue(level.sceneName, out var levelStats) ? levelStats : null; // Get the stats for the level
+        var stats = GameManager.Instance.LoadLevelStats(level.sceneName); // Load level stats from GameManager
         if (stats != null)
         {
             if (stats.isInProgress)
@@ -171,10 +171,10 @@ public class MainMenuManager : MonoBehaviour
 
     private string FormatTime(float timeInSeconds)
     {
-        int minutes = Mathf.FloorToInt(timeInSeconds / 60);
+        int hours = Mathf.FloorToInt(timeInSeconds / 3600);
+        int minutes = Mathf.FloorToInt((timeInSeconds % 3600) / 60);
         int seconds = Mathf.FloorToInt(timeInSeconds % 60);
-        int milliseconds = Mathf.FloorToInt((timeInSeconds * 1000) % 1000);
-        return $"{minutes:D2}:{seconds:D2}:{milliseconds:D3}";
+        return $"{hours:D2}:{minutes:D2}:{seconds:D2}";
     }
 
     public void SetActiveCamera(CinemachineVirtualCamera newCamera)
