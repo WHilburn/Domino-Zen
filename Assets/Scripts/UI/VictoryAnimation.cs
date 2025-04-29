@@ -58,7 +58,7 @@ public class VictoryAnimation : MonoBehaviour
         dominoes = new GameObject[dominoCount];
         if (!isVictoryAnimationTriggered)
         {
-            DominoSoundManager.Instance.PlayArbitrarySound(victorySound, .5f, 1f); // Play the victory sound if this is the first time
+            DominoSoundManager.Instance.PlayArbitrarySound(victorySound, .5f, 1f); // Play the victory music only if this is the first time
         }
 
         // Spawn the dominoes
@@ -76,7 +76,7 @@ public class VictoryAnimation : MonoBehaviour
             Image image = dominoes[i].GetComponent<Image>();
             if (image != null)
             {
-                float hue = (float)i / (dominoCount/1.5f); // Calculate hue based on position in the array
+                float hue = (float)i / (dominoCount); // Calculate hue based on position in the array
                 Color pastelColor = Color.HSVToRGB(hue, 0.5f, 1f); // Pastel colors have lower saturation
                 image.color = pastelColor;
             }
@@ -88,7 +88,7 @@ public class VictoryAnimation : MonoBehaviour
         // Tween the victory text after 1 second
         Invoke(nameof(ShowVictoryText), 1f);
         Invoke(nameof(DisablePhysics), dominoCount * .125f); // Disable physics after 1 second
-        Invoke(nameof(ShowVictoryMenu), 4f); // Show victory menu after 5 seconds
+        Invoke(nameof(ShowVictoryMenu), 3f); // Show victory menu after 5 seconds
         isVictoryAnimationTriggered = true; // Set the flag to true
     }
 
@@ -116,7 +116,7 @@ public class VictoryAnimation : MonoBehaviour
 
     private void HandleDominoesStoppedFalling()
     {
-        if (!GameManager.levelComplete) return;
+        if (!GameManager.levelComplete || !isVictoryAnimationTriggered) return;
 
         // Check if dominoes array is null or empty
         if (dominoes == null || dominoes.Length == 0) return;
