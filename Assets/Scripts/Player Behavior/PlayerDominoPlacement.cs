@@ -216,7 +216,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         }
 
         heldDomino = Instantiate(dominoPrefab, spawnPos, spawnRotation);
-        heldDomino.name = $"{dominoPrefab.name} {InGameUI.dominoCount + 1}";
+        heldDomino.name = $"{dominoPrefab.name} {DominoResetManager.Instance.allDominoes.Count + 1}";
         InitializeHeldDomino();
 
         CreateHandAnchor(spawnPos); // Create the hand anchor

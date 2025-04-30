@@ -4,13 +4,11 @@ using DG.Tweening;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using System;
-using System.Collections;
-using UnityEngine.EventSystems;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    public List<PlacementIndicator> allIndicators;  // List of all dominoes in the scene
+    public HashSet<PlacementIndicator> allIndicators = new HashSet<PlacementIndicator>();  // Set of all dominoes in the scene
     public bool debugMode = true; // Debug mode toggle
     public static bool levelComplete = false; // Flag to indicate if the level is complete
     public static bool gamePaused = false; // Flag to indicate if the game is paused
@@ -20,8 +18,6 @@ public class GameManager : MonoBehaviour
     private bool isTiming = false; // Flag to track if the timer is running
     public GameObject originatorDomino; // Reference to the domino or placement indicator at the start of the chain in each level
     public GameObject levelCompletePopup;
-    public DominoRain dominoRain;
-    public static AsyncOperation asyncLoad = null; // Store the async load operation
     public static UnityEvent OnLevelComplete = new UnityEvent(); // Event triggered when the level is completed
 
     [SerializeField]
@@ -126,7 +122,7 @@ public class GameManager : MonoBehaviour
 
     private void RebuildAllIndicators()
     {
-        allIndicators.Clear();
+        allIndicators.Clear();;
         foreach (var indicator in FindObjectsOfType<PlacementIndicator>())
         {
             allIndicators.Add(indicator);

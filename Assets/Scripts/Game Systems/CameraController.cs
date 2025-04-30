@@ -62,13 +62,13 @@ public class CameraController : MonoBehaviour
         if (dominoTimers.Count >= minDominoesToTriggerTracking && !isTracking)
         {
             EnableTrackingCamera();
-            // Debug.Log($"Tracking camera enabled with {dominoTimers.Count} dominoes.");
+            Debug.Log($"Tracking camera enabled with {dominoTimers.Count} dominoes.");
         }
         else if (readyToSwitch && isTracking)
         {
             readyToSwitch = false; // Reset the flag
             Invoke(nameof(EnableFreeLook), switchBackDelay); // Delay before switching to free look
-            // Debug.Log("Free look camera enabled, no dominoes in target group.");
+            Debug.Log("Free look camera enabled, no dominoes in target group.");
             isTracking = false; // Reset tracking state
         }
     }

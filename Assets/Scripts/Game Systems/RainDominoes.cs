@@ -9,7 +9,7 @@ public class DominoRain : MonoBehaviour {
     public GameObject dominoPrefab; // Prefab with an Image component
     public Transform canvasTransform; // Reference to the Canvas
     public float rainDuration = 5f; // How long the effect lasts
-    public float spawnRate = 0.1f; // Time between spawns
+    public float spawnRate = 0.2f; // Time between spawns
     public float minFallSpeed = 200f; // Speed of falling dominos
     private Vector2 spawnRangeX = new(-500, 500); // X spawn limits
     public float randomForce = 100f;
@@ -19,10 +19,14 @@ public class DominoRain : MonoBehaviour {
     public Transform bigDominoParent; // Parent for the big domino (should be behind the raining dominoes)
     public MainMenuManager mainMenuManager; // Reference to the MainMenuManager script
     private DominoThrobber[] dominoThrobber; // Reference to the DominoThrobber script
+    private List<GameObject> dominoes = new(); // List to keep track of spawned dominoes
     private bool raining = true;
+    private bool dominoesHaveBeenDeleted = false;
+    public int dominoesPerSpawn = 5; // Number of dominoes to spawn per iteration
 
     void OnEnable() {
         raining = true; // Reset elapsed time
+        dominoesHaveBeenDeleted = false; // Reset the flag
         StartCoroutine(RainDominoes());
         RectTransform canvasRect = canvasTransform.GetComponent<RectTransform>();
         spawnRangeX = new Vector2(-canvasRect.rect.width / 2 - 100, canvasRect.rect.width / 2 + 100);
@@ -36,58 +40,77 @@ public class DominoRain : MonoBehaviour {
         }
 
         // Start the big domino transition
-        StartCoroutine(BigDominoTransition());
+        // StartCoroutine(BigDominoTransition());
 
         // Find all DominoThrobber components in the scene
         dominoThrobber = FindObjectsOfType<DominoThrobber>();
     }
 
+    void OnDisable()
+    {
+        foreach (GameObject domino in dominoes) {
+            Destroy(domino); // Destroy all spawned dominoes
+        }
+        dominoes.Clear(); // Clear the list of dominoes
+    }
+
     void Awake()
     {
-        DontDestroyOnLoad(this.gameObject);
+        // DontDestroyOnLoad(this.gameObject);
     }
 
     IEnumerator RainDominoes() {
         while (raining) {
             SpawnDomino();
+            if (dominoes.Count > 100 && dominoesHaveBeenDeleted && SceneLoader.asyncLoad.progress >= 0.9f) {
+                raining = false;
+                StartCoroutine(FadeOutAudio(2f));
+                SceneLoader.Instance.CompleteSceneTransition();
+            }
             yield return new WaitForSeconds(spawnRate);
         }
     }
 
     void SpawnDomino() {
-        // Create UI Image for the domino
-        GameObject domino = Instantiate(dominoPrefab, canvasTransform);
-        Image image = domino.GetComponent<Image>();
+        float sectionWidth = (spawnRangeX.y - spawnRangeX.x) / dominoesPerSpawn;
 
-        // Assign a random sprite from the list
-        image.sprite = sprites[Random.Range(0, sprites.Count)];
+        for (int i = 0; i < dominoesPerSpawn; i++) {
+            // Create UI Image for the domino
+            GameObject domino = Instantiate(dominoPrefab, canvasTransform);
+            dominoes.Add(domino); // Add to the list of dominoes
+            Image image = domino.GetComponent<Image>();
 
-        // Set random start position
-        RectTransform rectTransform = domino.GetComponent<RectTransform>();
-        rectTransform.anchoredPosition = new Vector2(
-            Random.Range(spawnRangeX.x, spawnRangeX.y),
-            Screen.height / 2 + 400 // Spawn slightly above the screen
-        );
+            // Assign a random sprite from the list
+            image.sprite = sprites[Random.Range(0, sprites.Count)];
 
-        // Apply random rotation and color
-        rectTransform.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
-        image.color = Color.HSVToRGB(Random.value, 0.5f, 1f); // Pastel colors
+            // Set random start position within the current section
+            RectTransform rectTransform = domino.GetComponent<RectTransform>();
+            float sectionStart = spawnRangeX.x + i * sectionWidth;
+            float sectionEnd = sectionStart + sectionWidth;
+            rectTransform.anchoredPosition = new Vector2(
+                Random.Range(sectionStart, sectionEnd),
+                Screen.height / 2 + 400 // Spawn slightly above the screen
+            );
 
-        // Add Rigidbody2D for physics-based falling
-        Rigidbody2D rb = domino.GetComponent<Rigidbody2D>();
-        if (rb != null)
-        {
-            // Apply random downward force
-            float force = Random.Range(randomForce, randomForce * 5);
-            rb.AddForce(Vector2.down * force);
+            // Apply random rotation and color
+            rectTransform.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
+            image.color = Color.HSVToRGB(Random.value, 0.5f, 1f); // Pastel colors
 
-            // Apply random torque for spinning
-            float torque = Random.Range(-randomTorque, randomTorque);
-            rb.AddTorque(torque);
+            // Add Rigidbody2D for physics-based falling
+            Rigidbody2D rb = domino.GetComponent<Rigidbody2D>();
+            if (rb != null) {
+                // Apply random downward force
+                float force = Random.Range(randomForce, randomForce * 5);
+                rb.AddForce(Vector2.down * force);
+
+                // Apply random torque for spinning
+                float torque = Random.Range(-randomTorque, randomTorque);
+                rb.AddTorque(torque);
+            }
+
+            // Destroy the domino after it falls off-screen
+            StartCoroutine(DestroyWhenOffScreen(domino));
         }
-
-        // Destroy the domino after it falls off-screen
-        StartCoroutine(DestroyWhenOffScreen(domino));
     }
 
     IEnumerator DestroyWhenOffScreen(GameObject domino) {
@@ -95,7 +118,9 @@ public class DominoRain : MonoBehaviour {
         while (rectTransform.anchoredPosition.y > -Screen.height) {
             yield return null; // Wait for the next frame
         }
+        dominoes.Remove(domino); // Remove from the list
         Destroy(domino);
+        dominoesHaveBeenDeleted = true; // Set the flag to true
     }
 
     IEnumerator BigDominoTransition() {
@@ -114,12 +139,8 @@ public class DominoRain : MonoBehaviour {
         foreach (DominoThrobber throbber in dominoThrobber) {
             throbber.StopLoop(); // Allow the throbber to set a new stable position
         }
+        StartCoroutine(FadeOutAudio(2f));
         
-        AudioSource audioSource = GetComponent<AudioSource>();
-        if (audioSource != null) {
-            // Fade out the AudioSource without using DOTween
-            StartCoroutine(FadeOutAudio(audioSource, 2f));
-        }
         // Trigger the scene transition
         while (SceneLoader.asyncLoad != null && SceneLoader.asyncLoad.progress < 0.9f) {
             yield return null; // Wait for the async load to complete
@@ -144,7 +165,8 @@ public class DominoRain : MonoBehaviour {
         Destroy(bigDomino);
     }
 
-    IEnumerator FadeOutAudio(AudioSource audioSource, float duration) {
+    IEnumerator FadeOutAudio(float duration) {
+        AudioSource audioSource = GetComponent<AudioSource>();
         float startVolume = audioSource.volume;
         for (float t = 0; t < duration; t += Time.deltaTime) {
             audioSource.volume = Mathf.Lerp(startVolume, 0f, t / duration);

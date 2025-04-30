@@ -50,8 +50,7 @@ public class InGameUI : MonoBehaviour
     #endregion
 
     #region Static Variables
-    public static int dominoCount = 0;
-    public static int indicatorCount = 0;
+    public static int filledIndicatorCount = 0;
     public static bool paused = false; // Static variable to track pause state
     public Texture2D CursorTexture; // Texture for the custom cursor
     public PlayerControls playerControls; // Reference to the PlayerControls input actions
@@ -79,8 +78,7 @@ public class InGameUI : MonoBehaviour
             eventSystem.AddComponent<EventSystem>();
             eventSystem.AddComponent<StandaloneInputModule>();
         }
-        dominoCount = 0; // Initialize domino count
-        indicatorCount = 0; // Initialize indicator count
+        filledIndicatorCount = 0; // Initialize indicator count
 
         // Wire up buttons
         pauseButton.onClick.AddListener(TogglePauseMenu);
@@ -141,9 +139,6 @@ public class InGameUI : MonoBehaviour
 
     private void OnEnable()
     {
-        Domino.OnDominoCreated.AddListener(HandleDominoCreated);
-        Domino.OnDominoDeleted.AddListener(HandleDominoDeleted);
-        indicatorCount = GameObject.FindGameObjectsWithTag("IndicatorTag").Length;
         PlacementIndicator.OnIndicatorFilled.AddListener(HandleIndicatorFilled);
         PlacementIndicator.OnIndicatorEmptied.AddListener(HandleIndicatorEmptied);
     }
@@ -156,6 +151,7 @@ public class InGameUI : MonoBehaviour
         }
         UpdateResetWarning();
         UpdateButtonPrompts();
+        UpdateCountText();
     }
 
     private void UpdateResetWarning()
@@ -270,30 +266,15 @@ public class InGameUI : MonoBehaviour
     #endregion
 
     #region Event Handlers
-    private void HandleDominoCreated(Domino domino)
-    {
-        if (dominoCountText == null) return; // Ensure the text reference is valid
-        dominoCount++;
-        UpdateCountText();
-    }
-
-    private void HandleDominoDeleted(Domino domino)
-    {
-        dominoCount--;
-        UpdateCountText();
-    }
-
     private void HandleIndicatorFilled(PlacementIndicator indicator)
     {
-        if (indicatorCount == 0) return; // Ensure the indicator count is valid
-        indicatorCount--;
-        UpdateCountText();
+        if (filledIndicatorCount == 0) return; // Ensure the indicator count is valid
+        filledIndicatorCount++;
     }
 
     private void HandleIndicatorEmptied(PlacementIndicator indicator)
     {
-        indicatorCount++;
-        UpdateCountText();
+        filledIndicatorCount--;
     }
     #endregion
 
@@ -302,8 +283,8 @@ public class InGameUI : MonoBehaviour
     {
         if (dominoCountText != null)
         {
-            dominoCountText.text = $"x {dominoCount}";
-            indicatorCountText.text = $"x {indicatorCount}";
+            dominoCountText.text = $"x {DominoResetManager.Instance.allDominoes.Count}";
+            indicatorCountText.text = $"x {GameManager.Instance.allIndicators.Count - filledIndicatorCount}";
         }
     }
 

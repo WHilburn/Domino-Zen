@@ -95,15 +95,16 @@ public class Domino : DominoLike
 
         if (currentlyMoving && currentState != DominoState.Moving) // When it starts moving
         {
-            if (currentState == DominoState.Stationary)
+            if (currentState == DominoState.Stationary && SceneLoader.asyncLoad == null)
             {
+                Debug.Log("Domino is falling because the movement state changed to Moving");
                 OnDominoFall.Invoke(this);
                 StopCoroutine(CheckStablePositionRoutine());
             }
 
             currentState = DominoState.Moving;
         }
-        else if (!currentlyMoving && currentState == DominoState.Moving) // When it stops moving
+        else if (!currentlyMoving && currentState == DominoState.Moving && SceneLoader.asyncLoad == null) // When it stops moving
         {
             currentState = DominoState.Stationary;
             OnDominoStopMoving.Invoke(this);
@@ -165,11 +166,12 @@ public class Domino : DominoLike
             yield return new WaitForSeconds(checkInterval);
 
             // Check position and rotation thresholds
-            if (currentState == DominoState.Stationary && 
-            Vector3.Distance(transform.position, lastStablePosition) > positionThreshold ||
-                Quaternion.Angle(transform.rotation, lastStableRotation) > rotationThreshold)
+            if (currentState == DominoState.Stationary &&
+                SceneLoader.asyncLoad == null && 
+                (Vector3.Distance(transform.position, lastStablePosition) > positionThreshold ||
+                Quaternion.Angle(transform.rotation, lastStableRotation) > rotationThreshold))
             {
-                // Debug.Log("Domino is not stable anymore.");
+                Debug.Log("Domino is not stable anymore.");
                 OnDominoFall.Invoke(this);
                 yield break; // Stop the coroutine
             }
@@ -299,12 +301,13 @@ public class Domino : DominoLike
         float impactForce = collision.relativeVelocity.magnitude;
         if (impactForce < 0.5f || rb.isKinematic || currentState == DominoState.Animating) return; // Ignore small impacts
 
-        OnDominoImpact.Invoke(this, impactForce, transform.position);
+        if (SceneLoader.asyncLoad == null) OnDominoImpact.Invoke(this, impactForce, transform.position);
 
         if (currentState != DominoState.Held && collision.gameObject.CompareTag("DominoTag"))
         {
             if (currentState == DominoState.Stationary)
             {
+                Debug.Log("Domino is falling because it had a collision");
                 OnDominoFall.Invoke(this);
                 StopCoroutine(CheckStablePositionRoutine());
             }

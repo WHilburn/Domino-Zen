@@ -47,6 +47,12 @@ public class DominoResetManager : MonoBehaviour
             Destroy(Instance.gameObject); // Destroy the previous instance if it exists
         }
         Instance = this;
+
+        // Add all existing Domino objects to the allDominoes set
+        foreach (var domino in FindObjectsOfType<Domino>())
+        {
+            allDominoes.Add(domino);
+        }
     }
 
     private void InvokeUpdateDifficulty()
@@ -122,7 +128,8 @@ public class DominoResetManager : MonoBehaviour
 
     private void RegisterDominoForReset(Domino domino) // Registers that a domino fell and needs to be reset
     {
-        if (Instance == null) return; // Ensure the instance is not null
+        Debug.Log("Registering domino for reset: " + domino.gameObject.name + " in scene: " + domino.gameObject.scene.name);
+        if (Instance == null || domino.gameObject.scene.name == "Main Menu") return; // Ensure the instance is not null
         GameManager.Instance.levelCompletePopup.SetActive(false); // Hide the level complete popup
         if (!fallenDominoes.Contains(domino))
         {

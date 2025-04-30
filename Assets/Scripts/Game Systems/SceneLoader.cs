@@ -59,6 +59,8 @@ public class SceneLoader : MonoBehaviour
             asyncLoad = null; // Reset the async load operation
         }
         yield return SceneManager.UnloadSceneAsync(currentSceneName);
+        DOTween.KillAll();
+        GameManager.levelComplete = false; // Reset the level complete flag
         StartCoroutine(DisableTransition()); // Start the coroutine to disable the transition
     }
 

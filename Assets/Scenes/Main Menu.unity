@@ -112557,21 +112557,6 @@ RectTransform:
   m_AnchoredPosition: {x: -220.6, y: 6.9999695}
   m_SizeDelta: {x: 501.2648, y: 161.4378}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &4299241004841828149
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5524845531411823937}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2be93d9b9ff6a4f6aa377926a6975c0f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  resetAnimation: 0
-  checkpointThreshold: 5
-  currentState: 0
 --- !u!1 &4337396175109629433
 GameObject:
   m_ObjectHideFlags: 0
@@ -112642,7 +112627,6 @@ GameObject:
   - component: {fileID: 3351162347711512306}
   - component: {fileID: 8842277022679764233}
   - component: {fileID: 6366756039295862463}
-  - component: {fileID: 4299241004841828149}
   - component: {fileID: 3075726222809023685}
   m_Layer: 0
   m_Name: Game Manager
@@ -112963,12 +112947,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d37aee6d659a84da7a9aeb0ff298dd3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allIndicators: []
   debugMode: 1
   victoryAnimation: {fileID: 0}
   originatorDomino: {fileID: 0}
   levelCompletePopup: {fileID: 0}
-  dominoRain: {fileID: 0}
   editorGameDifficulty: 0
   levels:
   - levelName: Tutorial
