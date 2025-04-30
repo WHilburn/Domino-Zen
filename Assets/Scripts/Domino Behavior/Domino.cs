@@ -70,6 +70,7 @@ public class Domino : DominoLike
 
     void OnDestroy()
     {
+        rb.transform.DOKill();
         OnDominoDeleted.Invoke(this); // Notify listeners of domino deletion
     }
 
