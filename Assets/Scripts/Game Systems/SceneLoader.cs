@@ -14,7 +14,7 @@ public class SceneLoader : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(this); // Destroy the new instance if one already exists
+            Destroy(this.gameObject); // Destroy the new instance if one already exists
             return;
         }
         Instance = this; // Set the singleton instance
@@ -26,10 +26,8 @@ public class SceneLoader : MonoBehaviour
         // Begin loading the scene asynchronously
         asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
         asyncLoad.allowSceneActivation = false; // Prevent automatic scene activation
-        if (SceneManager.GetActiveScene().name != "Main Menu")
-        {
-            dominoRain.StartRain();
-        }
+        dominoRain.StartRain();
+
     }
 
     public void CompleteSceneTransition()

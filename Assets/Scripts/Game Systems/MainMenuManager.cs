@@ -25,7 +25,6 @@ public class MainMenuManager : MonoBehaviour
     
     // Store current active camera
     private CinemachineVirtualCamera activeCamera;
-    public DominoRain dominoRain; // Reference to the DominoRain script for scene transitions
     public GameObject levelSelectButtonPrefab; // Prefab for level select buttons
     public Transform levelSelectScrollViewContent; // Content transform of the scroll view
 
@@ -218,7 +217,6 @@ public class MainMenuManager : MonoBehaviour
         }
 
         SceneLoader.Instance.StartSceneTransitionCoroutine(levelName);
-        dominoRain.StartRain();
 
         float elapsedTime = 0f; // Track elapsed time
         float fakeProgress = 0f; // Simulated progress value
