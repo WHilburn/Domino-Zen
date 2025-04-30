@@ -22,7 +22,7 @@ public abstract class DominoLike : MonoBehaviour
         // Perform a raycast from the object's origin in the direction of bottomPoint
         Vector3 rayDirection = transform.TransformDirection(bottomPoint);
 
-        if (Physics.Raycast(transform.position, rayDirection, out RaycastHit hitInfo, Mathf.Infinity, LayerMask.GetMask("EnvironmentLayer")))
+        if (Physics.Raycast(transform.position, rayDirection, out RaycastHit hitInfo, 1f, LayerMask.GetMask("EnvironmentLayer")))
         {
             // Snap the object's position to the hit point minus the bottomPoint vector
             transform.position = hitInfo.point - transform.TransformDirection(bottomPoint);

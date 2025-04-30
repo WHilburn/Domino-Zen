@@ -220,12 +220,14 @@ public class MainMenuManager : MonoBehaviour
         SceneLoader.Instance.StartSceneTransitionCoroutine(levelName);
 
         StartThrobberLoop();
+        dominoRain.gameObject.SetActive(true);
 
         float elapsedTime = 0f; // Track elapsed time
         float fakeProgress = 0f; // Simulated progress value
 
         // Display the loading screen and update progress
-        while (!SceneLoader.asyncLoad.isDone)
+        while (SceneLoader.asyncLoad == null){ yield return null; } // Wait for asyncLoad to be initialized
+        while (SceneLoader.asyncLoad != null && !SceneLoader.asyncLoad.isDone)
         {
             // Simulate gradual progress with noise
             if (fakeProgress <= 1f)
@@ -252,7 +254,6 @@ public class MainMenuManager : MonoBehaviour
             // Allow scene activation after progress reaches 90% and at least the minimum loading time has passed
             if (SceneLoader.asyncLoad.progress >= 0.9f && elapsedTime >= minimumLoadingTime)
             {
-                // asyncLoad.allowSceneActivation = true;
                 dominoRain.gameObject.SetActive(true); // Activate the domino rain, which will send back a message to allow the scene activation
             }
 

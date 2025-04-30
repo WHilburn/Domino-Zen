@@ -40,6 +40,7 @@ public class SceneLoader : MonoBehaviour
     private IEnumerator CompleteSceneTransitionCoroutine()
     {
         string currentSceneName = SceneManager.GetActiveScene().name;
+        // Debug.Log("Unloading scene: " + currentSceneName);
         AudioListener audioListener = FindObjectOfType<AudioListener>();
         if (audioListener != null) audioListener.enabled = false; // Disable the AudioListener
         
@@ -58,5 +59,12 @@ public class SceneLoader : MonoBehaviour
             asyncLoad = null; // Reset the async load operation
         }
         yield return SceneManager.UnloadSceneAsync(currentSceneName);
+        StartCoroutine(DisableTransition()); // Start the coroutine to disable the transition
+    }
+
+    private IEnumerator DisableTransition()
+    {
+        yield return new WaitForSeconds(3f);
+        dominoRain.gameObject.SetActive(false);
     }
 }

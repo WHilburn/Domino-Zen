@@ -19,9 +19,10 @@ public class DominoRain : MonoBehaviour {
     public Transform bigDominoParent; // Parent for the big domino (should be behind the raining dominoes)
     public MainMenuManager mainMenuManager; // Reference to the MainMenuManager script
     private DominoThrobber[] dominoThrobber; // Reference to the DominoThrobber script
-    private float elapsedTime = 0f;
+    private bool raining = true;
 
-    void Start() {
+    void OnEnable() {
+        raining = true; // Reset elapsed time
         StartCoroutine(RainDominoes());
         RectTransform canvasRect = canvasTransform.GetComponent<RectTransform>();
         spawnRangeX = new Vector2(-canvasRect.rect.width / 2 - 100, canvasRect.rect.width / 2 + 100);
@@ -47,10 +48,9 @@ public class DominoRain : MonoBehaviour {
     }
 
     IEnumerator RainDominoes() {
-        while (elapsedTime < rainDuration) {
+        while (raining) {
             SpawnDomino();
             yield return new WaitForSeconds(spawnRate);
-            elapsedTime += spawnRate;
         }
     }
 
@@ -71,7 +71,7 @@ public class DominoRain : MonoBehaviour {
 
         // Apply random rotation and color
         rectTransform.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
-        image.color = new Color(Random.value, Random.value, Random.value, 1f);
+        image.color = Color.HSVToRGB(Random.value, 0.5f, 1f); // Pastel colors
 
         // Add Rigidbody2D for physics-based falling
         Rigidbody2D rb = domino.GetComponent<Rigidbody2D>();
@@ -99,6 +99,7 @@ public class DominoRain : MonoBehaviour {
     }
 
     IEnumerator BigDominoTransition() {
+        yield return new WaitForSeconds(1f); // Wait for a short delay before showing the big domino
         // Instantiate the big domino
         GameObject bigDomino = Instantiate(bigDominoPrefab, bigDominoParent);
         RectTransform rectTransform = bigDomino.GetComponent<RectTransform>();
@@ -120,7 +121,9 @@ public class DominoRain : MonoBehaviour {
             StartCoroutine(FadeOutAudio(audioSource, 2f));
         }
         // Trigger the scene transition
-        // if (mainMenuManager != null) mainMenuManager.CompleteSceneTransitions(); // Call the method to complete scene transitions
+        while (SceneLoader.asyncLoad != null && SceneLoader.asyncLoad.progress < 0.9f) {
+            yield return null; // Wait for the async load to complete
+        }
         SceneLoader.Instance.CompleteSceneTransition();
         
         // Wait for a short delay (optional)
@@ -129,7 +132,7 @@ public class DominoRain : MonoBehaviour {
         }
         yield return new WaitForSeconds(0.5f);
         StopCoroutine(RainDominoes());
-        elapsedTime = Mathf.Infinity; // Stop the rain effect
+        raining = false; // Stop the raining effect
 
         // Shrink and spin the big domino towards the middle of the screen
         Sequence shrinkAndSpin = DOTween.Sequence();

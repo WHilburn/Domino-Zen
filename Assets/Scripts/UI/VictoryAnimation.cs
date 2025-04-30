@@ -114,6 +114,11 @@ public class VictoryAnimation : MonoBehaviour
         DominoResetManager.Instance.ResetAllDominoes();
     }
 
+    public void LoadMainMenu()
+    {
+        SceneLoader.Instance.StartSceneTransitionCoroutine("Main Menu");
+    }
+
     private void HandleDominoesStoppedFalling()
     {
         if (!GameManager.levelComplete || !isVictoryAnimationTriggered) return;

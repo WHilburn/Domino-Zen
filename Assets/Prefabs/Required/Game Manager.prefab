@@ -3798,7 +3798,7 @@ Transform:
   m_GameObject: {fileID: 6624626560819186173}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6.1723824, y: 6.531082, z: 0.32894564}
+  m_LocalPosition: {x: 6.1726723, y: 6.5311885, z: 0.32919312}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3941,10 +3941,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: SceneLoader, Assembly-CSharp
-        m_MethodName: StartSceneTransitionCoroutine
-        m_Mode: 5
+      - m_Target: {fileID: 6618785023656291912}
+        m_TargetAssemblyTypeName: VictoryAnimation, Assembly-CSharp
+        m_MethodName: LoadMainMenu
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -4227,8 +4227,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6956217463858373830}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.13753368, y: 0.021247117, z: -0.013026057, w: 0.9901835}
-  m_LocalPosition: {x: -57.52002, y: 3.8500004, z: 7.2900047}
+  m_LocalRotation: {x: -0.02420945, y: -0.6557419, z: 0.3523694, w: -0.6672723}
+  m_LocalPosition: {x: -2.1700015, y: 5.014001, z: -4.9309998}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4267,7 +4267,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 5000
-  field of view: 59
+  field of view: 40
   orthographic: 0
   orthographic size: 10
   m_Depth: 0
@@ -5557,7 +5557,7 @@ MonoBehaviour:
   victoryMenu: {fileID: 8564615022623254746}
   timeElapsedText: {fileID: 5071883924075301913}
   resetsText: {fileID: 1202967901467150020}
-  spawnPos: {x: -320, y: 472}
+  spawnPos: {x: -320, y: 475}
   dominoCount: 20
   spacing: 160
   forceDirection: {x: 1000, y: -500}
