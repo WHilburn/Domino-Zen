@@ -22,7 +22,7 @@ public class DominoRain : MonoBehaviour {
     private List<GameObject> dominoes = new(); // List to keep track of spawned dominoes
     private bool raining = true;
     private bool dominoesHaveBeenDeleted = false;
-    public int dominoesPerSpawn = 5; // Number of dominoes to spawn per iteration
+    public int dominoesPerSpawn = 3; // Number of dominoes to spawn per iteration
 
     void OnEnable() {
         raining = true; // Reset elapsed time
@@ -48,10 +48,10 @@ public class DominoRain : MonoBehaviour {
 
     void OnDisable()
     {
-        foreach (GameObject domino in dominoes) {
-            Destroy(domino); // Destroy all spawned dominoes
-        }
-        dominoes.Clear(); // Clear the list of dominoes
+        // foreach (GameObject domino in dominoes) {
+        //     Destroy(domino); // Destroy all spawned dominoes
+        // }
+        // dominoes.Clear(); // Clear the list of dominoes
     }
 
     void Awake()

@@ -97,7 +97,7 @@ public class Domino : DominoLike
         {
             if (currentState == DominoState.Stationary && SceneLoader.asyncLoad == null)
             {
-                Debug.Log("Domino is falling because the movement state changed to Moving");
+                // Debug.Log("Domino is falling because the movement state changed to Moving");
                 OnDominoFall.Invoke(this);
                 StopCoroutine(CheckStablePositionRoutine());
             }
@@ -171,7 +171,7 @@ public class Domino : DominoLike
                 (Vector3.Distance(transform.position, lastStablePosition) > positionThreshold ||
                 Quaternion.Angle(transform.rotation, lastStableRotation) > rotationThreshold))
             {
-                Debug.Log("Domino is not stable anymore.");
+                // Debug.Log("Domino is not stable anymore.");
                 OnDominoFall.Invoke(this);
                 yield break; // Stop the coroutine
             }
@@ -307,7 +307,7 @@ public class Domino : DominoLike
         {
             if (currentState == DominoState.Stationary)
             {
-                Debug.Log("Domino is falling because it had a collision");
+                // Debug.Log("Domino is falling because it had a collision");
                 OnDominoFall.Invoke(this);
                 StopCoroutine(CheckStablePositionRoutine());
             }

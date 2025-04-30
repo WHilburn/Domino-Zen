@@ -13,20 +13,24 @@ public abstract class DominoLike : MonoBehaviour
         Rigidbody rb = GetComponent<Rigidbody>();
         bool wasKinematic = false;
 
-        if (rb != null)
-        {
-            wasKinematic = rb.isKinematic;
-            rb.isKinematic = true; // Disable physics to prevent interference
-        }
-
         // Perform a raycast from the object's origin in the direction of bottomPoint
         Vector3 rayDirection = transform.TransformDirection(bottomPoint);
 
         if (Physics.Raycast(transform.position, rayDirection, out RaycastHit hitInfo, 1f, LayerMask.GetMask("EnvironmentLayer")))
         {
+            if (rb != null)
+            {
+                wasKinematic = rb.isKinematic;
+                rb.isKinematic = true; // Disable physics to prevent interference
+            }
             // Snap the object's position to the hit point minus the bottomPoint vector
             transform.position = hitInfo.point - transform.TransformDirection(bottomPoint);
             // If the object has a DebugDomino component, log the new position
+        }
+        else
+        {
+            Debug.LogWarning(gameObject.name + " could not find a surface to snap to.", this);
+            return;
         }
 
         // Restore the kinematic state on the next frame

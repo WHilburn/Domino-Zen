@@ -37,6 +37,7 @@ public class DominoThrobber : MonoBehaviour
 
     public IEnumerator ThrobberLoop()
     {
+        yield return new WaitForSeconds(0.25f); // Initial delay before starting the loop
         while (true)
         {
             // Make the current domino fall

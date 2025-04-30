@@ -219,7 +219,7 @@ public class MainMenuManager : MonoBehaviour
 
         SceneLoader.Instance.StartSceneTransitionCoroutine(levelName);
 
-        StartThrobberLoop();
+        // StartThrobberLoop();
         dominoRain.gameObject.SetActive(true);
 
         float elapsedTime = 0f; // Track elapsed time

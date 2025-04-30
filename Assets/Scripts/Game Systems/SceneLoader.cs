@@ -50,7 +50,6 @@ public class SceneLoader : MonoBehaviour
         // Wait for the new scene to activate
         if (asyncLoad != null)
         {
-            Scene newScene = SceneManager.GetSceneAt(SceneManager.sceneCount - 1); // Get the last loaded scene
             asyncLoad.allowSceneActivation = true; // Allow scene activation
             while (!asyncLoad.isDone)
             {
@@ -60,6 +59,7 @@ public class SceneLoader : MonoBehaviour
         }
         yield return SceneManager.UnloadSceneAsync(currentSceneName);
         DOTween.KillAll();
+        GameManager.gamePaused = false; // Reset the game paused state
         GameManager.levelComplete = false; // Reset the level complete flag
         StartCoroutine(DisableTransition()); // Start the coroutine to disable the transition
     }
