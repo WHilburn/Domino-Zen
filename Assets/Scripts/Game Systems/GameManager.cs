@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     public GameObject originatorDomino; // Reference to the domino or placement indicator at the start of the chain in each level
     public GameObject levelCompletePopup;
     public static UnityEvent OnLevelComplete = new UnityEvent(); // Event triggered when the level is completed
+    public static int filledIndicators = 0; // Number of filled indicators in the scene
 
     [SerializeField]
     private GameDifficulty editorGameDifficulty = GameDifficulty.Relaxed; // Backing field for editor
@@ -164,16 +165,16 @@ public class GameManager : MonoBehaviour
     public void CheckCompletion()
     {
         // check if every indicator is satisfied
-        bool allIndicatorsFilled = true;
+        filledIndicators = 0;
         foreach (var indicator in allIndicators)
         {
-            if (indicator.currentState != PlacementIndicator.IndicatorState.Filled)
+            if (indicator.currentState == PlacementIndicator.IndicatorState.Filled)
             {
-                allIndicatorsFilled = false;
-                break;
+                filledIndicators++;
             }
         }
-        if (allIndicatorsFilled || Input.GetKeyDown(KeyCode.K))
+        Debug.Log($"Filled indicators: {filledIndicators} / {allIndicators.Count}");
+        if (filledIndicators == allIndicators.Count || Input.GetKeyDown(KeyCode.K))
         {
             Debug.Log("*** All indicators have been filled! ***");
             if (!levelComplete)

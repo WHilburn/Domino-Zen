@@ -284,7 +284,7 @@ public class InGameUI : MonoBehaviour
         if (dominoCountText != null)
         {
             dominoCountText.text = $"x {DominoResetManager.Instance.allDominoes.Count}";
-            indicatorCountText.text = $"x {GameManager.Instance.allIndicators.Count - filledIndicatorCount}";
+            indicatorCountText.text = $"x {GameManager.Instance.allIndicators.Count - GameManager.filledIndicators}"; // Update indicator count text
         }
     }
 

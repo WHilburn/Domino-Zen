@@ -41,7 +41,6 @@ public class SceneLoader : MonoBehaviour
         // Debug.Log("Unloading scene: " + currentSceneName);
         AudioListener audioListener = FindObjectOfType<AudioListener>();
         if (audioListener != null) audioListener.enabled = false; // Disable the AudioListener
-        
         EventSystem eventSystem = FindObjectOfType<EventSystem>();
         if (eventSystem != null) eventSystem.enabled = false; // Disable the EventSystem
         DOTween.KillAll();
@@ -56,8 +55,10 @@ public class SceneLoader : MonoBehaviour
             asyncLoad = null; // Reset the async load operation
         }
         yield return SceneManager.UnloadSceneAsync(currentSceneName);
-        DOTween.KillAll();
+        // DOTween.KillAll();
         GameManager.gamePaused = false; // Reset the game paused state
         GameManager.levelComplete = false; // Reset the level complete flag
+        GameManager.elapsedTime = 0f; // Reset the elapsed time
+        GameManager.filledIndicators = 0;
     }
 }
