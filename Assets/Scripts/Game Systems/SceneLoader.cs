@@ -28,7 +28,7 @@ public class SceneLoader : MonoBehaviour
         asyncLoad.allowSceneActivation = false; // Prevent automatic scene activation
         if (SceneManager.GetActiveScene().name != "Main Menu")
         {
-            dominoRain.gameObject.SetActive(true);
+            dominoRain.StartRain();
         }
     }
 
@@ -61,7 +61,7 @@ public class SceneLoader : MonoBehaviour
         DOTween.KillAll();
         GameManager.gamePaused = false; // Reset the game paused state
         GameManager.levelComplete = false; // Reset the level complete flag
-        StartCoroutine(DisableTransition()); // Start the coroutine to disable the transition
+        //StartCoroutine(DisableTransition()); // Start the coroutine to disable the transition
     }
 
     private IEnumerator DisableTransition()

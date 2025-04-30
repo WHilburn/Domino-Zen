@@ -218,9 +218,7 @@ public class MainMenuManager : MonoBehaviour
         }
 
         SceneLoader.Instance.StartSceneTransitionCoroutine(levelName);
-
-        // StartThrobberLoop();
-        dominoRain.gameObject.SetActive(true);
+        dominoRain.StartRain();
 
         float elapsedTime = 0f; // Track elapsed time
         float fakeProgress = 0f; // Simulated progress value
@@ -250,12 +248,6 @@ public class MainMenuManager : MonoBehaviour
             {
                 circularProgressBar.fillAmount = displayedProgress; // Set the fill amount based on progress
             }
-
-            // // Allow scene activation after progress reaches 90% and at least the minimum loading time has passed
-            // if (SceneLoader.asyncLoad.progress >= 0.9f && elapsedTime >= minimumLoadingTime)
-            // {
-            //     dominoRain.gameObject.SetActive(true); // Activate the domino rain, which will send back a message to allow the scene activation
-            // }
 
             elapsedTime += Time.deltaTime; // Increment elapsed time
             yield return null; // Wait for the next frame
