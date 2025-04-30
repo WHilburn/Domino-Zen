@@ -276,10 +276,14 @@ public class DominoSoundManager : MonoBehaviour
     {
         audioSourcePool = new Queue<AudioSource>();
 
+        // Create a parent object for the audio sources
+        GameObject audioSourceParent = new("AudioSourceParent");
+        audioSourceParent.transform.SetParent(transform);
+
         for (int i = 0; i < audioSourcePoolSize; i++)
         {
             GameObject audioSourceObject = new($"PooledAudioSource_{i}");
-            audioSourceObject.transform.SetParent(transform);
+            audioSourceObject.transform.SetParent(audioSourceParent.transform);
             AudioSource audioSource = audioSourceObject.AddComponent<AudioSource>();
             audioSource.playOnAwake = false;
             audioSourcePool.Enqueue(audioSource);
