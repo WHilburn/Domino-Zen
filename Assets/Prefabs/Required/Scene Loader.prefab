@@ -142,6 +142,22 @@ PrefabInstance:
       propertyPath: m_SortingOrder
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5509920173733579136, guid: 3b573b9e8b4e277498934c8e4ed227fb, type: 3}
+      propertyPath: spawnRate
+      value: 0.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 5509920173733579136, guid: 3b573b9e8b4e277498934c8e4ed227fb, type: 3}
+      propertyPath: randomForce
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 5509920173733579136, guid: 3b573b9e8b4e277498934c8e4ed227fb, type: 3}
+      propertyPath: randomTorque
+      value: 400
+      objectReference: {fileID: 0}
+    - target: {fileID: 5509920173733579136, guid: 3b573b9e8b4e277498934c8e4ed227fb, type: 3}
+      propertyPath: dominoesPerSpawn
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9144055402024198505, guid: 3b573b9e8b4e277498934c8e4ed227fb, type: 3}
       propertyPath: m_Name
       value: Loading Transition Canvas

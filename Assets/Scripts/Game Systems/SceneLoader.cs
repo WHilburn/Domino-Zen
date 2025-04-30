@@ -59,12 +59,5 @@ public class SceneLoader : MonoBehaviour
         DOTween.KillAll();
         GameManager.gamePaused = false; // Reset the game paused state
         GameManager.levelComplete = false; // Reset the level complete flag
-        //StartCoroutine(DisableTransition()); // Start the coroutine to disable the transition
-    }
-
-    private IEnumerator DisableTransition()
-    {
-        yield return new WaitForSeconds(3f);
-        dominoRain.gameObject.SetActive(false);
     }
 }

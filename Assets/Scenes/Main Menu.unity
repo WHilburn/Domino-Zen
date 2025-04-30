@@ -53177,7 +53177,6 @@ MonoBehaviour:
   circularProgressBar: {fileID: 1800746737}
   levelDescription: {fileID: 2106468401}
   levelPreviewImage: {fileID: 1773916961}
-  dominoRain: {fileID: 1956600689}
   levelSelectButtonPrefab: {fileID: 641671770594316393, guid: 87397513aafe658469401cf20f70a452, type: 3}
   levelSelectScrollViewContent: {fileID: 738101061}
   easyButton: {fileID: 2071675952}
@@ -93754,7 +93753,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.76669985, g: 0.96981126, b: 0.8828759, a: 1}
+  m_Color: {r: 0.71916693, g: 0.9168745, b: 0.98490566, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -100128,17 +100127,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5550980744008321483, guid: 336bcad52e1c74c77ae1b4939e3a0feb, type: 3}
   m_PrefabInstance: {fileID: 1849169293}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1956600689 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2986722923704323875, guid: 8a1f6293d7ffac343ad2b5e43dece929, type: 3}
-  m_PrefabInstance: {fileID: 82773940}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 305d2d61599307d46a09a281d9b703a3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!21 &1959655114
 Material:
   serializedVersion: 8
@@ -112827,7 +112815,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.76669985, g: 0.96981126, b: 0.8828759, a: 1}
+  m_Color: {r: 0.71916693, g: 0.9168745, b: 0.98490566, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
