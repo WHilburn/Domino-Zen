@@ -120,7 +120,8 @@ public class DominoRain : MonoBehaviour {
             StartCoroutine(FadeOutAudio(audioSource, 2f));
         }
         // Trigger the scene transition
-        mainMenuManager.CompleteSceneTransitions(); // Call the method to complete scene transitions
+        // if (mainMenuManager != null) mainMenuManager.CompleteSceneTransitions(); // Call the method to complete scene transitions
+        SceneLoader.Instance.CompleteSceneTransition();
         
         // Wait for a short delay (optional)
         foreach (Domino domino in FindObjectsOfType<Domino>()) {

@@ -4,6 +4,8 @@ using DG.Tweening;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using System;
+using System.Collections;
+using UnityEngine.EventSystems;
 
 public class GameManager : MonoBehaviour
 {
@@ -18,6 +20,8 @@ public class GameManager : MonoBehaviour
     private bool isTiming = false; // Flag to track if the timer is running
     public GameObject originatorDomino; // Reference to the domino or placement indicator at the start of the chain in each level
     public GameObject levelCompletePopup;
+    public DominoRain dominoRain;
+    public static AsyncOperation asyncLoad = null; // Store the async load operation
     public static UnityEvent OnLevelComplete = new UnityEvent(); // Event triggered when the level is completed
 
     [SerializeField]
@@ -103,20 +107,6 @@ public class GameManager : MonoBehaviour
         isTiming = true; // Start the timer
         DominoResetManager.OnDominoesStoppedFalling.AddListener(OnDominoesStoppedFalling);
         gameDifficulty = editorGameDifficulty; // Synchronize static field with editor value
-
-        // Debug.Log("Level Stats on Start:");
-        // foreach (var level in levels)
-        // {
-        //     var stats = LoadLevelStats(level.sceneName);
-        //     if (stats.bestTime != float.MaxValue)
-        //     {
-        //         Debug.Log($"Level: {level.levelName}, Best Time: {stats.bestTime}, Hardest Difficulty: {stats.hardestDifficulty}");
-        //     }
-        //     else
-        //     {
-        //         Debug.Log($"Level: {level.levelName}, No stats available.");
-        //     }
-        // }
     }
 
     void OnDestroy()

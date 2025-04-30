@@ -2,11 +2,9 @@ using System.Collections;
 using Cinemachine;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using DG.Tweening;
 using System.Collections.Generic;
-using System;
 
 public class MainMenuManager : MonoBehaviour
 {
@@ -27,7 +25,6 @@ public class MainMenuManager : MonoBehaviour
     
     // Store current active camera
     private CinemachineVirtualCamera activeCamera;
-    public AsyncOperation asyncLoad = null; // Store the async load operation
     public DominoRain dominoRain; // Reference to the DominoRain script for scene transitions
     public GameObject levelSelectButtonPrefab; // Prefab for level select buttons
     public Transform levelSelectScrollViewContent; // Content transform of the scroll view
@@ -37,7 +34,6 @@ public class MainMenuManager : MonoBehaviour
     public Button hardButton;
 
     private List<GameManager.LevelData> levels = new List<GameManager.LevelData>(); // List of levels, editable in the Unity Editor
-
     private GameManager.LevelData selectedLevel; // Currently selected level
 
     private void Start()
@@ -198,7 +194,7 @@ public class MainMenuManager : MonoBehaviour
                 button.interactable = false; // Disable all buttons
             }
             // Start loading the level asynchronously
-            StartCoroutine(LoadLevelAsync(selectedLevel.sceneName));
+            StartCoroutine(MainMenuLoadLevelAsync(selectedLevel.sceneName));
         }
         else
         {
@@ -206,7 +202,7 @@ public class MainMenuManager : MonoBehaviour
         }
     }
 
-    public IEnumerator LoadLevelAsync(string levelName)
+    public IEnumerator MainMenuLoadLevelAsync(string levelName)
     {
         // Wait for 0.05 seconds to allow the camera to blend
         yield return new WaitForSeconds(0.05f);
@@ -221,9 +217,7 @@ public class MainMenuManager : MonoBehaviour
             }
         }
 
-        // Begin loading the scene asynchronously
-        asyncLoad = SceneManager.LoadSceneAsync(levelName, LoadSceneMode.Additive);
-        asyncLoad.allowSceneActivation = false; // Prevent automatic scene activation
+        SceneLoader.Instance.StartSceneTransitionCoroutine(levelName);
 
         StartThrobberLoop();
 
@@ -231,7 +225,7 @@ public class MainMenuManager : MonoBehaviour
         float fakeProgress = 0f; // Simulated progress value
 
         // Display the loading screen and update progress
-        while (!asyncLoad.isDone)
+        while (!SceneLoader.asyncLoad.isDone)
         {
             // Simulate gradual progress with noise
             if (fakeProgress <= 1f)
@@ -241,7 +235,7 @@ public class MainMenuManager : MonoBehaviour
             }
 
             // Use the higher of the fake progress or the actual progress
-            float displayedProgress = Mathf.Min(fakeProgress, asyncLoad.progress / 0.9f);
+            float displayedProgress = Mathf.Min(fakeProgress, SceneLoader.asyncLoad.progress / 0.9f);
 
             // Update loading text
             if (loadingText != null)
@@ -256,7 +250,7 @@ public class MainMenuManager : MonoBehaviour
             }
 
             // Allow scene activation after progress reaches 90% and at least the minimum loading time has passed
-            if (asyncLoad.progress >= 0.9f && elapsedTime >= minimumLoadingTime)
+            if (SceneLoader.asyncLoad.progress >= 0.9f && elapsedTime >= minimumLoadingTime)
             {
                 // asyncLoad.allowSceneActivation = true;
                 dominoRain.gameObject.SetActive(true); // Activate the domino rain, which will send back a message to allow the scene activation
@@ -274,38 +268,5 @@ public class MainMenuManager : MonoBehaviour
         {
             throbberComponent.BeginLoop(); // Start the throbber loop for each throbber
         }
-    }
-
-    public void CompleteSceneTransitions()
-    {
-        StartCoroutine(CompleteSceneTransitionCoroutine());
-    }
-
-    private IEnumerator CompleteSceneTransitionCoroutine()
-    {
-        // Kill all tween animations
-        DOTween.KillAll();
-
-        // Wait for the new scene to activate
-        if (asyncLoad != null)
-        {
-            mainCamera.GetComponent<AudioListener>().enabled = false;
-            asyncLoad.allowSceneActivation = true; // Allow scene activation
-            while (!asyncLoad.isDone)
-            {
-                yield return null; // Wait until the scene is fully loaded
-            }
-            asyncLoad = null; // Reset the async load operation
-        }
-
-        // Unload the previous scene
-        string currentSceneName = SceneManager.GetActiveScene().name;
-        if (currentSceneName == "Main Menu")
-        {
-            yield return SceneManager.UnloadSceneAsync("Main Menu");
-        }
-
-        // Disable the main camera's audio listener
-        
     }
 }
