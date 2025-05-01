@@ -46,6 +46,8 @@ public class PlayerDominoPlacement : MonoBehaviour
     public bool bucketModeEnabled = false; // Flag to enable/disable bucket mode
     private PlayerObjectMovement objectMovementManager;
     private PlacementIndicatorLineManager lineManager;
+    public float maxLineRendererDistance = 2f;
+    public int maxLineRendererSets = 50; // Maximum number of line renderer sets
     #endregion
     #region Unity Methods
     void Start()
@@ -72,11 +74,12 @@ public class PlayerDominoPlacement : MonoBehaviour
         glowOutlineManager = new GlowOutlineManager(glowOutlineMaterial, activeCamera);
         objectMovementManager = gameObject.AddComponent<PlayerObjectMovement>();
         objectMovementManager.Initialize(activeCamera);
-        lineManager = new PlacementIndicatorLineManager(50); // Initialize with a pool size of 200
+        lineManager = new PlacementIndicatorLineManager(maxLineRendererSets); // Initialize with a pool size of 200
     }
 
     void Update()
     {
+        lineManager.ResetLinePool();
         if (!ControlsActive())
         {
             DestroyHand(); // Destroy the hand if the game is paused or in a reset state
@@ -491,23 +494,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private void UpdatePlacementIndicatorLines()
     {
         if (placementDecalManager == null) return;
-        List<PlacementIndicator> nearbyIndicators = FindNearbyPlacementIndicators();
-        lineManager.UpdateLinesForIndicators(nearbyIndicators, PlacementDecalManager.mouseWorldPosition, 2f); // Update the lines for the nearby indicators
-    }
-
-    private List<PlacementIndicator> FindNearbyPlacementIndicators()
-    {
-        List<PlacementIndicator> nearbyIndicators = new List<PlacementIndicator>();
-        Collider[] hitColliders = Physics.OverlapSphere(PlacementDecalManager.mouseWorldPosition, 2f); // Radius of 2 units
-        foreach (var collider in hitColliders)
-        {
-            PlacementIndicator indicator = collider.GetComponent<PlacementIndicator>();
-            if (indicator != null)
-            {
-                nearbyIndicators.Add(indicator);
-            }
-        }
-        return nearbyIndicators;
+        lineManager.UpdateLinesForIndicators(PlacementDecalManager.mouseWorldPosition, maxLineRendererDistance); // Update the lines for the nearby indicators
     }
     #endregion
 

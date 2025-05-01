@@ -68,13 +68,28 @@ public class PlacementIndicatorLineManager
         return lineRenderer;
     }
 
-    public void UpdateLinesForIndicators(List<PlacementIndicator> indicators, Vector3 decalPosition, float maxDistance)
+    private HashSet<PlacementIndicator> FindNearbyPlacementIndicators(float maxDistance)
     {
+        HashSet<PlacementIndicator> nearbyIndicators = new HashSet<PlacementIndicator>();
+        Collider[] hitColliders = Physics.OverlapSphere(PlacementDecalManager.mouseWorldPosition, maxDistance);
+        foreach (var collider in hitColliders)
+        {
+            PlacementIndicator indicator = collider.GetComponent<PlacementIndicator>();
+            if (indicator != null)
+            {
+                nearbyIndicators.Add(indicator);
+            }
+        }
+        return nearbyIndicators;
+    }
+
+    public void UpdateLinesForIndicators(Vector3 decalPosition, float maxDistance)
+    {
+        HashSet<PlacementIndicator> indicators = FindNearbyPlacementIndicators(maxDistance);
         this.decalPosition = decalPosition;
-        ResetLinePool();
         if (indicators == null || indicators.Count == 0) return;
 
-        var closestIndicators = indicators
+        List<PlacementIndicator> closestIndicators = indicators
             .Where(indicator => indicator != null && indicator.isActiveAndEnabled)
             .OrderBy(indicator => Vector3.Distance(indicator.transform.position, decalPosition))
             .Take(poolSize)
@@ -86,7 +101,7 @@ public class PlacementIndicatorLineManager
         }
     }
 
-    private void ResetLinePool()
+    public void ResetLinePool()
     {
         foreach (var set in lineRendererSets)
         {
@@ -116,7 +131,7 @@ public class PlacementIndicatorLineManager
                     alphaKeys[i].alpha = alpha;
                 }
             }
-            else if (lineRenderer.gameObject.name == "Side Edge")
+            else
             {
                 // Set alpha only for the bottom point (first alpha key)
                 if (alphaKeys.Length > 0)

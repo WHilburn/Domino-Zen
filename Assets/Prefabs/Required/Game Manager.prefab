@@ -2598,9 +2598,11 @@ MonoBehaviour:
   placementDecalMaterialRed: {fileID: 2100000, guid: 2ed7dc9aa62f5c642b5f027309e50ba6, type: 2}
   dashedOutlineMaterial: {fileID: 2100000, guid: 5ed09066526ce447e94534e2c5149a27, type: 2}
   cylinderPrefab: {fileID: 678040010885230479, guid: a838cf43d3a1ba343ae91be449bde0fc, type: 3}
-  decalSize: {x: 0.51028, y: 0.125, z: 0.13904}
+  decalSize: {x: 0.51028, y: 0.2, z: 0.13904}
   decalPivot: {x: 0, y: -0.05, z: 0}
   bucketModeEnabled: 0
+  maxLineRendererDistance: 1.5
+  maxLineRendererSets: 40
 --- !u!114 &5360279869383916395
 MonoBehaviour:
   m_ObjectHideFlags: 0
