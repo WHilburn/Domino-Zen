@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     public bool debugMode = true; // Debug mode toggle
     public static bool levelComplete = false; // Flag to indicate if the level is complete
     public static bool gamePaused = false; // Flag to indicate if the game is paused
+    public Camera mainCamera; // Reference to the main camera
     public VictoryAnimation victoryAnimation; // Reference to the VictoryAnimation script
     public static float elapsedTime = 0f; // Time elapsed since the level started
     public static int resetsTriggered = 0;

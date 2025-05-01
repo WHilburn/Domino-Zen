@@ -128,7 +128,7 @@ public class DominoResetManager : MonoBehaviour
 
     private void RegisterDominoForReset(Domino domino) // Registers that a domino fell and needs to be reset
     {
-        Debug.Log("Registering domino for reset: " + domino.gameObject.name + " in scene: " + domino.gameObject.scene.name);
+        // Debug.Log("Registering domino for reset: " + domino.gameObject.name + " in scene: " + domino.gameObject.scene.name);
         if (Instance == null || domino.gameObject.scene.name == "Main Menu") return; // Ensure the instance is not null
         GameManager.Instance.levelCompletePopup.SetActive(false); // Hide the level complete popup
         if (!fallenDominoes.Contains(domino))

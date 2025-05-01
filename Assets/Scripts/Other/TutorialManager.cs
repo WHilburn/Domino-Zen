@@ -94,8 +94,8 @@ public class TutorialManager : MonoBehaviour
 
         placementEnabled = currentStep.placementEnabled;
         OnTogglePlacementControls.Invoke(placementEnabled);
-        PlayerDominoPlacement.placementEnabled = placementEnabled; // Update the PlayerDominoPlacement script
-        PlayerDominoPlacement.placementLimited = currentStep.limitedPlacement;
+        PlayerDominoPlacement.Instance.placementEnabled = placementEnabled; // Update the PlayerDominoPlacement script
+        PlayerDominoPlacement.Instance.placementLimited = currentStep.limitedPlacement;
         visible = currentStep.visible;
         if (visible) audioSource.Play(); // Play the pop-up audio
 

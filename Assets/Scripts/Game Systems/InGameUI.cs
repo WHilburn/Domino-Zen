@@ -51,7 +51,6 @@ public class InGameUI : MonoBehaviour
 
     #region Static Variables
     public static int filledIndicatorCount = 0;
-    public static bool paused = false; // Static variable to track pause state
     public Texture2D CursorTexture; // Texture for the custom cursor
     public PlayerControls playerControls; // Reference to the PlayerControls input actions
     #endregion
@@ -226,7 +225,7 @@ public class InGameUI : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             // Check if the object under the cursor is a Domino
-            if (hit.collider.GetComponent<Domino>() != null && PlayerDominoPlacement.placementEnabled)
+            if (hit.collider.GetComponent<Domino>() != null && PlayerDominoPlacement.Instance.placementEnabled)
             {
                 buttonPrompt1.SetActive(true);
                 buttonPrompt2.SetActive(true);
@@ -237,7 +236,7 @@ public class InGameUI : MonoBehaviour
                 buttonActionText2.text = "Knock Over";
             }
             // Check if the object under the cursor is a Bucket
-            else if (hit.collider.GetComponent<Bucket>() != null && PlayerDominoPlacement.placementEnabled)
+            else if (hit.collider.GetComponent<Bucket>() != null && PlayerDominoPlacement.Instance.placementEnabled)
             {
                 buttonPrompt1.SetActive(true);
                 buttonPrompt2.SetActive(true);
@@ -316,10 +315,10 @@ public class InGameUI : MonoBehaviour
     #region UI Animations
     private void TogglePauseMenu()
     {
-        paused = !paused; // Toggle the pause state
+        GameManager.gamePaused = !GameManager.gamePaused; // Toggle the pause state
         if (pauseMenu != null)
         {
-            pauseMenu.SetActive(paused); // Toggle pause menu visibility
+            pauseMenu.SetActive(GameManager.gamePaused); // Toggle pause menu visibility
         }
     }
 

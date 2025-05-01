@@ -28,9 +28,9 @@ public class PlayerDominoPlacement : MonoBehaviour
     private Vector3 handMouseOffset; // Offset between hand and mouse cursor
     private float initialHandElevation; // Store the initial elevation of the hand anchor
     public static UnityEvent<Domino> OnDominoReleased = new();
-    public static bool placementEnabled = true; // Flag to enable/disable placement controls
-    public static bool flickEnabled = true;
-    public static bool placementLimited = false; // Flag to limit placement to a specific area
+    public bool placementEnabled = true; // Flag to enable/disable placement controls
+    public bool flickEnabled = true;
+    public bool placementLimited = false; // Flag to limit placement to a specific area
     public Material glowOutlineMaterial; // Reference to the glow outline material
     public Material placementDecalMaterial; // Material for the hollow rectangle decal
     public Material placementDecalMaterialRed;
@@ -126,7 +126,7 @@ public class PlayerDominoPlacement : MonoBehaviour
 
     public bool ControlsActive()
     {
-        if (InGameUI.paused || // Disable if the game is paused
+        if (GameManager.gamePaused || // Disable if the game is paused
             !IsCameraActive() || // Disable if camera is not active
             CameraController.isTracking || // Disable if the camera is tracking a domino fall
             (DominoResetManager.Instance != null && DominoResetManager.Instance.currentState != DominoResetManager.ResetState.Idle) || //Disable is resetting

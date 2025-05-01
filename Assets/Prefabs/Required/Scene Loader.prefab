@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 63898034578810490}
   - component: {fileID: 4856642555532405224}
+  - component: {fileID: 5321307464422928260}
   m_Layer: 0
   m_Name: Scene Loader
   m_TagString: Untagged
@@ -45,7 +46,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0654c795bb18c54eb3af840568ee2cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  eventSystem: {fileID: 0}
   dominoRain: {fileID: 2986722923704323875}
+--- !u!81 &5321307464422928260
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7875142249266541780}
+  m_Enabled: 1
 --- !u!1001 &7279457023405557411
 PrefabInstance:
   m_ObjectHideFlags: 0

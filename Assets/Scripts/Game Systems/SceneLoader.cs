@@ -3,11 +3,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 using DG.Tweening;
+using Unity.VisualScripting;
 
 public class SceneLoader : MonoBehaviour
 {
     public static AsyncOperation asyncLoad = null; // Store the async load operation
     public static SceneLoader Instance { get; private set; } // Singleton instance
+    public EventSystem eventSystem; // Reference to the EventSystem in the scene
     public DominoRain dominoRain; // Reference to the DominoRain script
 
     void Awake()
@@ -19,6 +21,22 @@ public class SceneLoader : MonoBehaviour
         }
         Instance = this; // Set the singleton instance
         DontDestroyOnLoad(this.gameObject);
+        if (eventSystem == null)
+        {
+            eventSystem = GetComponentInChildren<EventSystem>();
+            if (eventSystem == null)
+            {
+                GameObject eventSystemObj = new GameObject("EventSystem");
+                eventSystem = eventSystemObj.AddComponent<EventSystem>();
+                eventSystemObj.AddComponent<StandaloneInputModule>();
+                eventSystemObj.transform.SetParent(transform);
+            }
+        }
+    }
+
+    void Update()
+    {
+        transform.position = GameManager.Instance.mainCamera.transform.position; // Keep the loader at the camera position
     }
 
     public void StartSceneTransitionCoroutine(string sceneName)
@@ -38,11 +56,8 @@ public class SceneLoader : MonoBehaviour
     private IEnumerator CompleteSceneTransitionCoroutine()
     {
         string currentSceneName = SceneManager.GetActiveScene().name;
-        // Debug.Log("Unloading scene: " + currentSceneName);
-        AudioListener audioListener = FindObjectOfType<AudioListener>();
-        if (audioListener != null) audioListener.enabled = false; // Disable the AudioListener
-        EventSystem eventSystem = FindObjectOfType<EventSystem>();
-        if (eventSystem != null) eventSystem.enabled = false; // Disable the EventSystem
+        // EventSystem eventSystem = FindObjectOfType<EventSystem>();
+        // if (eventSystem != null) eventSystem.enabled = false;
         DOTween.KillAll();
         // Wait for the new scene to activate
         if (asyncLoad != null)

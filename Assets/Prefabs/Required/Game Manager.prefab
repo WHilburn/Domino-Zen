@@ -2590,6 +2590,9 @@ MonoBehaviour:
   activeCamera: {fileID: 7643491476663183632}
   lockSpritePrefab: {fileID: 4181785002189258841, guid: e065b6617a4063e44a89dec531f78b67, type: 3}
   uiCanvas: {fileID: 3644463334577794610}
+  placementEnabled: 1
+  flickEnabled: 1
+  placementLimited: 0
   glowOutlineMaterial: {fileID: 2100000, guid: 1326983e1cc673647829a031ae50b077, type: 2}
   placementDecalMaterial: {fileID: 2100000, guid: ba3a5c75e3c5dfb44a909288ed06bc56, type: 2}
   placementDecalMaterialRed: {fileID: 2100000, guid: 2ed7dc9aa62f5c642b5f027309e50ba6, type: 2}
@@ -2656,6 +2659,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debugMode: 1
+  mainCamera: {fileID: 7643491476663183632}
   victoryAnimation: {fileID: 6618785023656291912}
   originatorDomino: {fileID: 0}
   levelCompletePopup: {fileID: 9151943275932769969}
@@ -4219,7 +4223,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5185503554468982723}
   - component: {fileID: 7643491476663183632}
-  - component: {fileID: 3880338548195410454}
   - component: {fileID: 3893769363183548899}
   - component: {fileID: 7611589086122300706}
   m_Layer: 0
@@ -4295,14 +4298,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!81 &3880338548195410454
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6956217463858373830}
-  m_Enabled: 1
 --- !u!114 &3893769363183548899
 MonoBehaviour:
   m_ObjectHideFlags: 0
