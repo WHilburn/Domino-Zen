@@ -2601,8 +2601,8 @@ MonoBehaviour:
   decalSize: {x: 0.51028, y: 0.2, z: 0.13904}
   decalPivot: {x: 0, y: -0.05, z: 0}
   bucketModeEnabled: 0
-  maxLineRendererDistance: 2
-  maxLineRendererSets: 45
+  maxLineRendererDistance: 1.5
+  maxLineRendererSets: 25
   alphaCurve:
     serializedVersion: 2
     m_Curve:

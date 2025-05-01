@@ -82,7 +82,7 @@ public class PlacementIndicatorLineManager
     private HashSet<PlacementIndicator> FindNearbyPlacementIndicators(float maxDistance)
     {
         HashSet<PlacementIndicator> nearbyIndicators = new HashSet<PlacementIndicator>();
-        Collider[] hitColliders = Physics.OverlapSphere(PlacementDecalManager.mouseWorldPosition, maxDistance);
+        Collider[] hitColliders = Physics.OverlapSphere(decalPosition, maxDistance);
         foreach (var collider in hitColliders)
         {
             PlacementIndicator indicator = collider.GetComponent<PlacementIndicator>();
@@ -96,8 +96,8 @@ public class PlacementIndicatorLineManager
 
     public void UpdateLinesForIndicators(Vector3 decalPosition, float maxDistance, AnimationCurve alphaCurve)
     {
+        this.decalPosition = decalPosition + Vector3.up * 0.5f;
         HashSet<PlacementIndicator> indicators = FindNearbyPlacementIndicators(maxDistance);
-        this.decalPosition = decalPosition;
         if (indicators == null || indicators.Count == 0 || lineRendererSets == null || lineRendererSets.Count == 0) return;
 
         List<PlacementIndicator> closestIndicators = indicators
