@@ -72,6 +72,9 @@ public class DominoRain : MonoBehaviour {
             rectTransform.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
             image.color = Color.HSVToRGB(Random.value, 0.5f, 1f); // Pastel colors
 
+            // Randomize the sibling index to randomize draw order
+            domino.transform.SetSiblingIndex(Random.Range(0, canvasTransform.childCount));
+
             // Add Rigidbody2D for physics-based falling
             Rigidbody2D rb = domino.GetComponent<Rigidbody2D>();
             if (rb != null) {
