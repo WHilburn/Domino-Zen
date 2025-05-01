@@ -97,6 +97,7 @@ public class PlacementIndicatorLineManager
     private void AssignLinesToIndicator(PlacementIndicator indicator, GameObject lineSet, float maxDistance)
     {
         lineSet.transform.position = indicator.transform.position;
+        lineSet.transform.rotation = indicator.transform.rotation;
 
         float distance = Vector3.Distance(indicator.transform.position, decalPosition);
         // Full opacity at distance < 1, falls off to 0 at maxDistance

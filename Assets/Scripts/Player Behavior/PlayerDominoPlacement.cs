@@ -492,13 +492,13 @@ public class PlayerDominoPlacement : MonoBehaviour
     {
         if (placementDecalManager == null) return;
         List<PlacementIndicator> nearbyIndicators = FindNearbyPlacementIndicators();
-        lineManager.UpdateLinesForIndicators(nearbyIndicators, PlacementDecalManager.mouseWorldPosition.position, 2f); // Update the lines for the nearby indicators
+        lineManager.UpdateLinesForIndicators(nearbyIndicators, PlacementDecalManager.mouseWorldPosition, 2f); // Update the lines for the nearby indicators
     }
 
     private List<PlacementIndicator> FindNearbyPlacementIndicators()
     {
         List<PlacementIndicator> nearbyIndicators = new List<PlacementIndicator>();
-        Collider[] hitColliders = Physics.OverlapSphere(PlacementDecalManager.mouseWorldPosition.position, 2f); // Radius of 2 units
+        Collider[] hitColliders = Physics.OverlapSphere(PlacementDecalManager.mouseWorldPosition, 2f); // Radius of 2 units
         foreach (var collider in hitColliders)
         {
             PlacementIndicator indicator = collider.GetComponent<PlacementIndicator>();

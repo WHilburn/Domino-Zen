@@ -13,7 +13,7 @@ public class PlacementDecalManager
     private Camera activeCamera;
     private Quaternion savedRotation;
     private GameObject dashedBorderObject; // Secondary object for dashed border
-    public static Transform mouseWorldPosition;
+    public static Vector3 mouseWorldPosition;
 
     public PlacementDecalManager(Material defaultMaterial, Material redMaterial, Material dashedMaterial, Vector3 size, Vector3 pivot, float maxDist, Camera camera, Quaternion rotation)
     {
@@ -153,7 +153,7 @@ public class PlacementDecalManager
 
         placementDecal.transform.position = targetPosition;
         placementDecal.transform.rotation = targetRotation;
-        mouseWorldPosition = placementDecal.transform;
+        mouseWorldPosition = placementDecal.transform.position;
         placementDecal.enabled = heldDomino == null; // Enable if no domino is held
         dashedBorderObject.SetActive(true); // Show border
     }
