@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,10 +10,19 @@ public class PlacementIndicatorLineManager
     private GameObject lineRendererParent;
     private Vector3 decalPosition;
 
-    public PlacementIndicatorLineManager(int poolSize)
+    public PlacementIndicatorLineManager(int poolSize, MonoBehaviour coroutineRunner)
     {
         this.poolSize = poolSize;
         lineRendererSets = new List<GameObject>(poolSize);
+        coroutineRunner.StartCoroutine(WaitToInitialize());
+    }
+
+    private IEnumerator WaitToInitialize()
+    {
+        while (SceneLoader.asyncLoad != null)
+        {
+            yield return null;
+        }
         InitializeLinePool();
     }
 
@@ -54,6 +64,7 @@ public class PlacementIndicatorLineManager
                 sideEdges[j].colorGradient = gradient;
             }
         }
+        Debug.Log($"Initialized line pool with {poolSize} sets of line renderers.");
     }
 
     private LineRenderer CreateLineRenderer(Transform parent = null, bool isEdge = false)
@@ -83,11 +94,11 @@ public class PlacementIndicatorLineManager
         return nearbyIndicators;
     }
 
-    public void UpdateLinesForIndicators(Vector3 decalPosition, float maxDistance)
+    public void UpdateLinesForIndicators(Vector3 decalPosition, float maxDistance, AnimationCurve alphaCurve)
     {
         HashSet<PlacementIndicator> indicators = FindNearbyPlacementIndicators(maxDistance);
         this.decalPosition = decalPosition;
-        if (indicators == null || indicators.Count == 0) return;
+        if (indicators == null || indicators.Count == 0 || lineRendererSets == null || lineRendererSets.Count == 0) return;
 
         List<PlacementIndicator> closestIndicators = indicators
             .Where(indicator => indicator != null && indicator.isActiveAndEnabled)
@@ -97,7 +108,7 @@ public class PlacementIndicatorLineManager
 
         for (int i = 0; i < closestIndicators.Count; i++)
         {
-            AssignLinesToIndicator(closestIndicators[i], lineRendererSets[i], maxDistance);
+            AssignLinesToIndicator(closestIndicators[i], lineRendererSets[i], maxDistance, alphaCurve);
         }
     }
 
@@ -109,14 +120,14 @@ public class PlacementIndicatorLineManager
         }
     }
 
-    private void AssignLinesToIndicator(PlacementIndicator indicator, GameObject lineSet, float maxDistance)
+    private void AssignLinesToIndicator(PlacementIndicator indicator, GameObject lineSet, float maxDistance, AnimationCurve alphaCurve)
     {
         lineSet.transform.position = indicator.transform.position;
         lineSet.transform.rotation = indicator.transform.rotation;
 
         float distance = Vector3.Distance(indicator.transform.position, decalPosition);
-        // Full opacity at distance < 1, falls off to 0 at maxDistance
-        float alpha = Mathf.Clamp01(1 - (distance - 1) / (maxDistance - 1));
+        float normalizedDistance = Mathf.Clamp01(distance / maxDistance); // Normalize distance to [0, 1]
+        float alpha = alphaCurve.Evaluate(normalizedDistance); // Use the curve to determine alpha
 
         foreach (var lineRenderer in lineSet.GetComponentsInChildren<LineRenderer>())
         {

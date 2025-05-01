@@ -48,6 +48,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private PlacementIndicatorLineManager lineManager;
     public float maxLineRendererDistance = 2f;
     public int maxLineRendererSets = 50; // Maximum number of line renderer sets
+    public AnimationCurve alphaCurve = AnimationCurve.Linear(0, 1, 1, 0); // Default linear curve
     #endregion
     #region Unity Methods
     void Start()
@@ -74,8 +75,9 @@ public class PlayerDominoPlacement : MonoBehaviour
         glowOutlineManager = new GlowOutlineManager(glowOutlineMaterial, activeCamera);
         objectMovementManager = gameObject.AddComponent<PlayerObjectMovement>();
         objectMovementManager.Initialize(activeCamera);
-        lineManager = new PlacementIndicatorLineManager(maxLineRendererSets); // Initialize with a pool size of 200
+        lineManager = new PlacementIndicatorLineManager(maxLineRendererSets, this); // Pass 'this' as the coroutine runner
     }
+    
 
     void Update()
     {
@@ -494,7 +496,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private void UpdatePlacementIndicatorLines()
     {
         if (placementDecalManager == null) return;
-        lineManager.UpdateLinesForIndicators(PlacementDecalManager.mouseWorldPosition, maxLineRendererDistance); // Update the lines for the nearby indicators
+        lineManager.UpdateLinesForIndicators(PlacementDecalManager.mouseWorldPosition, maxLineRendererDistance, alphaCurve); // Update the lines for the nearby indicators
     }
     #endregion
 

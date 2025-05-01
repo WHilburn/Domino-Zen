@@ -9,7 +9,6 @@ public class SceneLoader : MonoBehaviour
 {
     public static AsyncOperation asyncLoad = null; // Store the async load operation
     public static SceneLoader Instance { get; private set; } // Singleton instance
-    public EventSystem eventSystem; // Reference to the EventSystem in the scene
     public DominoRain dominoRain; // Reference to the DominoRain script
 
     void Awake()
@@ -21,17 +20,6 @@ public class SceneLoader : MonoBehaviour
         }
         Instance = this; // Set the singleton instance
         DontDestroyOnLoad(this.gameObject);
-        if (eventSystem == null)
-        {
-            eventSystem = GetComponentInChildren<EventSystem>();
-            if (eventSystem == null)
-            {
-                GameObject eventSystemObj = new GameObject("EventSystem");
-                eventSystem = eventSystemObj.AddComponent<EventSystem>();
-                eventSystemObj.AddComponent<StandaloneInputModule>();
-                eventSystemObj.transform.SetParent(transform);
-            }
-        }
     }
 
     void Update()
