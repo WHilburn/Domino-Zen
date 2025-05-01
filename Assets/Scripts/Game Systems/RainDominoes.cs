@@ -10,7 +10,7 @@ public class DominoRain : MonoBehaviour {
     public Transform canvasTransform; // Reference to the Canvas
     public float spawnRate = 0.2f; // Time between spawns
     public float minFallSpeed = 200f; // Speed of falling dominos
-    private Vector2 spawnRangeX = new(-500, 500); // X spawn limits
+    private Vector2 spawnRangeX = new(-300, 300); // X spawn limits
     public float randomForce = 100f;
     public float randomTorque = 100f;
     private List<GameObject> dominoes = new(); // List to keep track of spawned dominoes

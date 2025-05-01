@@ -172,15 +172,6 @@ public class VictoryAnimation : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        // Trigger the force application when the V key is pressed
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            ApplyForceToFirstDomino();
-        }
-    }
-
     private void ApplyForceToFirstDomino()
     {
         // Apply a force to the first domino to knock it over

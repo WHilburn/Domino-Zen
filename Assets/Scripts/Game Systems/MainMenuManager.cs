@@ -150,6 +150,10 @@ public class MainMenuManager : MonoBehaviour
             else if (stats.bestTime < float.MaxValue)
             {
                 statsText.text = $"<b>Best Time:</b> {FormatTime(stats.bestTime)}\n\n<b>Hardest Difficulty Completed:</b> {stats.hardestDifficulty}";
+                if (level.levelName == "Tutorial")
+                {
+                    statsText.text = "Complete";
+                }
             }
             else
             {
