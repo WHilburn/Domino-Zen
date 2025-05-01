@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Events;
@@ -44,6 +45,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private Tween springTween; // Store the tween reference
     public bool bucketModeEnabled = false; // Flag to enable/disable bucket mode
     private PlayerObjectMovement objectMovementManager;
+    private PlacementIndicatorLineManager lineManager;
     #endregion
     #region Unity Methods
     void Start()
@@ -70,6 +72,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         glowOutlineManager = new GlowOutlineManager(glowOutlineMaterial, activeCamera);
         objectMovementManager = gameObject.AddComponent<PlayerObjectMovement>();
         objectMovementManager.Initialize(activeCamera);
+        lineManager = new PlacementIndicatorLineManager(50); // Initialize with a pool size of 200
     }
 
     void Update()
@@ -122,6 +125,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         glowOutlineManager.HandleMouseHover(heldDomino);
         placementDecalManager.UpdatePlacementDecal(placementEnabled, heldDomino, savedRotation); // Update the placement decal position and visibility
         HandleRotation(); // Handle rotation even when no domino is held
+        UpdatePlacementIndicatorLines();
     }
 
     public bool ControlsActive()
@@ -482,6 +486,28 @@ public class PlayerDominoPlacement : MonoBehaviour
             }
         }
         return null;
+    }
+
+    private void UpdatePlacementIndicatorLines()
+    {
+        if (placementDecalManager == null) return;
+        List<PlacementIndicator> nearbyIndicators = FindNearbyPlacementIndicators();
+        lineManager.UpdateLinesForIndicators(nearbyIndicators, PlacementDecalManager.mouseWorldPosition.position, 2f); // Update the lines for the nearby indicators
+    }
+
+    private List<PlacementIndicator> FindNearbyPlacementIndicators()
+    {
+        List<PlacementIndicator> nearbyIndicators = new List<PlacementIndicator>();
+        Collider[] hitColliders = Physics.OverlapSphere(PlacementDecalManager.mouseWorldPosition.position, 2f); // Radius of 2 units
+        foreach (var collider in hitColliders)
+        {
+            PlacementIndicator indicator = collider.GetComponent<PlacementIndicator>();
+            if (indicator != null)
+            {
+                nearbyIndicators.Add(indicator);
+            }
+        }
+        return nearbyIndicators;
     }
     #endregion
 

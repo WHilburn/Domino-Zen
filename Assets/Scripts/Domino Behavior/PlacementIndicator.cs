@@ -29,9 +29,6 @@ public class PlacementIndicator : DominoLike
     public UnityEvent OnIndicatorFilledInstance = new(); // Non-static event for individual indicators
     public UnityEvent OnIndicatorEmptiedInstance = new();
 
-    [Header("Line Renderer Settings")]
-    [SerializeField] private LineRenderer[] edgeLineRenderers; // Line renderers for edges
-    [SerializeField] private LineRenderer[] sideLineRenderers; // Line renderers for sides
     #endregion
 
     #region Unity Methods
@@ -47,7 +44,6 @@ public class PlacementIndicator : DominoLike
             DestroyImmediate(snapCollider); // Disable the snap collider
             snapCollider = null; // Set to null to avoid further use
         }
-        // InitializeLineRenderers();
         InvokeRepeating("CheckDistanceToCamera",0f, .1f);
     }
 
@@ -216,58 +212,6 @@ public class PlacementIndicator : DominoLike
             indicatorRenderer.enabled = false; // Disable the renderer after fading out
             placementCollider.enabled = true;
         });
-
-        foreach (var lineRenderer in edgeLineRenderers)
-        {
-            if (lineRenderer != null)
-            {
-                // Tween the alpha values
-                float alpha = 1f;
-                DOTween.To(() => alpha, x => alpha = x, 0f, fadeSpeed).OnUpdate(() =>
-                {
-                    Color startColor = lineRenderer.startColor;
-                    startColor.a = alpha;
-                    lineRenderer.startColor = startColor;
-                    lineRenderer.endColor = startColor;
-                }).OnComplete(() =>
-                {
-                    lineRenderer.enabled = false; // Disable after animation
-                });
-            }
-        }
-
-        foreach (var lineRenderer in sideLineRenderers) // Animate the side line renderers
-        {
-            if (lineRenderer != null)
-            {
-                // Animate elongation upwards
-                Vector3[] positions = new Vector3[2];
-                lineRenderer.GetPositions(positions);
-                Vector3 start = positions[0];
-                Vector3 end = positions[1];
-                Vector3 targetEnd = end + Vector3.up * (5 * standardDimensions.y); // Extend upwards to 6x height
-
-                // Tween the endpoint position
-                DOTween.To(() => end, x => end = x, targetEnd, fadeSpeed).OnUpdate(() =>
-                {
-                    lineRenderer.SetPosition(1, end);
-                }).OnComplete(() =>
-                {
-                    // Reset the line renderer length to its default
-                    lineRenderer.SetPosition(1, positions[1]);
-                    lineRenderer.enabled = false; // Disable after animation
-                });
-
-                // Tween the alpha values
-                float alpha = 1f;
-                DOTween.To(() => alpha, x => alpha = x, 0f, fadeSpeed).OnUpdate(() =>
-                {
-                    Color startColor = lineRenderer.startColor;
-                    startColor.a = alpha;
-                    lineRenderer.startColor = startColor;
-                });
-            }
-        }
     }
 
     public void FadeIn(bool playSound = true)
@@ -280,9 +224,6 @@ public class PlacementIndicator : DominoLike
         indicatorRenderer.material.DOKill();
         // Use DOTween to fade in the material's alpha
         indicatorRenderer.material.DOFade(maxAlpha, fadeSpeed);
-
-        foreach (var lineRenderer in edgeLineRenderers) lineRenderer.enabled = true;
-        foreach (var lineRenderer in sideLineRenderers) lineRenderer.enabled = true;
     }
 
     public void ApplyColor(Color inputColor)
@@ -294,54 +235,6 @@ public class PlacementIndicator : DominoLike
         Material newMaterial = new(renderer.sharedMaterial);
         newMaterial.color = inputColor; // Assign instance to avoid modifying sharedMaterial
         renderer.material = newMaterial; // Assign the new material to the renderer
-    }
-
-    private void InitializeLineRenderers()
-    {
-        // Create line renderers for bottom edges
-        edgeLineRenderers = new LineRenderer[4];
-        Vector3[] corners = {
-            new Vector3(-standardDimensions.x / 2, 0, -standardDimensions.z / 2) + transform.position + bottomPoint,
-            new Vector3(standardDimensions.x / 2, 0, -standardDimensions.z / 2)+ transform.position + bottomPoint,
-            new Vector3(standardDimensions.x / 2, 0, standardDimensions.z / 2)+ transform.position + bottomPoint,
-            new Vector3(-standardDimensions.x / 2, 0, standardDimensions.z / 2)+ transform.position + bottomPoint
-        };
-
-        for (int i = 0; i < 4; i++)
-        {
-            edgeLineRenderers[i] = CreateLineRenderer();
-            edgeLineRenderers[i].SetPositions(new[] { corners[i], corners[(i + 1) % 4] });
-        }
-
-        // Create line renderers for side edges
-        sideLineRenderers = new LineRenderer[4];
-        for (int i = 0; i < 4; i++)
-        {
-            sideLineRenderers[i] = CreateLineRenderer();
-            Vector3 start = corners[i];
-            Vector3 end = corners[i] + Vector3.up * standardDimensions.y;
-            sideLineRenderers[i].SetPositions(new[] { start, end });
-
-            // Apply gradient to fade out at the top
-            Gradient gradient = new Gradient();
-            gradient.SetKeys(
-                new GradientColorKey[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
-                new GradientAlphaKey[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(0f, 1f) }
-            );
-            sideLineRenderers[i].colorGradient = gradient;
-        }
-    }
-
-    private LineRenderer CreateLineRenderer()
-    {
-        GameObject lineObject = new GameObject("LineRenderer");
-        lineObject.transform.SetParent(transform);
-        LineRenderer lineRenderer = lineObject.AddComponent<LineRenderer>();
-        lineRenderer.startWidth = 0.01f;
-        lineRenderer.endWidth = 0.01f;
-        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        lineRenderer.useWorldSpace = false;
-        return lineRenderer;
     }
     #endregion
 
@@ -365,31 +258,6 @@ public class PlacementIndicator : DominoLike
         float distance = Vector3.Distance(transform.position, cameraPosition);
 
         float fadeFactor = Mathf.Clamp01((10f - distance) / 5f); // Smooth fade between 5 and 10
-
-        foreach (var lineRenderer in edgeLineRenderers)
-        {
-            if (lineRenderer != null)
-            {
-                lineRenderer.enabled = fadeFactor > 0;
-                Color color = lineRenderer.startColor;
-                color.a = fadeFactor;
-                lineRenderer.startColor = color;
-                lineRenderer.endColor = color;
-            }
-        }
-
-        foreach (var lineRenderer in sideLineRenderers)
-        {
-            if (lineRenderer != null)
-            {
-                lineRenderer.enabled = fadeFactor > 0;
-                Gradient gradient = lineRenderer.colorGradient;
-                GradientAlphaKey[] alphaKeys = gradient.alphaKeys;
-                alphaKeys[0].alpha = fadeFactor; // Bottom alpha
-                gradient.alphaKeys = alphaKeys;
-                lineRenderer.colorGradient = gradient;
-            }
-        }
     }
     #endregion
 }
