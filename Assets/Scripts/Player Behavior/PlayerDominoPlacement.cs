@@ -47,7 +47,6 @@ public class PlayerDominoPlacement : MonoBehaviour
     private PlayerObjectMovement objectMovementManager;
     private PlacementIndicatorLineManager lineManager;
     public float maxLineRendererDistance = 2f;
-    public int maxLineRendererSets = 50; // Maximum number of line renderer sets
     public AnimationCurve alphaCurve = AnimationCurve.Linear(0, 1, 1, 0); // Default linear curve
     #endregion
     #region Unity Methods
@@ -75,13 +74,12 @@ public class PlayerDominoPlacement : MonoBehaviour
         glowOutlineManager = new GlowOutlineManager(glowOutlineMaterial, activeCamera);
         objectMovementManager = gameObject.AddComponent<PlayerObjectMovement>();
         objectMovementManager.Initialize(activeCamera);
-        lineManager = new PlacementIndicatorLineManager(maxLineRendererSets, this); // Pass 'this' as the coroutine runner
+        lineManager = new PlacementIndicatorLineManager();
     }
     
 
     void Update()
     {
-        lineManager.ResetLinePool();
         if (!ControlsActive())
         {
             DestroyHand(); // Destroy the hand if the game is paused or in a reset state

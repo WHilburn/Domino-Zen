@@ -5,6 +5,7 @@ using DG.Tweening;
 using TMPro;
 using System.Collections.Generic;
 using Cinemachine;
+using System.Collections;
 
 public class TutorialManager : MonoBehaviour
 {
@@ -49,11 +50,17 @@ public class TutorialManager : MonoBehaviour
 
     void Start()
     {
-        if (steps.Count > 0)
-        {
-            StartTutorial();
-        }
+        StartCoroutine(StartTutorialCoroutine()); // Start the tutorial coroutine
+    }
 
+    private IEnumerator StartTutorialCoroutine()
+    {
+        while (SceneLoader.asyncLoad == null)
+        {
+            yield return null; // Wait for the async load to complete
+        }
+        yield return new WaitForSeconds(0.1f);
+        StartTutorial();
         SubscribeToEvents();
     }
 

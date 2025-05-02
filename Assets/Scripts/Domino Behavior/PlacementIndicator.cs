@@ -12,6 +12,8 @@ public class PlacementIndicator : DominoLike
     public BoxCollider snapCollider; // Collider for snapping to the ground
     [SerializeField] private Domino trackedDomino;
     private Rigidbody trackedDominoRb;
+    private Material indicatorMaterial;
+    private Material outlineMaterial;
 
     [Header("Indicator Settings")]
     static DominoSoundManager soundManager;
@@ -44,7 +46,9 @@ public class PlacementIndicator : DominoLike
             DestroyImmediate(snapCollider); // Disable the snap collider
             snapCollider = null; // Set to null to avoid further use
         }
-        InvokeRepeating("CheckDistanceToCamera",0f, .1f);
+        indicatorMaterial = new Material(indicatorRenderer.sharedMaterials[0]);
+        outlineMaterial = new Material(indicatorRenderer.sharedMaterials[1]);
+        indicatorRenderer.materials = new[] { indicatorMaterial, outlineMaterial }; // Assign instanced materials
     }
 
     void Update()
@@ -187,6 +191,7 @@ public class PlacementIndicator : DominoLike
 
         // Fade out the indicator
         FadeOut();
+        FadeOutline(0f, fadeSpeed); // Fade out the outline
         // Debug.Log("Indicator filled: " + trackedDomino.name);
         currentState = IndicatorState.Filled; // Transition to Placed state
         OnIndicatorFilled.Invoke(this); // Notify that the indicator is filled (static event)
@@ -207,7 +212,7 @@ public class PlacementIndicator : DominoLike
         indicatorRenderer.material.DOKill();
         placementCollider.enabled = false;
         // Use DOTween to fade out the material's alpha
-        indicatorRenderer.material.DOFade(0f, fadeSpeed).OnComplete(() =>
+        indicatorMaterial.DOFade(0f, fadeSpeed).OnComplete(() =>
         {
             indicatorRenderer.enabled = false; // Disable the renderer after fading out
             placementCollider.enabled = true;
@@ -223,41 +228,30 @@ public class PlacementIndicator : DominoLike
         indicatorRenderer.enabled = true;
         indicatorRenderer.material.DOKill();
         // Use DOTween to fade in the material's alpha
-        indicatorRenderer.material.DOFade(maxAlpha, fadeSpeed);
+        indicatorMaterial.DOFade(maxAlpha, fadeSpeed);
+    }
+
+    public void FadeOutline(float targetAlpha, float duration)
+    {
+        outlineMaterial.DOKill();
+        outlineMaterial.DOFade(targetAlpha, duration).OnComplete(() =>
+        {
+            outlineMaterial.DOFade(0.5f, duration);
+        });
     }
 
     public void ApplyColor(Color inputColor)
     {
         indicatorColor = inputColor;
         inputColor.a = Mathf.Clamp(inputColor.a, 0f, maxAlpha);
-        Renderer renderer = GetComponent<Renderer>();
-        // Create a new material instance so we don't modify shared materials
-        Material newMaterial = new(renderer.sharedMaterial);
-        newMaterial.color = inputColor; // Assign instance to avoid modifying sharedMaterial
-        renderer.material = newMaterial; // Assign the new material to the renderer
-    }
-    #endregion
 
-    #region Camera Distance Check
-    private void CheckDistanceToCamera()
-    {
-        Camera activeCamera = null;
+        // Update the indicator material
+        indicatorMaterial.color = inputColor;
 
-        if (Application.isPlaying)
-        {
-            activeCamera = PlayerDominoPlacement.Instance.activeCamera;
-        }
-        else if (SceneView.lastActiveSceneView != null)
-        {
-            activeCamera = SceneView.lastActiveSceneView.camera;
-        }
-
-        if (activeCamera == null || currentState == IndicatorState.Filled || currentState == IndicatorState.Disabled) return; // Skip if no active camera is found
-
-        Vector3 cameraPosition = activeCamera.transform.position;
-        float distance = Vector3.Distance(transform.position, cameraPosition);
-
-        float fadeFactor = Mathf.Clamp01((10f - distance) / 5f); // Smooth fade between 5 and 10
+        // Update the outline material
+        Color outlineColor = outlineMaterial.color;
+        outlineColor.a = Mathf.Clamp(outlineColor.a, 0f, maxAlpha);
+        outlineMaterial.color = outlineColor;
     }
     #endregion
 }

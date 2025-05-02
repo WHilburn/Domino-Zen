@@ -44,8 +44,8 @@ public class SceneLoader : MonoBehaviour
     private IEnumerator CompleteSceneTransitionCoroutine()
     {
         string currentSceneName = SceneManager.GetActiveScene().name;
-        // EventSystem eventSystem = FindObjectOfType<EventSystem>();
-        // if (eventSystem != null) eventSystem.enabled = false;
+        EventSystem eventSystem = FindObjectOfType<EventSystem>();
+        if (eventSystem != null) eventSystem.enabled = false;
         DOTween.KillAll();
         // Wait for the new scene to activate
         if (asyncLoad != null)
