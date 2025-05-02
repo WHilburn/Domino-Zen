@@ -42,6 +42,7 @@ public class PlacementIndicatorLineManager
 
     private void HandleOutlineAlpha(PlacementIndicator indicator)
     {
+        if (indicator.currentState == PlacementIndicator.IndicatorState.Filled) return;
         indicator.FadeOutline(1f, 0.25f); // Fade out the outline alpha
     }
 }

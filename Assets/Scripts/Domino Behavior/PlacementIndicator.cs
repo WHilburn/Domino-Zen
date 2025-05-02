@@ -22,6 +22,7 @@ public class PlacementIndicator : DominoLike
     static readonly float placementThreshold = 0.1f; // Distance threshold for placement
     static readonly float alignmentAngleThreshold = 10f; // Angle threshold for alignment
     public Color indicatorColor = Color.white; // Color of the indicator
+    public bool colorHidden = false; // Flag to hide the color
     public DominoSoundManager.DominoSoundType soundType; // Sound type for the placement indicator
 
     public enum IndicatorState { Empty, TryingToFill, Filled, Disabled } // Define states
@@ -53,34 +54,41 @@ public class PlacementIndicator : DominoLike
 
     void Update()
     {
-        if (!Application.isPlaying) return;
-        switch (currentState)
+        if (Application.isPlaying)
         {
-            case IndicatorState.Empty:
-                // Wait for a collision with a domino
-                break;
-            case IndicatorState.Disabled:
-                // Nothing can happen until enabled
-                break;
+            switch (currentState)
+            {
+                case IndicatorState.Empty:
+                    // Wait for a collision with a domino
+                    break;
+                case IndicatorState.Disabled:
+                    // Nothing can happen until enabled
+                    break;
 
-            case IndicatorState.TryingToFill:
-                if (trackedDomino != null)
-                {
-                    Debug.DrawLine(transform.position, trackedDomino.transform.position, Color.yellow);
-                    CheckDominoPlacement();
-                }
-                break;
+                case IndicatorState.TryingToFill:
+                    if (trackedDomino != null)
+                    {
+                        // Debug.DrawLine(transform.position, trackedDomino.transform.position, Color.yellow);
+                        CheckDominoPlacement();
+                    }
+                    break;
 
-            case IndicatorState.Filled:
-                if (trackedDomino.currentState == Domino.DominoState.Held)
-                {
-                    currentState = IndicatorState.TryingToFill;
-                    OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty
-                    OnIndicatorEmptiedInstance.Invoke(); // Notify individual subscribers
-                    Debug.Log("Indicator fading in because the domino was lifted: " + trackedDomino.name);
-                    FadeIn(); // Fade back in if the domino is removed
-                }
-                break;
+                case IndicatorState.Filled:
+                    if (trackedDomino.currentState == Domino.DominoState.Held)
+                    {
+                        currentState = IndicatorState.TryingToFill;
+                        OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty
+                        OnIndicatorEmptiedInstance.Invoke(); // Notify individual subscribers
+                        Debug.Log("Indicator fading in because the domino was lifted: " + trackedDomino.name);
+                        FadeIn(); // Fade back in if the domino is removed
+                    }
+                    break;
+            }
+        }
+        else {
+            if (colorHidden) indicatorMaterial.color = Color.white; // Set material to white in the editor
+            else indicatorMaterial.color = indicatorColor; // Restore the internal color in the editor
+            indicatorMaterial.color = new Color(indicatorMaterial.color.r, indicatorMaterial.color.g, indicatorMaterial.color.b, maxAlpha);
         }
     }
 
@@ -186,12 +194,10 @@ public class PlacementIndicator : DominoLike
         // Assign the sound type to the domino
         if (soundType != DominoSoundManager.DominoSoundType.Default) trackedDomino.soundType = soundType;
         // Reset the domino's position using the rotate reset animation
-        trackedDominoRb.GetComponent<DominoSkin>().colorOverride = indicatorColor; // Set the color so it can be tweened
+        trackedDominoRb.GetComponent<DominoSkin>().colorOverride = indicatorColor; // Use the internal color for the domino
         trackedDomino.AnimateDomino(Domino.DominoAnimation.Rotate);
 
-        // Fade out the indicator
-        FadeOut();
-        FadeOutline(0f, fadeSpeed); // Fade out the outline
+        FadeOut(); // Fade out the indicator and outline
         // Debug.Log("Indicator filled: " + trackedDomino.name);
         currentState = IndicatorState.Filled; // Transition to Placed state
         OnIndicatorFilled.Invoke(this); // Notify that the indicator is filled (static event)
@@ -207,9 +213,10 @@ public class PlacementIndicator : DominoLike
     public void FadeOut(bool playSound = true)
     {
         if (playSound) soundManager.PlayPlacementSound(1);
-        // Debug.Log("Indicator fading out: " + gameObject.name);
+        FadeOutline(0f, fadeSpeed);
+        Debug.Log("Indicator fading out: " + gameObject.name);
 
-        indicatorRenderer.material.DOKill();
+        indicatorMaterial.DOKill();
         placementCollider.enabled = false;
         // Use DOTween to fade out the material's alpha
         indicatorMaterial.DOFade(0f, fadeSpeed).OnComplete(() =>
@@ -222,11 +229,12 @@ public class PlacementIndicator : DominoLike
     public void FadeIn(bool playSound = true)
     {
         if (playSound) soundManager.PlayPlacementSound(-1);
+        FadeOutline(.5f, fadeSpeed);
         // Debug.Log("Indicator fading in: " + gameObject.name);
         placementCollider.enabled = true;
         indicatorRenderer = GetComponent<Renderer>();
         indicatorRenderer.enabled = true;
-        indicatorRenderer.material.DOKill();
+        indicatorMaterial.DOKill();
         // Use DOTween to fade in the material's alpha
         indicatorMaterial.DOFade(maxAlpha, fadeSpeed);
     }
@@ -236,7 +244,7 @@ public class PlacementIndicator : DominoLike
         outlineMaterial.DOKill();
         outlineMaterial.DOFade(targetAlpha, duration).OnComplete(() =>
         {
-            outlineMaterial.DOFade(0.5f, duration);
+            if (targetAlpha == 1) outlineMaterial.DOFade(0.5f, duration);
         });
     }
 
