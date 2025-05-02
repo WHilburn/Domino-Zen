@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerObjectMovement : MonoBehaviour
@@ -22,9 +23,22 @@ public class PlayerObjectMovement : MonoBehaviour
         }
         Instance = this;
         // Create the placement indicator and disable it initially
-        relocationIndicator = Instantiate(PlayerDominoPlacement.Instance.cylinderPrefab, Vector3.zero, Quaternion.identity);
-        overlapMesh = relocationIndicator.GetComponent<OverlapMesh>();
-        relocationIndicator.SetActive(false);
+        StartCoroutine(CreatePlacementIndicator());
+    }
+
+    private IEnumerator CreatePlacementIndicator()
+    {
+        while (SceneLoader.asyncLoad != null)
+        {
+            yield return null; // Wait for the scene to load
+        }
+        if (relocationIndicator == null)
+        {
+            relocationIndicator = Instantiate(PlayerDominoPlacement.Instance.cylinderPrefab, Vector3.zero, Quaternion.identity);
+            overlapMesh = relocationIndicator.GetComponent<OverlapMesh>();
+        }
+        relocationIndicator.SetActive(false); // Hide the indicator initially
+        yield return null;
     }
 
     void Update()
@@ -78,20 +92,6 @@ public class PlayerObjectMovement : MonoBehaviour
             return hit.point;
         }
         return Vector3.zero;
-    }
-
-    private bool CanMoveObjectToPosition(Vector3 position)
-    {
-        position.y += 1.3f; // Adjust overlap sphere position upwards
-        Collider[] colliders = Physics.OverlapSphere(position, .5f);
-        foreach (Collider collider in colliders)
-        {
-            if (collider.gameObject != selectedObject) // Ignore the object being moved
-            {
-                return false; // Area is not empty
-            }
-        }
-        return true;
     }
 
     private void MoveObjectToPosition(Vector3 position)

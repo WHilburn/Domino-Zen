@@ -31,7 +31,7 @@ public class OverlapMesh : MonoBehaviour
 
     void OnTriggerStay(Collider other)
     {
-        if (!other.CompareTag("Bucket"))
+        if (!other.CompareTag("Bucket") && !other.isTrigger)
         {
             isOverlapping = true;
         }

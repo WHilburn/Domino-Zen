@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour
     public GameObject levelCompletePopup;
     public static UnityEvent OnLevelComplete = new UnityEvent(); // Event triggered when the level is completed
     public static int filledIndicators = 0; // Number of filled indicators in the scene
+    private Bucket bucket; // Reference to the Bucket script
 
     [SerializeField]
     private GameDifficulty editorGameDifficulty = GameDifficulty.Relaxed; // Backing field for editor
@@ -103,6 +104,13 @@ public class GameManager : MonoBehaviour
         RebuildAllIndicators(); // Initial rebuild
         elapsedTime = 0f; // Reset elapsed time at the start of the level
         isTiming = true; // Start the timer
+        bucket = FindObjectOfType<Bucket>(); // Find the Bucket script in the scene
+        if (bucket == null)
+        {
+            if (SceneManager.GetActiveScene().name != "Main Menu")
+            Debug.LogWarning("Bucket not found in the scene!");
+        }
+        else bucket.gameObject.SetActive(false);
         DominoResetManager.OnDominoesStoppedFalling.AddListener(OnDominoesStoppedFalling);
         gameDifficulty = editorGameDifficulty; // Synchronize static field with editor value
     }
@@ -134,13 +142,17 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        }
-
         if (debugMode)
         {
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            }
+            if (Input.GetKeyDown(KeyCode.K))
+            {
+                Debug.Log("K key pressed - triggering level completion.");
+                CheckCompletion();
+            }
             for (int i = 0; i <= 9; i++)
             {
                 if (Input.GetKeyDown(KeyCode.Alpha0 + i))
@@ -154,12 +166,6 @@ public class GameManager : MonoBehaviour
         if (isTiming && !gamePaused && !levelComplete)
         {
             elapsedTime += Time.deltaTime; // Increment elapsed time
-        }
-
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            Debug.Log("K key pressed - triggering level completion.");
-            CheckCompletion();
         }
     }
 
@@ -200,6 +206,27 @@ public class GameManager : MonoBehaviour
         editorGameDifficulty = newDifficulty; // Update editor field
         Debug.Log($"Game difficulty set to {gameDifficulty}");
         OnGameDifficultyChanged.Invoke(newDifficulty); // Trigger the event
+        HandleBucketState();
+    }
+
+    public void HandleBucketState()
+    {
+        if (gameDifficulty == GameDifficulty.Intense)
+        {
+            if (bucket != null)
+            {
+                bucket.gameObject.SetActive(true);
+                PlayerDominoPlacement.Instance.bucketModeEnabled = true;
+            }
+        }
+        else
+        {
+            if (bucket != null)
+            {
+                bucket.gameObject.SetActive(false);
+                PlayerDominoPlacement.Instance.bucketModeEnabled = false;
+            }
+        }
     }
 
     private void OnResetStartHandler()
