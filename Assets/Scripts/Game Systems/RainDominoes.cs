@@ -38,7 +38,6 @@ public class DominoRain : MonoBehaviour {
         while (raining) {
             SpawnDomino();
             if (dominoesHaveBeenDeleted && SceneLoader.asyncLoad.progress >= 0.9f) {
-                Debug.Log("Completing scene transition.");
                 raining = false;
                 StartCoroutine(FadeOutAudio(2f));
                 SceneLoader.Instance.CompleteSceneTransition();

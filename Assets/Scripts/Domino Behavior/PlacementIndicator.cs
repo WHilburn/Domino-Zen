@@ -119,7 +119,7 @@ public class PlacementIndicator : DominoLike
 
     private void OnTriggerExit(Collider other)
     {
-        if (!other.CompareTag("DominoTag"))
+        if (!other.CompareTag("DominoTag") || DominoResetManager.Instance != null && DominoResetManager.Instance.currentState == DominoResetManager.ResetState.Idle)
         {
             return; // Ignore if the collider is not a domino
         }
@@ -191,21 +191,19 @@ public class PlacementIndicator : DominoLike
 
         // Set the domino's stable position and rotation
         trackedDomino.SaveStablePosition(transform);
-        // Assign the sound type to the domino
         if (soundType != DominoSoundManager.DominoSoundType.Default) trackedDomino.soundType = soundType;
         // Reset the domino's position using the rotate reset animation
         trackedDominoRb.GetComponent<DominoSkin>().colorOverride = indicatorColor; // Use the internal color for the domino
         trackedDomino.AnimateDomino(Domino.DominoAnimation.Rotate);
 
         FadeOut(); // Fade out the indicator and outline
-        // Debug.Log("Indicator filled: " + trackedDomino.name);
-        currentState = IndicatorState.Filled; // Transition to Placed state
+        currentState = IndicatorState.Filled;
         OnIndicatorFilled.Invoke(this); // Notify that the indicator is filled (static event)
         OnIndicatorFilledInstance.Invoke(); // Notify individual subscribers
         trackedDomino.placementIndicator = this;
         GameManager.Instance.CheckCompletion(); // Check if all indicators are filled
         Domino.OnDominoPlacedCorrectly.Invoke(trackedDomino);
-        placementCollider.enabled = false; // Disable the placement collider
+        placementCollider.enabled = false;
     }
     #endregion
 
@@ -214,11 +212,8 @@ public class PlacementIndicator : DominoLike
     {
         if (playSound) soundManager.PlayPlacementSound(1);
         FadeOutline(0f, fadeSpeed);
-        Debug.Log("Indicator fading out: " + gameObject.name);
-
         indicatorMaterial.DOKill();
         placementCollider.enabled = false;
-        // Use DOTween to fade out the material's alpha
         indicatorMaterial.DOFade(0f, fadeSpeed).OnComplete(() =>
         {
             indicatorRenderer.enabled = false; // Disable the renderer after fading out
@@ -230,12 +225,10 @@ public class PlacementIndicator : DominoLike
     {
         if (playSound) soundManager.PlayPlacementSound(-1);
         FadeOutline(.5f, fadeSpeed);
-        // Debug.Log("Indicator fading in: " + gameObject.name);
         placementCollider.enabled = true;
         indicatorRenderer = GetComponent<Renderer>();
         indicatorRenderer.enabled = true;
         indicatorMaterial.DOKill();
-        // Use DOTween to fade in the material's alpha
         indicatorMaterial.DOFade(maxAlpha, fadeSpeed);
     }
 
@@ -252,11 +245,7 @@ public class PlacementIndicator : DominoLike
     {
         indicatorColor = inputColor;
         inputColor.a = Mathf.Clamp(inputColor.a, 0f, maxAlpha);
-
-        // Update the indicator material
         indicatorMaterial.color = inputColor;
-
-        // Update the outline material
         Color outlineColor = outlineMaterial.color;
         outlineColor.a = Mathf.Clamp(outlineColor.a, 0f, maxAlpha);
         outlineMaterial.color = outlineColor;

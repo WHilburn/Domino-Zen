@@ -14,7 +14,7 @@ public class DominoResetManager : MonoBehaviour
     public HashSet<Domino> fallenDominoes = new();
     public HashSet<Domino> checkpointedDominoes = new(); // Dominoes locked at checkpoints
     private HashSet<Domino> waitingForCheckpoint = new(); // Dominoes that are waiting until the next checkpoint to lock
-    public static float resetDelay = 1.2f;
+    public static float resetDelay = 1.25f;
     public static float timeUntilReset;
     public static float resetDuration = 1f;
     public Domino.DominoAnimation resetAnimation = Domino.DominoAnimation.Rotate;

@@ -157,14 +157,16 @@ public class InGameUI : MonoBehaviour
     {
         if (DominoResetManager.Instance.currentState == DominoResetManager.ResetState.ResetUpcoming &&
             !CameraController.isTracking &&
-            DominoResetManager.timeUntilReset <= DominoResetManager.resetDelay - 0.17f)
+            DominoResetManager.timeUntilReset <= DominoResetManager.resetDelay - 0.25f &&
+            !GameManager.levelComplete)
         {
             resetWarning.SetActive(true);
             resetCountdown.fillAmount = 1;// - (DominoResetManager.timeUntilReset / (DominoResetManager.resetDelay - 0.17f)); // Update countdown fill amount
             resetCountdown.rectTransform.Rotate(Vector3.forward, 90 * Time.deltaTime);
             resetWarningText.text = "Reset triggered";
         }
-        else if (DominoResetManager.Instance.currentState == DominoResetManager.ResetState.Resetting)
+        else if (DominoResetManager.Instance.currentState == DominoResetManager.ResetState.Resetting &&
+        !GameManager.levelComplete)
         {
             resetWarning.SetActive(true);
             resetCountdown.fillAmount = 1; // Reset fill amount to 0
