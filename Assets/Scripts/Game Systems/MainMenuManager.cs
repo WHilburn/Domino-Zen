@@ -61,7 +61,7 @@ public class MainMenuManager : MonoBehaviour
         // Update the level description text
         if (levelDescription != null && level != null)
         {
-            levelDescription.text = $"{level.levelName}\n<size=12>{level.description}</size>";
+            levelDescription.text = $"{level.levelName}\n<size=16>{level.description}</size>";
         }
 
         UpdateLevelPreviewImage(); // Update the preview image when a new level is selected

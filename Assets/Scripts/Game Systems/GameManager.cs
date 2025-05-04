@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
     public static UnityEvent OnLevelComplete = new UnityEvent(); // Event triggered when the level is completed
     public static int filledIndicators = 0; // Number of filled indicators in the scene
     private Bucket bucket; // Reference to the Bucket script
+    public GameObject dominoPrefab; // Prefab for the domino
 
     [SerializeField]
     private GameDifficulty editorGameDifficulty = GameDifficulty.Relaxed; // Backing field for editor
@@ -113,15 +114,18 @@ public class GameManager : MonoBehaviour
         else bucket.gameObject.SetActive(false);
         DominoResetManager.OnDominoesStoppedFalling.AddListener(OnDominoesStoppedFalling);
         gameDifficulty = editorGameDifficulty; // Synchronize static field with editor value
+        if (SceneManager.GetActiveScene().name != "Main Menu")
+        LevelProgressManager.LoadProgress(SceneManager.GetActiveScene().name, allIndicators); // Load progress at the start of the level
     }
 
     void OnDestroy()
     {
-        if (Instance == this)
+        if (SceneManager.GetActiveScene().name != "Main Menu")
         {
             SceneManager.sceneLoaded -= OnSceneLoaded; // Unsubscribe from sceneLoaded event
             DominoResetManager.OnResetStart.RemoveListener(OnResetStartHandler); // Unsubscribe from OnResetStart event
             DominoResetManager.OnDominoesStoppedFalling.RemoveListener(OnDominoesStoppedFalling);
+            LevelProgressManager.SaveProgress(SceneManager.GetActiveScene().name, GetFilledIndicators()); // Save progress when the level is destroyed
         }
     }
 
@@ -274,5 +278,18 @@ public class GameManager : MonoBehaviour
 
         // Save the updated stats
         SaveLevelStats();
+    }
+
+    private HashSet<PlacementIndicator> GetFilledIndicators()
+    {
+        var filledIndicators = new HashSet<PlacementIndicator>();
+        foreach (var indicator in allIndicators)
+        {
+            if (indicator.currentState == PlacementIndicator.IndicatorState.Filled)
+            {
+                filledIndicators.Add(indicator);
+            }
+        }
+        return filledIndicators;
     }
 }

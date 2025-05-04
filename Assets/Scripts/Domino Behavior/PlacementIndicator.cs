@@ -1,7 +1,6 @@
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.Events;
-using UnityEditor;
 
 [ExecuteInEditMode]
 public class PlacementIndicator : DominoLike
@@ -10,8 +9,8 @@ public class PlacementIndicator : DominoLike
     private Renderer indicatorRenderer;
     public BoxCollider placementCollider; //Collider for placement detection
     public BoxCollider snapCollider; // Collider for snapping to the ground
-    [SerializeField] private Domino trackedDomino;
-    private Rigidbody trackedDominoRb;
+    public Domino trackedDomino;
+    public Rigidbody trackedDominoRb;
     private Material indicatorMaterial;
     private Material outlineMaterial;
 
@@ -179,6 +178,20 @@ public class PlacementIndicator : DominoLike
         }
     }
 
+    public void RestoreProgress()
+    {
+        trackedDomino = Instantiate(GameManager.Instance.dominoPrefab, transform.position, Quaternion.identity).GetComponent<Domino>();
+        trackedDominoRb = trackedDomino.GetComponent<Rigidbody>();
+        trackedDomino.GetComponent<DominoSkin>().colorOverride = indicatorColor;
+        FadeOut(false); // Fade out the indicator and outline
+        currentState = IndicatorState.Filled;
+        OnIndicatorFilled.Invoke(this); // Notify that the indicator is filled (static event)
+        OnIndicatorFilledInstance.Invoke(); // Notify individual subscribers
+        trackedDomino.placementIndicator = this;
+        placementCollider.enabled = false;
+        if (soundType != DominoSoundManager.DominoSoundType.Default) trackedDomino.soundType = soundType;
+    }
+
     private void PlaceDomino()
     {
         if (trackedDomino.stablePositionSet || //Dont allow domino to be placed if it already has a stable position set
@@ -204,6 +217,7 @@ public class PlacementIndicator : DominoLike
         GameManager.Instance.CheckCompletion(); // Check if all indicators are filled
         Domino.OnDominoPlacedCorrectly.Invoke(trackedDomino);
         placementCollider.enabled = false;
+        Debug.Log($"Indicator {GetInstanceID()} filled."); // Log the unique ID for debugging
     }
     #endregion
 
