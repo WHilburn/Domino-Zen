@@ -23,7 +23,7 @@ public class LevelProgressManager
 
         foreach (var indicator in filledIndicators)
         {
-            progressData.filledIndicatorIDs.Add(indicator.GetInstanceID().ToString());
+            progressData.filledIndicatorIDs.Add(indicator.UniqueID); // Use UniqueID
         }
 
         string json = JsonUtility.ToJson(progressData, true);
@@ -51,16 +51,16 @@ public class LevelProgressManager
 
         foreach (var indicator in allIndicators)
         {
-            if (progressData.filledIndicatorIDs.Contains(indicator.GetInstanceID().ToString()))
+            if (progressData.filledIndicatorIDs.Contains(indicator.UniqueID)) // Use UniqueID
             {
                 indicator.RestoreProgress(); // Restore the filled state and spawn a domino in the indicator
             }
-            // else Debug.Log($"Indicator {indicator.GetInstanceID()} not found in saved progress.");
         }
+
         var allIndicatorIDs = new List<string>();
         foreach (var indicator in allIndicators)
         {
-            allIndicatorIDs.Add(indicator.GetInstanceID().ToString());
+            allIndicatorIDs.Add(indicator.UniqueID); // Use UniqueID
         }
         foreach (var id in progressData.filledIndicatorIDs)
         {

@@ -2707,6 +2707,7 @@ MonoBehaviour:
   victoryAnimation: {fileID: 6618785023656291912}
   originatorDomino: {fileID: 0}
   levelCompletePopup: {fileID: 9151943275932769969}
+  dominoPrefab: {fileID: 3709038208395034117, guid: 336bcad52e1c74c77ae1b4939e3a0feb, type: 3}
   editorGameDifficulty: 0
   levels:
   - levelName: Tutorial

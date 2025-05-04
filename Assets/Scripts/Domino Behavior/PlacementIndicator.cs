@@ -13,6 +13,7 @@ public class PlacementIndicator : DominoLike
     public Rigidbody trackedDominoRb;
     private Material indicatorMaterial;
     private Material outlineMaterial;
+    public string UniqueID => $"{transform.position.x:F2}_{transform.position.y:F2}_{transform.position.z:F2}";
 
     [Header("Indicator Settings")]
     static DominoSoundManager soundManager;

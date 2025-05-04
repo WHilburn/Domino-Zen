@@ -134,6 +134,7 @@ public class GameManager : MonoBehaviour
         {
             yield return null; // Wait for the async load to complete
         }
+        yield return new WaitForSeconds(0.05f); // Wait for a short duration to ensure the scene is fully loaded
         if (SceneManager.GetActiveScene().name != "Main Menu")
             LevelProgressManager.LoadProgress(SceneManager.GetActiveScene().name, allIndicators); // Load progress at the start of the level
     }
