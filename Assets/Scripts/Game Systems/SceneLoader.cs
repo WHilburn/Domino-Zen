@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 using DG.Tweening;
-using Unity.VisualScripting;
 
 public class SceneLoader : MonoBehaviour
 {
@@ -29,11 +28,14 @@ public class SceneLoader : MonoBehaviour
 
     public void StartSceneTransitionCoroutine(string sceneName)
     {
+        if (SceneManager.GetActiveScene().name != "Main Menu")
+        {
+            LevelProgressManager.SaveProgress(SceneManager.GetActiveScene().name, GameManager.Instance.GetFilledIndicators()); // Save progress when the level is destroyed
+        }
         // Begin loading the scene asynchronously
         asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
         asyncLoad.allowSceneActivation = false; // Prevent automatic scene activation
         dominoRain.StartRain();
-
     }
 
     public void CompleteSceneTransition()

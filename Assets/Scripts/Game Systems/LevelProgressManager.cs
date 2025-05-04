@@ -28,16 +28,15 @@ public class LevelProgressManager
 
         string json = JsonUtility.ToJson(progressData, true);
         File.WriteAllText(Path.Combine(Application.persistentDataPath, SaveFileName), json);
-        Debug.Log($"Progress saved for level {levelName}.");
+        Debug.Log($"Progress saved for level {levelName} at {Application.persistentDataPath}/{SaveFileName}");
     }
 
     public static void LoadProgress(string levelName, HashSet<PlacementIndicator> allIndicators)
     {
         string filePath = Path.Combine(Application.persistentDataPath, SaveFileName);
-        GameObject dominoPrefab = GameManager.Instance.dominoPrefab;
         if (!File.Exists(filePath))
         {
-            Debug.LogWarning("No saved progress file found.");
+            Debug.LogWarning("No saved progress file found at " + filePath);
             return;
         }
 
@@ -46,7 +45,7 @@ public class LevelProgressManager
 
         if (progressData.levelName != levelName)
         {
-            Debug.LogWarning("Saved progress does not match the current level.");
+            Debug.LogWarning("Saved progress does not match the current level at " + filePath);
             return;
         }
 
@@ -56,8 +55,21 @@ public class LevelProgressManager
             {
                 indicator.RestoreProgress(); // Restore the filled state and spawn a domino in the indicator
             }
+            // else Debug.Log($"Indicator {indicator.GetInstanceID()} not found in saved progress.");
+        }
+        var allIndicatorIDs = new List<string>();
+        foreach (var indicator in allIndicators)
+        {
+            allIndicatorIDs.Add(indicator.GetInstanceID().ToString());
+        }
+        foreach (var id in progressData.filledIndicatorIDs)
+        {
+            if (!allIndicatorIDs.Contains(id))
+            {
+                Debug.LogWarning($"Indicator with ID {id} not found in the current scene.");
+            }
         }
 
-        Debug.Log($"Progress loaded for level {levelName}.");
+        Debug.Log($"Progress loaded for level {levelName} from {filePath}");
     }
 }

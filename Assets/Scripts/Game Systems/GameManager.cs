@@ -4,6 +4,7 @@ using DG.Tweening;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using System;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -80,7 +81,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"No saved stats found for level: {levelName}. Using default values.");
+            // Debug.LogWarning($"No saved stats found for level: {levelName}. Using default values.");
             stats.bestTime = float.MaxValue;
             stats.hardestDifficulty = GameDifficulty.Relaxed;
         }
@@ -114,19 +115,27 @@ public class GameManager : MonoBehaviour
         else bucket.gameObject.SetActive(false);
         DominoResetManager.OnDominoesStoppedFalling.AddListener(OnDominoesStoppedFalling);
         gameDifficulty = editorGameDifficulty; // Synchronize static field with editor value
-        if (SceneManager.GetActiveScene().name != "Main Menu")
-        LevelProgressManager.LoadProgress(SceneManager.GetActiveScene().name, allIndicators); // Load progress at the start of the level
+        // if (SceneManager.GetActiveScene().name != "Main Menu")
+        // LevelProgressManager.LoadProgress(SceneManager.GetActiveScene().name, allIndicators); // Load progress at the start of the level
+        StartCoroutine(LoadProgressCoroutine()); // Load progress at the start of the level
     }
 
-    void OnDestroy()
+    public void OnDestroy()
     {
-        if (SceneManager.GetActiveScene().name != "Main Menu")
+        SceneManager.sceneLoaded -= OnSceneLoaded; // Unsubscribe from sceneLoaded event
+        DominoResetManager.OnResetStart.RemoveListener(OnResetStartHandler); // Unsubscribe from OnResetStart event
+        DominoResetManager.OnDominoesStoppedFalling.RemoveListener(OnDominoesStoppedFalling);
+        // LevelProgressManager.SaveProgress(SceneManager.GetActiveScene().name, GetFilledIndicators()); // Save progress when the level is destroyed
+    }
+
+    private IEnumerator LoadProgressCoroutine()
+    {
+        while (SceneLoader.asyncLoad != null)
         {
-            SceneManager.sceneLoaded -= OnSceneLoaded; // Unsubscribe from sceneLoaded event
-            DominoResetManager.OnResetStart.RemoveListener(OnResetStartHandler); // Unsubscribe from OnResetStart event
-            DominoResetManager.OnDominoesStoppedFalling.RemoveListener(OnDominoesStoppedFalling);
-            LevelProgressManager.SaveProgress(SceneManager.GetActiveScene().name, GetFilledIndicators()); // Save progress when the level is destroyed
+            yield return null; // Wait for the async load to complete
         }
+        if (SceneManager.GetActiveScene().name != "Main Menu")
+            LevelProgressManager.LoadProgress(SceneManager.GetActiveScene().name, allIndicators); // Load progress at the start of the level
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -280,7 +289,7 @@ public class GameManager : MonoBehaviour
         SaveLevelStats();
     }
 
-    private HashSet<PlacementIndicator> GetFilledIndicators()
+    public HashSet<PlacementIndicator> GetFilledIndicators()
     {
         var filledIndicators = new HashSet<PlacementIndicator>();
         foreach (var indicator in allIndicators)
