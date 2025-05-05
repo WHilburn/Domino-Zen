@@ -181,9 +181,10 @@ public class PlacementIndicator : DominoLike
 
     public void RestoreProgress()
     {
-        trackedDomino = Instantiate(GameManager.Instance.dominoPrefab, transform.position, Quaternion.identity).GetComponent<Domino>();
+        trackedDomino = Instantiate(GameManager.Instance.dominoPrefab, transform.position, transform.rotation).GetComponent<Domino>();
         trackedDominoRb = trackedDomino.GetComponent<Rigidbody>();
         trackedDomino.GetComponent<DominoSkin>().colorOverride = indicatorColor;
+        Domino.OnDominoPlacedCorrectly.Invoke(trackedDomino);
         FadeOut(false); // Fade out the indicator and outline
         currentState = IndicatorState.Filled;
         OnIndicatorFilled.Invoke(this); // Notify that the indicator is filled (static event)
