@@ -219,7 +219,7 @@ public class PlacementIndicator : DominoLike
         GameManager.Instance.CheckCompletion(); // Check if all indicators are filled
         Domino.OnDominoPlacedCorrectly.Invoke(trackedDomino);
         placementCollider.enabled = false;
-        Debug.Log($"Indicator {GetInstanceID()} filled."); // Log the unique ID for debugging
+        // Debug.Log($"Indicator {GetInstanceID()} filled."); // Log the unique ID for debugging
     }
     #endregion
 

@@ -202,7 +202,7 @@ public class GameManager : MonoBehaviour
                 filledIndicators++;
             }
         }
-        Debug.Log($"Filled indicators: {filledIndicators} / {allIndicators.Count}");
+        // Debug.Log($"Filled indicators: {filledIndicators} / {allIndicators.Count}");
         if (filledIndicators == allIndicators.Count || Input.GetKeyDown(KeyCode.K))
         {
             Debug.Log("*** All indicators have been filled! ***");
