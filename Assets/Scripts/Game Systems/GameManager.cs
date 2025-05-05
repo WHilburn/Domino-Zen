@@ -135,7 +135,7 @@ public class GameManager : MonoBehaviour
             yield return null; // Wait for the async load to complete
         }
         yield return new WaitForSeconds(0.05f); // Wait for a short duration to ensure the scene is fully loaded
-        if (SceneManager.GetActiveScene().name != "Main Menu")
+        if (SceneManager.GetActiveScene().name != "Main Menu" && SceneManager.GetActiveScene().name != "Testing Level")
             LevelProgressManager.LoadProgress(SceneManager.GetActiveScene().name, allIndicators); // Load progress at the start of the level
     }
 
@@ -160,7 +160,7 @@ public class GameManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.T))
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                ResetLevel();
             }
             if (Input.GetKeyDown(KeyCode.K))
             {
@@ -181,6 +181,14 @@ public class GameManager : MonoBehaviour
         {
             elapsedTime += Time.deltaTime; // Increment elapsed time
         }
+    }
+
+    public void ResetLevel()
+    {
+        LevelProgressManager.ResetProgress();
+        SceneLoader.Instance.StartSceneTransitionCoroutine(SceneManager.GetActiveScene().name, true);
+        gamePaused = false; // Reset the game paused state
+        InGameUI.Instance.TogglePauseMenu(); // Close the pause menu if it's open
     }
 
     public void CheckCompletion()

@@ -55,6 +55,16 @@ public class DominoResetManager : MonoBehaviour
         }
     }
 
+    void Destroy()
+    {
+        Domino.OnDominoCreated.RemoveListener(domino => allDominoes.Add(domino));
+        Domino.OnDominoFall.RemoveListener(RegisterDominoForReset);
+        Domino.OnDominoDeleted.RemoveListener(RemoveDomino);
+        Domino.OnDominoPlacedCorrectly.RemoveListener(RegisterDominoPlacement);
+        GameManager.OnGameDifficultyChanged.RemoveListener(UpdateDifficulty);
+        GameManager.OnLevelComplete.RemoveListener(OnLevelCompleteHandler);
+    }
+
     private void InvokeUpdateDifficulty()
     {
         UpdateDifficulty(GameManager.gameDifficulty);

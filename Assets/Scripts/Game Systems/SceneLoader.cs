@@ -9,6 +9,7 @@ public class SceneLoader : MonoBehaviour
     public static AsyncOperation asyncLoad = null; // Store the async load operation
     public static SceneLoader Instance { get; private set; } // Singleton instance
     public DominoRain dominoRain; // Reference to the DominoRain script
+    private bool reloadScene = false; // Flag to indicate if the scene should be reloaded
 
     void Awake()
     {
@@ -26,15 +27,20 @@ public class SceneLoader : MonoBehaviour
         transform.position = GameManager.Instance.mainCamera.transform.position; // Keep the loader at the camera position
     }
 
-    public void StartSceneTransitionCoroutine(string sceneName)
+    public void StartSceneTransitionCoroutine(string sceneName, bool reloadScene = false)
     {
-        if (SceneManager.GetActiveScene().name != "Main Menu")
+        this.reloadScene = reloadScene; // Set the reload scene flag
+        if (reloadScene)
         {
-            LevelProgressManager.SaveProgress(SceneManager.GetActiveScene().name, GameManager.Instance.GetFilledIndicators()); // Save progress when the level is destroyed
+            if (SceneManager.GetActiveScene().name != "Main Menu")
+            {
+                LevelProgressManager.SaveProgress(SceneManager.GetActiveScene().name, GameManager.Instance.GetFilledIndicators()); // Save progress when the level is destroyed
+            }
+            // Begin loading the scene asynchronously
+            asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+            asyncLoad.allowSceneActivation = false; // Prevent automatic scene activation
         }
-        // Begin loading the scene asynchronously
-        asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-        asyncLoad.allowSceneActivation = false; // Prevent automatic scene activation
+
         dominoRain.StartRain();
     }
 
@@ -45,25 +51,45 @@ public class SceneLoader : MonoBehaviour
 
     private IEnumerator CompleteSceneTransitionCoroutine()
     {
-        string currentSceneName = SceneManager.GetActiveScene().name;
-        EventSystem eventSystem = FindObjectOfType<EventSystem>();
-        if (eventSystem != null) eventSystem.enabled = false;
-        DOTween.KillAll();
-        // Wait for the new scene to activate
-        if (asyncLoad != null)
+        if (!reloadScene)
         {
-            asyncLoad.allowSceneActivation = true; // Allow scene activation
-            while (!asyncLoad.isDone)
+            string currentSceneName = SceneManager.GetActiveScene().name;
+            EventSystem eventSystem = FindObjectOfType<EventSystem>();
+            if (eventSystem != null) eventSystem.enabled = false;
+            foreach (var domino in DominoResetManager.Instance.allDominoes)
             {
-                yield return null;
+                domino.gameObject.SetActive(false); // Destroy each domino
             }
-            asyncLoad = null; // Reset the async load operation
+            DominoResetManager.Instance.allDominoes.Clear(); // Clear the list of all dominoes
+            foreach (var indicator in GameManager.Instance.allIndicators)
+            {
+                indicator.gameObject.SetActive(false);
+            }
+            GameManager.Instance.allIndicators.Clear(); // Clear the list of all indicators
+            DOTween.KillAll();
+            // Wait for the new scene to activate
+            if (asyncLoad != null)
+            {
+
+                asyncLoad.allowSceneActivation = true; // Allow scene activation
+                while (!asyncLoad.isDone)
+                {
+                    yield return null;
+                }
+                asyncLoad = null; // Reset the async load operation
+            }
+            yield return SceneManager.UnloadSceneAsync(currentSceneName);
         }
-        yield return SceneManager.UnloadSceneAsync(currentSceneName);
+        else
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+
         // DOTween.KillAll();
         GameManager.gamePaused = false; // Reset the game paused state
         GameManager.levelComplete = false; // Reset the level complete flag
         GameManager.elapsedTime = 0f; // Reset the elapsed time
         GameManager.filledIndicators = 0;
+        reloadScene = false;
     }
 }

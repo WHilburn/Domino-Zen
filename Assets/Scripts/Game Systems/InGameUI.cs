@@ -337,7 +337,7 @@ public class InGameUI : MonoBehaviour
     #endregion
 
     #region UI Animations
-    private void TogglePauseMenu()
+    public void TogglePauseMenu()
     {
         GameManager.gamePaused = !GameManager.gamePaused; // Toggle the pause state
         if (pauseMenu != null)
