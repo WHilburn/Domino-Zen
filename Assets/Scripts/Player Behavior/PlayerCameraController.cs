@@ -139,6 +139,7 @@ public class PlayerCameraController : MonoBehaviour
     private void HandleVerticalMovement()
     {
         // Add vertical movement smoothly
+        if (PlayerDominoPlacement.heldDomino != null) return; // Prevent vertical movement if a domino is held
         moveDirection += Vector3.up * Input.GetAxis("Up/Down") * 0.75f;
     }
 

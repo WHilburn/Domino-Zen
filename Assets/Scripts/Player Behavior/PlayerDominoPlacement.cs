@@ -19,7 +19,8 @@ public class PlayerDominoPlacement : MonoBehaviour
     private float savedDrag;
     private float savedAngularDrag;
     public float maxHandSpeed = 3f;
-    public float hoverOffset = 1.6f;
+    public readonly float defaultHoverOffset = 1.6f;
+    public float hoverOffset = 1.6f; // Offset for the hand above the domino
     public float rotationSpeed = 100f;
     public float maxDistance = 15f; // Maximum distance from the camera
     public Camera activeCamera;
@@ -97,10 +98,11 @@ public class PlayerDominoPlacement : MonoBehaviour
         {
             MoveHeldDomino();
             HandleRotation();
+            HandleVerticalMovement(); // Handle vertical movement of the hand
             heldDomino.GetComponent<Domino>().currentState = Domino.DominoState.Held; // Ensure the state is held
         }
 
-        obstruction = placementDecalManager.CheckForObstruction(heldDomino, savedRotation, hoverOffset); // Check for obstructions
+        obstruction = placementDecalManager.CheckForObstruction(heldDomino, savedRotation, defaultHoverOffset); // Check for obstructions
 
         if (Input.GetKeyDown(KeyCode.Space) && placementEnabled)
         {
@@ -202,6 +204,7 @@ public class PlayerDominoPlacement : MonoBehaviour
             if (bucket == null) return; // Exit if not pointing at a bucket
         }
 
+        hoverOffset = defaultHoverOffset; // Reset hover offset to default
         Vector3 spawnPos = GetMouseWorldPosition();
         Quaternion spawnRotation = savedRotation;
         if (bucketModeEnabled)
@@ -438,6 +441,12 @@ public class PlayerDominoPlacement : MonoBehaviour
             // Apply the torque to the rigidbody
             heldRb.AddTorque(torque * rotationSpeed, ForceMode.Force);
         }
+    }
+
+    void HandleVerticalMovement()
+    {
+        hoverOffset += Input.GetAxis("Raise/Lower Domino") * 0.125f; // Adjust the hover offset based on input
+        hoverOffset = Mathf.Clamp(hoverOffset, DominoLike.standardDimensions.y / 2 + .1f, 3f); // Clamp the hover offset to a reasonable range
     }
 
     private Vector3 AdjustSpawnPosition(Vector3 position)

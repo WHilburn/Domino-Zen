@@ -38,15 +38,18 @@ public class InGameUI : MonoBehaviour
     public GameObject buttonPrompt1; // Refers to the buttom prompt reminders that pop up when mousing over interactable items
     public GameObject buttonPrompt2;
     public GameObject buttonPrompt3;
+    public GameObject buttonPrompt4;
     public GameObject resetWarning;
     public Image resetCountdown;
     public TextMeshProUGUI resetWarningText;
     public TextMeshProUGUI KeybindText1;
     public TextMeshProUGUI KeybindText2;
     public TextMeshProUGUI KeybindText3;
+    public TextMeshProUGUI KeybindText4;
     public TextMeshProUGUI buttonActionText1;
     public TextMeshProUGUI buttonActionText2;
     public TextMeshProUGUI buttonActionText3;
+    public TextMeshProUGUI buttonActionText4;
     #endregion
 
     #region Static Variables
@@ -185,15 +188,20 @@ public class InGameUI : MonoBehaviour
         string interactKey = "C";
         string rotatePositiveKey = "Q";
         string rotateNegativeKey = "E";
+        string raiseDominoKey = "R";
+        string lowerDominoKey = "F";
         string cancelKey = "Escape";
         string spawnAndDropDominoKey = "Space";
         string pickUpDominoKey = "Left Mouse";
+        string aimCameraKey = "Right Mouse";
+        string moveCameraKey = " W \nASD";
 
         if (!PlayerDominoPlacement.Instance.ControlsActive()) // Hide button prompts if paused or in reset state
         {
             buttonPrompt1.SetActive(false); 
             buttonPrompt2.SetActive(false);
             buttonPrompt3.SetActive(false);
+            buttonPrompt4.SetActive(false);
             return;
         }
 
@@ -203,12 +211,15 @@ public class InGameUI : MonoBehaviour
             buttonPrompt1.SetActive(true);
             buttonPrompt2.SetActive(true);
             buttonPrompt3.SetActive(true);
+            buttonPrompt4.SetActive(true);
             KeybindText1.text = $"{rotatePositiveKey}/{rotateNegativeKey}";
             buttonActionText1.text = "Rotate";
             KeybindText2.text = spawnAndDropDominoKey;
             buttonActionText2.text = "Drop";
             KeybindText3.text = cancelKey;
             buttonActionText3.text = "Delete";
+            KeybindText4.text = $"{raiseDominoKey}/{lowerDominoKey}";
+            buttonActionText4.text = "Raise/\nLower";
             return;
         }
         if (PlayerObjectMovement.isMovingObject)
@@ -216,8 +227,9 @@ public class InGameUI : MonoBehaviour
             buttonPrompt1.SetActive(true);
             buttonPrompt2.SetActive(true);
             buttonPrompt3.SetActive(false);
+            buttonPrompt4.SetActive(false);
             KeybindText1.text = pickUpDominoKey;
-            buttonActionText1.text = "Place Object";
+            buttonActionText1.text = "Place\nObject";
             KeybindText2.text = cancelKey;
             buttonActionText2.text = "Cancel";
             return;
@@ -232,6 +244,7 @@ public class InGameUI : MonoBehaviour
                 buttonPrompt1.SetActive(true);
                 buttonPrompt2.SetActive(true);
                 buttonPrompt3.SetActive(false);
+                buttonPrompt4.SetActive(false);
                 KeybindText1.text = pickUpDominoKey;
                 buttonActionText1.text = "Pick Up";
                 KeybindText2.text = interactKey;
@@ -243,17 +256,25 @@ public class InGameUI : MonoBehaviour
                 buttonPrompt1.SetActive(true);
                 buttonPrompt2.SetActive(true);
                 buttonPrompt3.SetActive(false);
+                buttonPrompt4.SetActive(false);
                 KeybindText1.text = spawnAndDropDominoKey;
-                buttonActionText1.text = "Pick Up Domino";
+                buttonActionText1.text = "Pick Up\nDomino";
                 KeybindText2.text = interactKey;
                 buttonActionText2.text = "Relocate";
             }
             else
             {
                 // Disable button prompts if no relevant object is under the cursor
-                buttonPrompt1.SetActive(false);
-                buttonPrompt2.SetActive(false);
-                buttonPrompt3.SetActive(false);
+                buttonPrompt1.SetActive(true);
+                buttonPrompt2.SetActive(true);
+                buttonPrompt3.SetActive(true);
+                buttonPrompt4.SetActive(false);
+                KeybindText1.text = moveCameraKey;
+                buttonActionText1.text = "Move\nCamera";
+                KeybindText2.text = aimCameraKey;
+                buttonActionText2.text = "Aim\nCamera";
+                KeybindText3.text = $"{raiseDominoKey}/{lowerDominoKey}";
+                buttonActionText3.text = "Camera\nUp/Down";
             }
         }
         else
@@ -262,6 +283,7 @@ public class InGameUI : MonoBehaviour
             buttonPrompt1.SetActive(false);
             buttonPrompt2.SetActive(false);
             buttonPrompt3.SetActive(false);
+            buttonPrompt4.SetActive(false);
         }
     }
     #endregion

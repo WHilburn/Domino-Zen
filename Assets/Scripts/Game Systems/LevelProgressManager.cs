@@ -72,4 +72,18 @@ public class LevelProgressManager
 
         Debug.Log($"Progress loaded for level {levelName} from {filePath}");
     }
+
+    public static void ResetProgress()
+    {
+        string filePath = Path.Combine(Application.persistentDataPath, SaveFileName);
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+            Debug.Log($"Progress reset. File deleted at {filePath}");
+        }
+        else
+        {
+            Debug.LogWarning($"No progress file found to reset at {filePath}");
+        }
+    }
 }
