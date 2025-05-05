@@ -3,8 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using DG.Tweening;
-using UnityEngine.InputSystem;
-using TMPro.Examples;
+using System.Collections;
 
 public class InGameUI : MonoBehaviour
 {
@@ -35,6 +34,7 @@ public class InGameUI : MonoBehaviour
     public Slider mysterySlider;
     public TextMeshProUGUI mysteryText;
     public TMP_Dropdown dominoSoundDropdown;
+    public Toggle controlReminderToggle;
     public TMP_Dropdown difficultyDropdown;
     public GameObject buttonPrompt1; // Refers to the buttom prompt reminders that pop up when mousing over interactable items
     public GameObject buttonPrompt2;
@@ -115,6 +115,12 @@ public class InGameUI : MonoBehaviour
             }
         });
 
+        // Wire up controlReminderToggle
+        controlReminderToggle.onValueChanged.AddListener((bool isOn) =>
+        {
+            UpdateButtonPrompts(); // Refresh button prompts visibility based on toggle state
+        });
+
         // Disable pause menu and options panel at start
         if (pauseMenu != null)
         {
@@ -138,6 +144,7 @@ public class InGameUI : MonoBehaviour
             confirmationPanel.SetActive(false); // Hide confirmation panel at start
             startOverButton.onClick.AddListener(startOverButtonPressed); // Wire up start over button
         }
+        StartCoroutine(LoadSettings()); // Load settings from PlayerPrefs
     }
 
     private void InitializeDropdownValues()
@@ -228,6 +235,15 @@ public class InGameUI : MonoBehaviour
 
     private void UpdateButtonPrompts()
     {
+        if (!controlReminderToggle.isOn || !PlayerDominoPlacement.Instance.ControlsActive()) // Hide all button prompts if toggle is off or controls disabled
+        {
+            buttonPrompt1.SetActive(false);
+            buttonPrompt2.SetActive(false);
+            buttonPrompt3.SetActive(false);
+            buttonPrompt4.SetActive(false);
+            return;
+        }
+
         // Retrieve input bindings, TEMP SOLUTION
         string interactKey = "C";
         string rotatePositiveKey = "Q";
@@ -240,14 +256,6 @@ public class InGameUI : MonoBehaviour
         string aimCameraKey = "Right Mouse";
         string moveCameraKey = " W \nASD";
 
-        if (!PlayerDominoPlacement.Instance.ControlsActive()) // Hide button prompts if paused or in reset state
-        {
-            buttonPrompt1.SetActive(false); 
-            buttonPrompt2.SetActive(false);
-            buttonPrompt3.SetActive(false);
-            buttonPrompt4.SetActive(false);
-            return;
-        }
 
         // Update based on certain game states
         if (PlayerDominoPlacement.heldDomino != null)
@@ -512,6 +520,7 @@ public class InGameUI : MonoBehaviour
         volumeSlider.interactable = !disable;
         dominoSoundDropdown.interactable = !disable;
         difficultyDropdown.interactable = !disable;
+        controlReminderToggle.interactable = !disable;
     }
 
     public void DismissConfirmationPanel()
@@ -520,4 +529,55 @@ public class InGameUI : MonoBehaviour
         DisableAllButtons(false); // Re-enable all buttons
     }
     #endregion
+
+    #region Settings Persistence
+    public void SaveSettings()
+    {
+        PlayerPrefs.SetFloat("Volume", volumeSlider.value);
+        PlayerPrefs.SetFloat("FOV", fovSlider.value);
+        PlayerPrefs.SetInt("ControlReminder", controlReminderToggle.isOn ? 1 : 0);
+        PlayerPrefs.SetInt("DominoSound", dominoSoundDropdown.value);
+        PlayerPrefs.Save();
+    }
+
+    public IEnumerator LoadSettings()
+    {
+        yield return null;
+        if (PlayerPrefs.HasKey("Volume"))
+        {
+            float volume = PlayerPrefs.GetFloat("Volume");
+            volumeSlider.value = volume;
+            UpdateVolume(volume);
+        }
+
+        if (PlayerPrefs.HasKey("FOV"))
+        {
+            float fov = PlayerPrefs.GetFloat("FOV");
+            fovSlider.value = fov;
+            UpdateFOV(fov);
+        }
+
+        if (PlayerPrefs.HasKey("ControlReminder"))
+        {
+            bool controlReminder = PlayerPrefs.GetInt("ControlReminder") == 1;
+            controlReminderToggle.isOn = controlReminder;
+        }
+
+        if (PlayerPrefs.HasKey("DominoSound"))
+        {
+            int dominoSound = PlayerPrefs.GetInt("DominoSound");
+            dominoSoundDropdown.value = dominoSound;
+            dominoSoundDropdown.RefreshShownValue();
+            if (DominoSoundManager.Instance != null)
+            {
+                DominoSoundManager.Instance.SetDominoSound(dominoSound);
+            }
+        }
+    }
+    #endregion
+
+    void OnApplicationQuit()
+    {
+        SaveSettings(); // Save settings when the application quits
+    }
 }

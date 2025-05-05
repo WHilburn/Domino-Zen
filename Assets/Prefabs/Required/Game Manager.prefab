@@ -5561,6 +5561,7 @@ MonoBehaviour:
   mysterySlider: {fileID: 4494422845234200130}
   mysteryText: {fileID: 5597232677939755004}
   dominoSoundDropdown: {fileID: 1073446687514348771}
+  controlReminderToggle: {fileID: 7288047921135716467}
   difficultyDropdown: {fileID: 8128786997946566260}
   buttonPrompt1: {fileID: 378532111339994647}
   buttonPrompt2: {fileID: 2669075285569952051}
@@ -6416,6 +6417,10 @@ PrefabInstance:
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: SetGlobalVolume
       objectReference: {fileID: 0}
+    - target: {fileID: 443661021801974061, guid: 444619dbcae0a4c09acf388ef1ed8a52, type: 3}
+      propertyPath: m_Name
+      value: Control Reminders Toggle
+      objectReference: {fileID: 0}
     - target: {fileID: 1353065274057214169, guid: 444619dbcae0a4c09acf388ef1ed8a52, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -6838,6 +6843,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7288047921135716467 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7556460943114008038, guid: 444619dbcae0a4c09acf388ef1ed8a52, type: 3}
+  m_PrefabInstance: {fileID: 1007022673860885909}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &1469435208447885080

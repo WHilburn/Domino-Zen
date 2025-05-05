@@ -40,7 +40,10 @@ public class SceneLoader : MonoBehaviour
             asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
             asyncLoad.allowSceneActivation = false; // Prevent automatic scene activation
         }
-
+        if (InGameUI.Instance != null)
+        {
+            InGameUI.Instance.SaveSettings();
+        }
         dominoRain.StartRain();
     }
 

@@ -177,7 +177,7 @@ public class DominoResetManager : MonoBehaviour
     #region Checkpoint Management
     private void CheckpointDomino(Domino domino)
     {
-        domino.locked = true;
+        // domino.locked = true;
         checkpointedDominoes.Add(domino);
 
         if (domino.placementIndicator != null)
