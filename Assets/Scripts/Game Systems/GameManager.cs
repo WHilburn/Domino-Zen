@@ -188,7 +188,7 @@ public class GameManager : MonoBehaviour
         LevelProgressManager.ResetProgress();
         SceneLoader.Instance.StartSceneTransitionCoroutine(SceneManager.GetActiveScene().name, true);
         gamePaused = false; // Reset the game paused state
-        InGameUI.Instance.TogglePauseMenu(); // Close the pause menu if it's open
+        InGameUI.Instance.TogglePauseMenu(false); // Close the pause menu if it's open
     }
 
     public void CheckCompletion()

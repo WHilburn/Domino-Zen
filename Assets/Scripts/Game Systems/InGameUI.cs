@@ -83,8 +83,8 @@ public class InGameUI : MonoBehaviour
         filledIndicatorCount = 0; // Initialize indicator count
 
         // Wire up buttons
-        pauseButton.onClick.AddListener(TogglePauseMenu);
-        unpauseButton.onClick.AddListener(TogglePauseMenu);
+        pauseButton.onClick.AddListener(HandlePauseButton);
+        unpauseButton.onClick.AddListener(HandlePauseButton);
         optionsButton.onClick.AddListener(ToggleOptionsPanel); // Update to use ToggleOptionsPanel
 
         // Wire up sliders
@@ -147,9 +147,9 @@ public class InGameUI : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetButtonDown("Menu")) // Poll the input manager for the "Menu" input
+        if (Input.GetButtonDown("Menu") && PlayerDominoPlacement.heldDomino == null) // Poll the input manager for the "Menu" input
         {
-            TogglePauseMenu();
+            HandlePauseButton();
         }
         UpdateResetWarning();
         UpdateButtonPrompts();
@@ -337,12 +337,17 @@ public class InGameUI : MonoBehaviour
     #endregion
 
     #region UI Animations
-    public void TogglePauseMenu()
+
+    public void HandlePauseButton()
     {
         GameManager.gamePaused = !GameManager.gamePaused; // Toggle the pause state
+        TogglePauseMenu(GameManager.gamePaused); // Show or hide the pause menu
+    }
+    public void TogglePauseMenu(bool on)
+    {
         if (pauseMenu != null)
         {
-            pauseMenu.SetActive(GameManager.gamePaused); // Toggle pause menu visibility
+            pauseMenu.SetActive(on); // Toggle pause menu visibility
         }
     }
 
