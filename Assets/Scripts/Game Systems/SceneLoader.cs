@@ -30,7 +30,7 @@ public class SceneLoader : MonoBehaviour
     public void StartSceneTransitionCoroutine(string sceneName, bool reloadScene = false)
     {
         this.reloadScene = reloadScene; // Set the reload scene flag
-        if (reloadScene)
+        if (!reloadScene)
         {
             if (SceneManager.GetActiveScene().name != "Main Menu")
             {
@@ -56,16 +56,6 @@ public class SceneLoader : MonoBehaviour
             string currentSceneName = SceneManager.GetActiveScene().name;
             EventSystem eventSystem = FindObjectOfType<EventSystem>();
             if (eventSystem != null) eventSystem.enabled = false;
-            foreach (var domino in DominoResetManager.Instance.allDominoes)
-            {
-                domino.gameObject.SetActive(false); // Destroy each domino
-            }
-            DominoResetManager.Instance.allDominoes.Clear(); // Clear the list of all dominoes
-            foreach (var indicator in GameManager.Instance.allIndicators)
-            {
-                indicator.gameObject.SetActive(false);
-            }
-            GameManager.Instance.allIndicators.Clear(); // Clear the list of all indicators
             DOTween.KillAll();
             // Wait for the new scene to activate
             if (asyncLoad != null)

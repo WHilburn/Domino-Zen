@@ -37,7 +37,7 @@ public class DominoRain : MonoBehaviour {
     IEnumerator RainDominoes() {
         while (raining) {
             SpawnDomino();
-            if (dominoesHaveBeenDeleted && SceneLoader.asyncLoad.progress >= 0.9f) {
+            if (dominoesHaveBeenDeleted && (SceneLoader.asyncLoad == null || SceneLoader.asyncLoad.progress >= 0.9f)) {
                 raining = false;
                 StartCoroutine(FadeOutAudio(2f));
                 SceneLoader.Instance.CompleteSceneTransition();
