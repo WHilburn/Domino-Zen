@@ -297,8 +297,8 @@ MonoBehaviour:
   m_UVBias: {x: 0, y: 0}
   m_DecalLayerMask: 1
   m_ScaleMode: 0
-  m_Offset: {x: 0, y: -1, z: 0}
-  m_Size: {x: 0.51028, y: 1, z: 0.13904}
+  m_Offset: {x: 0, y: -2, z: 0}
+  m_Size: {x: 0.51028, y: 3, z: 0.13904}
   m_FadeFactor: 1
 --- !u!205 &6187838271345159952
 LODGroup:
@@ -318,7 +318,7 @@ LODGroup:
     fadeTransitionWidth: 0
     renderers:
     - renderer: {fileID: 1651528542644095334}
-  - screenRelativeHeight: 0.04724749
+  - screenRelativeHeight: 0.100534044
     fadeTransitionWidth: 0
     renderers:
     - renderer: {fileID: 6860525181692580436}

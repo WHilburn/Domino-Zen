@@ -185,7 +185,7 @@ public class InGameUI : MonoBehaviour
         {
             confirmationPanel.SetActive(true); // Show confirmation panel
             DisableAllButtons(true); // Disable all other buttons
-            confirmationText.text = "You have made progress. Are you sure you want to return to the main menu? Progress will be saved."; // Update confirmation text
+            confirmationText.text = "Are you sure you want to return to the main menu? Your progress will be saved."; // Update confirmation text
             confirmButton.onClick.RemoveAllListeners(); // Remove all listeners from the confirm button
             confirmButton.onClick.AddListener(() =>
             {
