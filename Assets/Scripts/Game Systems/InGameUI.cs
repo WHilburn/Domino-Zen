@@ -158,7 +158,7 @@ public class InGameUI : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetButtonDown("Menu") && PlayerDominoPlacement.heldDomino == null) // Poll the input manager for the "Menu" input
+        if (Input.GetButtonDown("Menu") && PlayerDominoPlacement.heldDomino == null)
         {
             HandlePauseButton();
         }
@@ -312,13 +312,18 @@ public class InGameUI : MonoBehaviour
                 buttonPrompt1.SetActive(true);
                 buttonPrompt2.SetActive(true);
                 buttonPrompt3.SetActive(true);
+                if (PlayerDominoPlacement.Instance.bucketModeEnabled)
                 buttonPrompt4.SetActive(false);
+                else
+                buttonPrompt4.SetActive(true);
                 KeybindText1.text = moveCameraKey;
                 buttonActionText1.text = "Move\nCamera";
                 KeybindText2.text = aimCameraKey;
                 buttonActionText2.text = "Aim\nCamera";
                 KeybindText3.text = $"{raiseDominoKey}/{lowerDominoKey}";
                 buttonActionText3.text = "Camera\nUp/Down";
+                KeybindText4.text = spawnAndDropDominoKey;
+                buttonActionText4.text = "Spawn\nDomino";
             }
         }
         else
@@ -405,6 +410,7 @@ public class InGameUI : MonoBehaviour
     public void HandlePauseButton()
     {
         GameManager.gamePaused = !GameManager.gamePaused; // Toggle the pause state
+        DismissConfirmationPanel();
         TogglePauseMenu(GameManager.gamePaused); // Show or hide the pause menu
     }
     public void TogglePauseMenu(bool on)
@@ -498,7 +504,7 @@ public class InGameUI : MonoBehaviour
         confirmButton.interactable = disable; // Ensure confirm and cancel buttons remain interactable
         cancelButton.interactable = disable;
         pauseButton.interactable = !disable;
-        unpauseButton.interactable = !disable;
+        // unpauseButton.interactable = !disable;
         startOverButton.interactable = !disable;
         optionsButton.interactable = !disable;
         mainMenuButton.interactable = !disable;
