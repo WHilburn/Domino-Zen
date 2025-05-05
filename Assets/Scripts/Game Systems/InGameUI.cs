@@ -25,6 +25,7 @@ public class InGameUI : MonoBehaviour
     public GameObject optionsPanel;
     public Button pauseButton;
     public Button unpauseButton;
+    public Button startOverButton;
     public Button optionsButton;
     public Button mainMenuButton;
     public Slider volumeSlider;
@@ -50,6 +51,10 @@ public class InGameUI : MonoBehaviour
     public TextMeshProUGUI buttonActionText2;
     public TextMeshProUGUI buttonActionText3;
     public TextMeshProUGUI buttonActionText4;
+    public TextMeshProUGUI confirmationText;
+    public GameObject confirmationPanel;
+    public Button confirmButton;
+    public Button cancelButton;
     #endregion
 
     #region Static Variables
@@ -86,6 +91,7 @@ public class InGameUI : MonoBehaviour
         pauseButton.onClick.AddListener(HandlePauseButton);
         unpauseButton.onClick.AddListener(HandlePauseButton);
         optionsButton.onClick.AddListener(ToggleOptionsPanel); // Update to use ToggleOptionsPanel
+        mainMenuButton.onClick.AddListener(mainMenuButtonPressed); // Wire up main menu button
 
         // Wire up sliders
         volumeSlider.onValueChanged.AddListener(UpdateVolume);
@@ -127,6 +133,11 @@ public class InGameUI : MonoBehaviour
             float totalWidth = pauseMenu.GetComponent<RectTransform>().rect.width;
             buttonPanel.sizeDelta = new Vector2(totalWidth / 3, buttonPanel.sizeDelta.y);
         }
+        if (confirmationPanel != null)
+        {
+            confirmationPanel.SetActive(false); // Hide confirmation panel at start
+            startOverButton.onClick.AddListener(startOverButtonPressed); // Wire up start over button
+        }
     }
 
     private void InitializeDropdownValues()
@@ -154,6 +165,39 @@ public class InGameUI : MonoBehaviour
         UpdateResetWarning();
         UpdateButtonPrompts();
         UpdateCountText();
+    }
+
+    public void LoadMainMenu()
+    {
+        SceneLoader.Instance.StartSceneTransitionCoroutine("Main Menu");
+    }
+
+    public void mainMenuButtonPressed()
+    {
+        if (GameManager.filledIndicators > 0) // Check if there is progress
+        {
+            confirmationPanel.SetActive(true); // Show confirmation panel
+            DisableAllButtons(true); // Disable all other buttons
+            confirmationText.text = "You have made progress. Are you sure you want to return to the main menu? Progress will be saved."; // Update confirmation text
+            confirmButton.onClick.RemoveAllListeners(); // Remove all listeners from the confirm button
+            confirmButton.onClick.AddListener(() =>
+            {
+                GameManager.Instance.SaveLevelStats(); // Save progress
+                SceneLoader.Instance.StartSceneTransitionCoroutine("Main Menu"); // Load main menu
+                confirmationPanel.SetActive(false); // Hide confirmation panel
+                DisableAllButtons(false); // Re-enable all buttons
+            });
+            cancelButton.onClick.RemoveAllListeners(); // Remove all listeners from the cancel button
+            cancelButton.onClick.AddListener(() =>
+            {
+                confirmationPanel.SetActive(false); // Hide confirmation panel
+                DisableAllButtons(false); // Re-enable all buttons
+            });
+        }
+        else
+        {
+            SceneLoader.Instance.StartSceneTransitionCoroutine("Main Menu"); // Load main menu directly
+        }
     }
 
     private void UpdateResetWarning()
@@ -289,6 +333,26 @@ public class InGameUI : MonoBehaviour
     #endregion
 
     #region Event Handlers
+    public void startOverButtonPressed()
+    {
+        confirmationPanel.SetActive(true); // Show confirmation panel
+        DisableAllButtons(true); // Disable all other buttons
+        confirmationText.text = "Are you sure you want to reset the level? All progress will be lost."; // Update confirmation text
+        confirmButton.onClick.RemoveAllListeners(); // Remove all listeners from the confirm button
+        confirmButton.onClick.AddListener(() =>
+        {
+            GameManager.Instance.ResetLevel(); // Reset the level
+            confirmationPanel.SetActive(false); // Hide confirmation panel
+            DisableAllButtons(false); // Re-enable all buttons
+        });
+        cancelButton.onClick.RemoveAllListeners(); // Remove all listeners from the cancel button
+        cancelButton.onClick.AddListener(() =>
+        {
+            confirmationPanel.SetActive(false); // Hide confirmation panel
+            DisableAllButtons(false); // Re-enable all buttons
+        });
+    }
+
     private void HandleIndicatorFilled(PlacementIndicator indicator)
     {
         if (filledIndicatorCount == 0) return; // Ensure the indicator count is valid
@@ -425,6 +489,29 @@ public class InGameUI : MonoBehaviour
         }
         sequence.Join(floatingText.DOFade(0, fadeDuration))
                 .OnComplete(() => Destroy(floatingText.gameObject));
+    }
+    #endregion
+
+    #region Helper Methods
+    private void DisableAllButtons(bool disable)
+    {
+        confirmButton.interactable = disable; // Ensure confirm and cancel buttons remain interactable
+        cancelButton.interactable = disable;
+        pauseButton.interactable = !disable;
+        unpauseButton.interactable = !disable;
+        startOverButton.interactable = !disable;
+        optionsButton.interactable = !disable;
+        mainMenuButton.interactable = !disable;
+        fovSlider.interactable = !disable;
+        volumeSlider.interactable = !disable;
+        dominoSoundDropdown.interactable = !disable;
+        difficultyDropdown.interactable = !disable;
+    }
+
+    public void DismissConfirmationPanel()
+    {
+        confirmationPanel.SetActive(false); // Hide confirmation panel
+        DisableAllButtons(false); // Re-enable all buttons
     }
     #endregion
 }
