@@ -6,6 +6,7 @@ using TMPro;
 using System.Collections.Generic;
 using Cinemachine;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class TutorialManager : MonoBehaviour
 {
@@ -22,10 +23,11 @@ public class TutorialManager : MonoBehaviour
     public static UnityEvent<bool> OnTogglePlacementControls = new(); //Events to enable/disable controls
     public static UnityEvent<bool> OnToggleCameraControls = new();
     public Camera mainCamera; // Reference to the main camera
-    public CinemachineVirtualCamera starterCamera; // Reference to the starter camera
+    public CinemachineVirtualCamera freemoveCamera; // Reference to the starter camera
     public Canvas uiCanvas; // Reference to the UI Canvas
     private Transform currentTarget; // Store the current target for the arrow
     private bool visible = true; // Flag to show/hide the tutorial
+    public GameObject bucket;
 
     public TutorialIndicatorCheck tutorialIndicatorCheck1;
     public TutorialIndicatorCheck tutorialIndicatorCheck2; // Reference to the tutorial indicator checks
@@ -70,6 +72,8 @@ public class TutorialManager : MonoBehaviour
         tutorialIndicatorCheck1.OnCompleteIndicatorRow.AddListener(OnCompleteIndicatorRow1);
         tutorialIndicatorCheck2.OnCompleteIndicatorRow.AddListener(OnCompleteIndicatorRow2);
         tutorialIndicatorCheck2.OnFillFourSlots.AddListener(OnFillFourIndicators);
+        tutorialIndicatorCheck3.OnCompleteIndicatorRow.AddListener(OnCompleteIndicatorRow2);
+        tutorialIndicatorCheck3.OnFillFourSlots.AddListener(OnFillFourIndicators);
 
         Domino.OnDominoCreated.AddListener(OnSpawnDomino);
         PlayerDominoPlacement.OnDominoReleased.AddListener(OnDropDomino);
@@ -99,15 +103,20 @@ public class TutorialManager : MonoBehaviour
         {
             tutorialButton.gameObject.SetActive(true); // Show the button
         }
-
+        
         placementEnabled = currentStep.placementEnabled;
         OnTogglePlacementControls.Invoke(placementEnabled);
         PlayerDominoPlacement.Instance.placementEnabled = placementEnabled; // Update the PlayerDominoPlacement script
         PlayerDominoPlacement.Instance.placementLimited = currentStep.limitedPlacement;
+        PlayerDominoPlacement.Instance.bucketModeEnabled = currentStep.bucketModeEnabled;
         visible = currentStep.visible;
         if (visible) audioSource.Play(); // Play the pop-up audio
+        PlayerCameraController.Instance.isCameraEnabled = currentStep.cameraEnabled; // Update the camera controls
 
-        SetCameraPriority(currentStep.cameraEnabled);
+        if (currentStep.cameraPositionOverride != null)
+        {
+            freemoveCamera.GetComponent<PlayerCameraController>().RelocateAndReorient(currentStep.cameraPositionOverride);
+        }
 
         if (currentStep.worldTarget != null)
         {
@@ -117,14 +126,13 @@ public class TutorialManager : MonoBehaviour
         {
             ClearArrows();
         }
+        if (currentStep.bucketModeEnabled)
+        {
+            bucket.SetActive(true); // Show the bucket
+            DrawArrowToTarget(bucket);
+        }
 
         if (currentStep.completionCondition == CompletionCondition.ClickButton) ActivateButton();
-    }
-
-    private void SetCameraPriority(bool enable)
-    {
-        starterCamera.Priority = enable ? 0 : 30;
-        OnToggleCameraControls.Invoke(enable);
     }
 
     private void ActivateButton()
@@ -176,9 +184,9 @@ public class TutorialManager : MonoBehaviour
         transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InBack).OnComplete(() => gameObject.SetActive(false));
     }
 
-    private void DrawArrowToTarget(GameObject target)
+    private void DrawArrowToTarget(GameObject target, bool clearOld = true)
     {
-        ClearArrows(); // Clear any existing arrows
+        if (clearOld) ClearArrows(); // Clear any existing arrows
 
         if (uiCanvas == null || target == null) return;
 

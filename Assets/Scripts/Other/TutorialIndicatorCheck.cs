@@ -6,7 +6,6 @@ public class TutorialIndicatorCheck : MonoBehaviour
 {
     public UnityEvent OnCompleteIndicatorRow = new UnityEvent();
     public UnityEvent OnFillFourSlots = new UnityEvent(); // Event to be invoked when four indicators are filled
-
     private List<PlacementIndicator> childIndicators = new List<PlacementIndicator>();
 
     private void Start()
@@ -27,16 +26,15 @@ public class TutorialIndicatorCheck : MonoBehaviour
             if (childIndicator.currentState != PlacementIndicator.IndicatorState.Filled)
             {
                 allIndicatorsFilled = false;
-                break;
             } // Check if all indicators are filled
             else
             {
                 filledCount++;
             }
-            if (filledCount == 4)
-            {
-                OnFillFourSlots.Invoke(); // Invoke the event when four indicators are filled
-            }
+        }
+        if (filledCount == 4)
+        {
+            OnFillFourSlots.Invoke(); // Invoke the event when four indicators are filled
         }
         if (allIndicatorsFilled)
         {

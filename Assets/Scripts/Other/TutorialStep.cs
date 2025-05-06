@@ -4,7 +4,7 @@ using UnityEngine;
 [Serializable]
 public class TutorialStep
 {
-    public string text;
+    [TextArea] public string text;
     public GameObject worldTarget; // What the arrow UI should point to
     public CompletionCondition completionCondition; // Enum to define completion condition
     public bool placementEnabled = true; // Flag to enable/disable controls
@@ -13,6 +13,7 @@ public class TutorialStep
     public bool visible = true; // Flag to show/hide the arrow UI
     public bool limitedPlacement = false; // Flag to limit placement to a specific area
     public bool bucketModeEnabled = false;
+    public Transform cameraPositionOverride; // Camera position override
 }
 
 public enum CompletionCondition

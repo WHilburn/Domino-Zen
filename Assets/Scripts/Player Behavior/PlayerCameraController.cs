@@ -114,6 +114,19 @@ public class PlayerCameraController : MonoBehaviour
         currentRotationY = initialEulerAngles.y;
     }
 
+    public void RelocateAndReorient(Transform targetTransform)
+    {
+        if (targetTransform == null) return;
+
+        // Set the camera's position and rotation to match the target transform
+        transform.position = targetTransform.position;
+        transform.rotation = targetTransform.rotation;
+
+        // Update the current rotation values to match the new orientation
+        currentRotationX = transform.eulerAngles.x;
+        currentRotationY = transform.eulerAngles.y;
+    }
+
     private float GetCurrentMoveSpeed()
     {
         return Input.GetKey(KeyCode.LeftShift) ? moveSpeed * 3f : moveSpeed;
