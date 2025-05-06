@@ -72,7 +72,7 @@ public class TutorialManager : MonoBehaviour
         tutorialIndicatorCheck1.OnCompleteIndicatorRow.AddListener(OnCompleteIndicatorRow1);
         tutorialIndicatorCheck2.OnCompleteIndicatorRow.AddListener(OnCompleteIndicatorRow2);
         tutorialIndicatorCheck2.OnFillFourSlots.AddListener(OnFillFourIndicators);
-        tutorialIndicatorCheck3.OnCompleteIndicatorRow.AddListener(OnCompleteIndicatorRow2);
+        tutorialIndicatorCheck3.OnCompleteIndicatorRow.AddListener(OnCompleteIndicatorRow3);
         tutorialIndicatorCheck3.OnFillFourSlots.AddListener(OnFillFourIndicators);
 
         Domino.OnDominoCreated.AddListener(OnSpawnDomino);
@@ -280,6 +280,10 @@ public class TutorialManager : MonoBehaviour
     private void OnCompleteIndicatorRow2()
     {
         CheckCompletionCondition(CompletionCondition.CompleteIndicatorRow2);
+    }
+    private void OnCompleteIndicatorRow3()
+    {
+        CheckCompletionCondition(CompletionCondition.CompleteIndicatorRow3);
     }
     private void OnCascadeStart()
     {
