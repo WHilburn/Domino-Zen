@@ -213,7 +213,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   steps:
-  - text: 'Welcome to Domino Zen. Placing dominoes can be very relaxing and meditative.  '
+  - text: Hey kiddo— I can't believe you're finally taking over the family domino business. I still remember the first time I placed a domino. Felt like enlightenment and back pain at the same time.
     worldTarget: {fileID: 0}
     completionCondition: 5
     placementEnabled: 0
@@ -223,8 +223,7 @@ MonoBehaviour:
     limitedPlacement: 1
     bucketModeEnabled: 0
     cameraPositionOverride: {fileID: 0}
-  - text: The goal of the game is to complete each level by filing in the transparent
-      indicator slots. Let's try it now.
+  - text: Your goal in each level is to fill in all those see-through marker slots with dominoes. Just like we used to do for the big parades—remember those?
     worldTarget: {fileID: 0}
     completionCondition: 5
     placementEnabled: 0
@@ -234,7 +233,7 @@ MonoBehaviour:
     limitedPlacement: 1
     bucketModeEnabled: 0
     cameraPositionOverride: {fileID: 0}
-  - text: Aim your mouse cursor at an indicator and press [SPACE] to create a domino.
+  - text: Try aiming your mouse cursor at one of those indicator spots and give [SPACE] a press. That'll summon a shiny new domino, fresh outta the design oven.
     worldTarget: {fileID: 0}
     completionCondition: 2
     placementEnabled: 1
@@ -244,8 +243,7 @@ MonoBehaviour:
     limitedPlacement: 1
     bucketModeEnabled: 0
     cameraPositionOverride: {fileID: 0}
-  - text: Press [SPACE] again to release the domino. The Blue marker on the ground
-      shows where it will land.
+  - text: Press [SPACE] again to let go of it. That Blue marker on the floor? That’s your landing zone. Like domino GPS, but less talkative.
     worldTarget: {fileID: 0}
     completionCondition: 4
     placementEnabled: 1
@@ -255,8 +253,7 @@ MonoBehaviour:
     limitedPlacement: 1
     bucketModeEnabled: 0
     cameraPositionOverride: {fileID: 0}
-  - text: The game has a robust physics simulation, and it's easy to accidentally
-      knock over dominoes if you aren't careful.
+  - text: Now, don’t get too wild, madam physics is a sensitive lady. These dominoes tumble faster than I do when I forget my arthritis meds.
     worldTarget: {fileID: 0}
     completionCondition: 5
     placementEnabled: 0
@@ -266,8 +263,7 @@ MonoBehaviour:
     limitedPlacement: 1
     bucketModeEnabled: 0
     cameraPositionOverride: {fileID: 0}
-  - text: Depending on the difficulty setting, the dominoes you've placed can reset
-      themselves after you knock them over.
+  - text: Depending on your difficulty settings, the dominoes can reset themselves if you knock 'em over too early. I like to call that the "Oops Insurance Plan."
     worldTarget: {fileID: 0}
     completionCondition: 5
     placementEnabled: 0
@@ -277,7 +273,7 @@ MonoBehaviour:
     limitedPlacement: 1
     bucketModeEnabled: 0
     cameraPositionOverride: {fileID: 0}
-  - text: Now fill in the rest of the indicators.
+  - text: Go ahead and fill in the rest of those indicators. I’m not saying I’m watching, but… I am watching. Proudly.
     worldTarget: {fileID: 0}
     completionCondition: 0
     placementEnabled: 1
@@ -287,8 +283,7 @@ MonoBehaviour:
     limitedPlacement: 1
     bucketModeEnabled: 0
     cameraPositionOverride: {fileID: 0}
-  - text: There are more down here. Use WASD to move the camera closer. R and F move
-      the camera up and down. Drag Right Mouse to aim the camera.
+  - text: There are more down here. Use WASD to stroll your camera around. R and F go up and down, like my blood pressure on taco night. Right Mouse drag aims the camera. Best get comfy doin' that.
     worldTarget: {fileID: 0}
     completionCondition: 8
     placementEnabled: 1
@@ -298,9 +293,7 @@ MonoBehaviour:
     limitedPlacement: 0
     bucketModeEnabled: 0
     cameraPositionOverride: {fileID: 0}
-  - text: To fill the indicators under the bridge, you'll need to lower the domino
-      before placing it. Press R or F while holding a domino to raise or lower it.
-      Move the camera to the other side of the bridge if you need to.
+  - text: See those indicators under the bridge? You’ll need to lower your dominoes before placing them. While holding one, press R or F to raise or lower it. Move your view if it helps. Get a good angle like we used to for the family photos.
     worldTarget: {fileID: 0}
     completionCondition: 1
     placementEnabled: 1
@@ -310,7 +303,7 @@ MonoBehaviour:
     limitedPlacement: 0
     bucketModeEnabled: 0
     cameraPositionOverride: {fileID: 0}
-  - text: Now point at this domino and press [C] to knock it over.
+  - text: Alright champ, time for the fun part. Point at this domino and hit [C] to give it a little love tap.
     worldTarget: {fileID: 0}
     completionCondition: 6
     placementEnabled: 0
@@ -330,8 +323,7 @@ MonoBehaviour:
     limitedPlacement: 1
     bucketModeEnabled: 0
     cameraPositionOverride: {fileID: 0}
-  - text: It looks like there are some dominoes missing here. Place the dominoes
-      along this curve, using [Q] and [E] to rotate your dominoes before placing.
+  - text: Hmm, looks like we’ve got a gap in the curve. You know what to do—place dominoes along the bend. Use [Q] and [E] to rotate 'em until they line up nice and snug, like socks in a drawer if you actually folded them.
     worldTarget: {fileID: 0}
     completionCondition: 8
     placementEnabled: 1
@@ -341,9 +333,7 @@ MonoBehaviour:
     limitedPlacement: 0
     bucketModeEnabled: 0
     cameraPositionOverride: {fileID: 0}
-  - text: Sometimes you may be required to manually draw new dominoes from a container
-      like this one. Click on the container and carefully drag your dominoes into
-      the remaining indicators.
+  - text: Some customers might make you go old-school and draw dominoes manually. See that container? Click it, then drag those dominoes over to the indicators real careful-like. No rush—we’re not making soup here.
     worldTarget: {fileID: 0}
     completionCondition: 9
     placementEnabled: 1
@@ -353,8 +343,7 @@ MonoBehaviour:
     limitedPlacement: 0
     bucketModeEnabled: 1
     cameraPositionOverride: {fileID: 0}
-  - text: Almost done! Now let's start the chain again. Point at the domino and press
-      [C] to flick.
+  - text: Just about there! Now let’s give this whole setup a grand finale. Point at the starting domino again and press [C] to flick. Light it up like it’s family game night!
     worldTarget: {fileID: 0}
     completionCondition: 6
     placementEnabled: 0
