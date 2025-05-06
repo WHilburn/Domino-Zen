@@ -6,7 +6,6 @@ using TMPro;
 using System.Collections.Generic;
 using Cinemachine;
 using System.Collections;
-using Unity.VisualScripting;
 
 public class TutorialManager : MonoBehaviour
 {

@@ -221,6 +221,8 @@ MonoBehaviour:
     cameraEnabled: 0
     visible: 1
     limitedPlacement: 1
+    bucketModeEnabled: 0
+    cameraPositionOverride: {fileID: 0}
   - text: The goal of the game is to complete each level by filing in the transparent
       indicator slots. Let's try it now.
     worldTarget: {fileID: 0}
@@ -230,6 +232,8 @@ MonoBehaviour:
     cameraEnabled: 0
     visible: 1
     limitedPlacement: 1
+    bucketModeEnabled: 0
+    cameraPositionOverride: {fileID: 0}
   - text: Aim your mouse cursor at an indicator and press [SPACE] to create a domino.
     worldTarget: {fileID: 0}
     completionCondition: 2
@@ -238,6 +242,8 @@ MonoBehaviour:
     cameraEnabled: 0
     visible: 1
     limitedPlacement: 1
+    bucketModeEnabled: 0
+    cameraPositionOverride: {fileID: 0}
   - text: Press [SPACE] again to release the domino. The Blue marker on the ground
       shows where it will land.
     worldTarget: {fileID: 0}
@@ -247,6 +253,8 @@ MonoBehaviour:
     cameraEnabled: 0
     visible: 1
     limitedPlacement: 1
+    bucketModeEnabled: 0
+    cameraPositionOverride: {fileID: 0}
   - text: The game has a robust physics simulation, and it's easy to accidentally
       knock over dominoes if you aren't careful.
     worldTarget: {fileID: 0}
@@ -256,6 +264,8 @@ MonoBehaviour:
     cameraEnabled: 0
     visible: 1
     limitedPlacement: 1
+    bucketModeEnabled: 0
+    cameraPositionOverride: {fileID: 0}
   - text: Depending on the difficulty setting, the dominoes you've placed can reset
       themselves after you knock them over.
     worldTarget: {fileID: 0}
@@ -265,6 +275,8 @@ MonoBehaviour:
     cameraEnabled: 0
     visible: 1
     limitedPlacement: 1
+    bucketModeEnabled: 0
+    cameraPositionOverride: {fileID: 0}
   - text: Now fill in the rest of the indicators.
     worldTarget: {fileID: 0}
     completionCondition: 0
@@ -273,6 +285,31 @@ MonoBehaviour:
     cameraEnabled: 0
     visible: 1
     limitedPlacement: 1
+    bucketModeEnabled: 0
+    cameraPositionOverride: {fileID: 0}
+  - text: There are more down here. Use WASD to move the camera closer. R and F move
+      the camera up and down. Drag Right Mouse to aim the camera.
+    worldTarget: {fileID: 0}
+    completionCondition: 8
+    placementEnabled: 1
+    flickEnables: 0
+    cameraEnabled: 1
+    visible: 1
+    limitedPlacement: 0
+    bucketModeEnabled: 0
+    cameraPositionOverride: {fileID: 0}
+  - text: To fill the indicators under the bridge, you'll need to lower the domino
+      before placing it. Press R or F while holding a domino to raise or lower it.
+      Move the camera to the other side of the bridge if you need to.
+    worldTarget: {fileID: 0}
+    completionCondition: 1
+    placementEnabled: 1
+    flickEnables: 0
+    cameraEnabled: 1
+    visible: 1
+    limitedPlacement: 0
+    bucketModeEnabled: 0
+    cameraPositionOverride: {fileID: 0}
   - text: Now point at this domino and press [C] to knock it over.
     worldTarget: {fileID: 0}
     completionCondition: 6
@@ -281,6 +318,8 @@ MonoBehaviour:
     cameraEnabled: 0
     visible: 1
     limitedPlacement: 1
+    bucketModeEnabled: 0
+    cameraPositionOverride: {fileID: 0}
   - text: 
     worldTarget: {fileID: 0}
     completionCondition: 7
@@ -289,6 +328,8 @@ MonoBehaviour:
     cameraEnabled: 1
     visible: 0
     limitedPlacement: 1
+    bucketModeEnabled: 0
+    cameraPositionOverride: {fileID: 0}
   - text: It looks like there are some dominoes missing here. Place the dominoes
       along this curve, using [Q] and [E] to rotate your dominoes before placing.
     worldTarget: {fileID: 0}
@@ -298,23 +339,31 @@ MonoBehaviour:
     cameraEnabled: 1
     visible: 1
     limitedPlacement: 0
-  - text: You can use [WASD] to move the camera around. [R] and [F] move the camera
-      up and down. Click and drag [Right Mouse Button] to aim the camera.
+    bucketModeEnabled: 0
+    cameraPositionOverride: {fileID: 0}
+  - text: Sometimes you may be required to manually draw new dominoes from a container
+      like this one. Click on the container and carefully drag your dominoes into
+      the remaining indicators.
     worldTarget: {fileID: 0}
-    completionCondition: 1
+    completionCondition: 9
     placementEnabled: 1
     flickEnables: 0
     cameraEnabled: 1
     visible: 1
     limitedPlacement: 0
-  - text: Now let's start the chain again. Point at the domino and press [C] to flick.
+    bucketModeEnabled: 1
+    cameraPositionOverride: {fileID: 0}
+  - text: Almost done! Now let's start the chain again. Point at the domino and press
+      [C] to flick.
     worldTarget: {fileID: 0}
     completionCondition: 6
     placementEnabled: 0
-    flickEnables: 0
+    flickEnables: 1
     cameraEnabled: 0
     visible: 1
     limitedPlacement: 0
+    bucketModeEnabled: 0
+    cameraPositionOverride: {fileID: 0}
   - text: 
     worldTarget: {fileID: 0}
     completionCondition: 7
@@ -323,14 +372,18 @@ MonoBehaviour:
     cameraEnabled: 1
     visible: 0
     limitedPlacement: 1
+    bucketModeEnabled: 0
+    cameraPositionOverride: {fileID: 0}
   tutorialButton: {fileID: 4619493251131868818}
   tutorialText: {fileID: 2794989598101973839}
   arrowSpritePrefab: {fileID: 2240662356641158566, guid: 6e9bd06f2cd9c764880470193be6ec4d, type: 3}
   mainCamera: {fileID: 0}
-  starterCamera: {fileID: 0}
+  freemoveCamera: {fileID: 0}
   uiCanvas: {fileID: 0}
+  bucket: {fileID: 0}
   tutorialIndicatorCheck1: {fileID: 0}
   tutorialIndicatorCheck2: {fileID: 0}
+  tutorialIndicatorCheck3: {fileID: 0}
 --- !u!82 &4272503792346492768
 AudioSource:
   m_ObjectHideFlags: 0
