@@ -35,10 +35,17 @@ public class PlacementIndicator : DominoLike
     #endregion
 
     #region Unity Methods
-    void Start()
+
+    void Awake()
     {
         indicatorRenderer = GetComponent<Renderer>();
         placementCollider = GetComponent<BoxCollider>();
+        indicatorMaterial = new Material(indicatorRenderer.sharedMaterials[0]);
+        outlineMaterial = new Material(indicatorRenderer.sharedMaterials[1]);
+        indicatorRenderer.materials = new[] { indicatorMaterial, outlineMaterial }; // Assign instanced materials
+    }
+    void Start()
+    {
         CheckAndResolveOverlap(); // Check for overlaps with other indicators
         SnapToGround();
         if (soundManager == null) soundManager = FindObjectOfType<DominoSoundManager>(); // Get references
@@ -47,9 +54,6 @@ public class PlacementIndicator : DominoLike
             DestroyImmediate(snapCollider); // Disable the snap collider
             snapCollider = null; // Set to null to avoid further use
         }
-        indicatorMaterial = new Material(indicatorRenderer.sharedMaterials[0]);
-        outlineMaterial = new Material(indicatorRenderer.sharedMaterials[1]);
-        indicatorRenderer.materials = new[] { indicatorMaterial, outlineMaterial }; // Assign instanced materials
     }
 
     void Update()
@@ -262,7 +266,7 @@ public class PlacementIndicator : DominoLike
         indicatorColor = inputColor;
         inputColor.a = Mathf.Clamp(inputColor.a, 0f, maxAlpha);
         indicatorMaterial.color = inputColor;
-        Color outlineColor = outlineMaterial.color;
+        Color outlineColor = Color.white;
         outlineColor.a = Mathf.Clamp(outlineColor.a, 0f, maxAlpha);
         outlineMaterial.color = outlineColor;
     }

@@ -273,7 +273,7 @@ MonoBehaviour:
     cameraEnabled: 0
     visible: 1
     limitedPlacement: 1
-  - text: Now point at this domino and press [F] to knock it over.
+  - text: Now point at this domino and press [C] to knock it over.
     worldTarget: {fileID: 0}
     completionCondition: 6
     placementEnabled: 0
@@ -307,7 +307,7 @@ MonoBehaviour:
     cameraEnabled: 1
     visible: 1
     limitedPlacement: 0
-  - text: Now let's start the chain again. Point at the domino and press [F] to flick.
+  - text: Now let's start the chain again. Point at the domino and press [C] to flick.
     worldTarget: {fileID: 0}
     completionCondition: 6
     placementEnabled: 0

@@ -12,6 +12,7 @@ public class TutorialStep
     public bool cameraEnabled = true; // Flag to enable/disable camera movement
     public bool visible = true; // Flag to show/hide the arrow UI
     public bool limitedPlacement = false; // Flag to limit placement to a specific area
+    public bool bucketModeEnabled = false;
 }
 
 public enum CompletionCondition
@@ -24,5 +25,6 @@ public enum CompletionCondition
     ClickButton,
     WaitforCascadeStart,
     WaitForCascadeEnd,
-    FillFourIndicators
+    FillFourIndicators,
+    CompleteIndicatorRow3
 }

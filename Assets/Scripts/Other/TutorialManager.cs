@@ -29,6 +29,7 @@ public class TutorialManager : MonoBehaviour
 
     public TutorialIndicatorCheck tutorialIndicatorCheck1;
     public TutorialIndicatorCheck tutorialIndicatorCheck2; // Reference to the tutorial indicator checks
+    public TutorialIndicatorCheck tutorialIndicatorCheck3; // Reference to the tutorial indicator checks
 
     private List<GameObject> activeArrows = new(); // List to track active arrow instances
     private Dictionary<GameObject, Transform> arrowTargets = new(); // Map arrows to their target transforms
@@ -55,7 +56,7 @@ public class TutorialManager : MonoBehaviour
 
     private IEnumerator StartTutorialCoroutine()
     {
-        while (SceneLoader.asyncLoad == null)
+        while (SceneLoader.asyncLoad != null)
         {
             yield return null; // Wait for the async load to complete
         }
