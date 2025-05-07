@@ -162,6 +162,8 @@ public class GameManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.K))
             {
                 Debug.Log("K key pressed - triggering level completion.");
+                levelComplete = false; // Reset level completion state
+                DebugFillAllIndicators(); // Fill all indicators for testing
                 CheckCompletion();
             }
             for (int i = 0; i <= 9; i++)
@@ -215,6 +217,15 @@ public class GameManager : MonoBehaviour
             levelComplete = true;
             OnLevelComplete.Invoke();
         }
+    }
+
+    public void DebugFillAllIndicators()
+    {
+        foreach (var indicator in allIndicators)
+        {
+            indicator.FillSelf(); // Trigger the FillSelf method for each indicator
+        }
+        CheckCompletion(); // Check if the level is complete
     }
 
     public void SetGameDifficulty(GameDifficulty newDifficulty)

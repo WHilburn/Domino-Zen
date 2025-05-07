@@ -183,7 +183,7 @@ public class PlacementIndicator : DominoLike
         }
     }
 
-    public void RestoreProgress()
+    public void FillSelf()
     {
         trackedDomino = Instantiate(GameManager.Instance.dominoPrefab, transform.position, transform.rotation).GetComponent<Domino>();
         trackedDominoRb = trackedDomino.GetComponent<Rigidbody>();

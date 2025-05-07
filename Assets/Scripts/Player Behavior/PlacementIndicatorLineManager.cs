@@ -23,7 +23,7 @@ public class PlacementIndicatorLineManager
         return nearbyIndicators;
     }
 
-    public void UpdateLinesForIndicators(Vector3 decalPosition, float maxDistance, AnimationCurve alphaCurve)
+    public void UpdateLinesForIndicators(Vector3 decalPosition, float maxDistance)
     {
         this.decalPosition = decalPosition + Vector3.up * 0.5f;
         HashSet<PlacementIndicator> indicators = FindNearbyPlacementIndicators(maxDistance);

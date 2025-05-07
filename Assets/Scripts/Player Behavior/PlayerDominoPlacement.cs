@@ -10,7 +10,9 @@ public class PlayerDominoPlacement : MonoBehaviour
     public static PlayerDominoPlacement Instance { get; private set; }
     public GameObject dominoPrefab;
     public GameObject hand3DPrefab; // Reference to the 3D hand prefab
+    public GameObject LineRendererPrefab; // Reference to the LineRenderer prefab
     public static GameObject heldDomino;
+    private static GameObject LineRendererInstance; // Instance of the LineRenderer prefab
     private Rigidbody heldRb;
     private Transform handAnchor; // Empty GameObject for domino attachment
     private GameObject hand3DInstance; // Instance of the 3D hand
@@ -32,7 +34,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     public static UnityEvent<Domino> OnDominoReleased = new();
     public bool placementEnabled = true; // Flag to enable/disable placement controls
     public bool flickEnabled = true;
-    public bool placementLimited = false; // Flag to limit placement to a specific area
+    [HideInInspector] public bool placementLimited = false; // Flag to limit placement to a specific area
     public Material glowOutlineMaterial; // Reference to the glow outline material
     public Material placementDecalMaterial; // Material for the hollow rectangle decal
     public Material placementDecalMaterialRed;
@@ -48,7 +50,6 @@ public class PlayerDominoPlacement : MonoBehaviour
     private PlayerObjectMovement objectMovementManager;
     private PlacementIndicatorLineManager lineManager;
     public float maxLineRendererDistance = 2f;
-    public AnimationCurve alphaCurve = AnimationCurve.Linear(0, 1, 1, 0); // Default linear curve
     #endregion
     #region Unity Methods
     void Start()
@@ -227,6 +228,7 @@ public class PlayerDominoPlacement : MonoBehaviour
 
         heldDomino = Instantiate(dominoPrefab, spawnPos, spawnRotation);
         heldDomino.name = $"{dominoPrefab.name} {DominoResetManager.Instance.allDominoes.Count + 1}";
+        InstantiateLineRenderer();
         InitializeHeldDomino();
 
         CreateHandAnchor(spawnPos); // Create the hand anchor
@@ -243,6 +245,13 @@ public class PlayerDominoPlacement : MonoBehaviour
         {
             handMouseOffset = handAnchor.position - GetMouseWorldPosition(); // Adjust offset for normal mode
         }
+    }
+
+    private void InstantiateLineRenderer()
+    {
+        LineRendererInstance = Instantiate(LineRendererPrefab, heldDomino.transform); // Set as a child of the domino
+        LineRendererInstance.transform.localPosition = new Vector3(0, -.95f, 0); // Set local position
+        LineRendererInstance.transform.localRotation = Quaternion.Euler(180f, 0f, 0f); // Set local rotation
     }
 
     private void InitializeHeldDomino()
@@ -301,9 +310,10 @@ public class PlayerDominoPlacement : MonoBehaviour
         domino.GetComponent<Domino>().stablePositionSet = false; // Reset stable position set
         // Preserve the existing rotation of the domino
         savedRotation = heldDomino.transform.rotation;
+        InstantiateLineRenderer();
         InitializeHeldDomino();
 
-        if (IsDominoFalling())
+        if (IsDominoMoving())
         {
             ClearHeldDomino();
             return;
@@ -384,7 +394,8 @@ public class PlayerDominoPlacement : MonoBehaviour
             {
                 if (collider.CompareTag("Bucket"))
                 {
-                    bucketOffset = new Vector3(0f, 1.25f, 0f); // Adjust the offset for bucket mode
+                    bucketOffset = new Vector3(0f, 0f, 0f); // Adjust the offset for bucket mode
+                    Debug.Log("Over bucket");
                     break;
                 }
             }
@@ -462,7 +473,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     }
     #endregion
     #region Helper Methods
-    private bool IsDominoFalling()
+    private bool IsDominoMoving()
     {
         return heldRb.velocity.magnitude > 1f || heldRb.angularVelocity.magnitude > 1f;
     }
@@ -472,15 +483,19 @@ public class PlayerDominoPlacement : MonoBehaviour
         heldDomino = null;
         heldRb = null;
         handAnchor = null;
+        if (LineRendererInstance != null)
+        {
+            Destroy(LineRendererInstance);
+        }
+        LineRendererInstance = null;
     }
     void ShowLockSprite(Vector3 position)
     {
         if (lockSpritePrefab == null || uiCanvas == null) return;
-
         // Instantiate the lock sprite as a UI element
         GameObject lockSprite = Instantiate(lockSpritePrefab, uiCanvas.transform);
         LockSpriteFollower follower = lockSprite.AddComponent<LockSpriteFollower>();
-        follower.Initialize(activeCamera, position, 1f); // Pass camera, world position, and fade duration
+        follower.Initialize(activeCamera, position, 1f);
     }
 
     private Bucket IsMousePointingAtBucket()
@@ -488,12 +503,12 @@ public class PlayerDominoPlacement : MonoBehaviour
         Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            if (hit.collider.CompareTag("Bucket")) // Check if the hit object has the "Bucket" tag
+            if (hit.collider.CompareTag("Bucket"))
             {
                 Bucket bucket = hit.collider.GetComponent<Bucket>();
                 if (bucket != null)
                 {
-                    return hit.collider.GetComponent<Bucket>(); // Return the bucket GameObject
+                    return hit.collider.GetComponent<Bucket>();
                 }
             }
         }
@@ -503,7 +518,7 @@ public class PlayerDominoPlacement : MonoBehaviour
     private void UpdatePlacementIndicatorLines()
     {
         if (placementDecalManager == null) return;
-        lineManager.UpdateLinesForIndicators(PlacementDecalManager.mouseWorldPosition, maxLineRendererDistance, alphaCurve); // Update the lines for the nearby indicators
+        lineManager.UpdateLinesForIndicators(PlacementDecalManager.mouseWorldPosition, maxLineRendererDistance);
     }
     #endregion
 

@@ -2719,6 +2719,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dominoPrefab: {fileID: 3709038208395034117, guid: 336bcad52e1c74c77ae1b4939e3a0feb, type: 3}
   hand3DPrefab: {fileID: 4323452443675221915, guid: c56510174be7a714bb3da481057232c0, type: 3}
+  LineRendererPrefab: {fileID: 3173903696480801601, guid: 3d03db5797cb240189f9c93aa2c16a61, type: 3}
   maxHandSpeed: 5
   hoverOffset: 1.2
   rotationSpeed: 15
@@ -2738,48 +2739,6 @@ MonoBehaviour:
   decalPivot: {x: 0, y: -0.05, z: 0}
   bucketModeEnabled: 0
   maxLineRendererDistance: 1.5
-  alphaCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.35
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.102184966
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.6
-      value: 0.4
-      inSlope: -2.1408308
-      outSlope: -2.1408308
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.044807132
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: -0.070579164
-      outSlope: -0.070579164
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.09798083
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!114 &5360279869383916395
 MonoBehaviour:
   m_ObjectHideFlags: 0

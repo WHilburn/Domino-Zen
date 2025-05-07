@@ -53,7 +53,7 @@ public class LevelProgressManager
         {
             if (progressData.filledIndicatorIDs.Contains(indicator.UniqueID)) // Use UniqueID
             {
-                indicator.RestoreProgress(); // Restore the filled state and spawn a domino in the indicator
+                indicator.FillSelf(); // Restore the filled state and spawn a domino in the indicator
             }
         }
 
