@@ -2913,8 +2913,8 @@ MonoBehaviour:
   minDominoesToTriggerTracking: 5
   maxCameraDistance: 20
   obstructionCheckDuration: 0.2
-  minTeleportDistance: 5
-  teleportCooldown: 4
+  minTeleportDistance: 10
+  teleportCooldown: 3
 --- !u!114 &317605814509499104
 MonoBehaviour:
   m_ObjectHideFlags: 0
