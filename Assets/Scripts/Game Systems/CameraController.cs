@@ -9,17 +9,25 @@ public class CameraController : MonoBehaviour
     #region Fields and Properties
     public static CameraController Instance { get; private set; }
     public CinemachineVirtualCamera freeLookCamera; // Player-controlled camera
-    public CinemachineVirtualCamera trackingCamera; // Auto-framing camera
+    public CinemachineVirtualCamera trackingCamera1; // Auto-framing camera
+    public CinemachineVirtualCamera trackingCamera2; // Secondary auto-framing camera
     public CinemachineTargetGroup targetGroup; // Group of falling dominoes
     public static UnityEvent OnFreeLookCameraEnabled = new();
     public static UnityEvent OnFreeLookCameraDisabled = new();
     public static bool isTracking = false;
     private Dictionary<Transform, float> dominoTimers = new(); // Tracks time remaining for each domino in the target group
     private const float dominoLifetime = .25f; // Time before domino is removed from the target group
-    private HashSet<Transform> trackedDominoes = new(); // Tracks dominoes already added to the target group
+    public HashSet<Transform> trackedDominoes = new(); // Tracks dominoes already added to the target group
     public int minDominoesToTriggerTracking = 5; // Minimum dominoes to trigger tracking camera
     public static float switchBackDelay = 1f; // Delay before switching back to free look camera
     private bool readyToSwitch = false;
+    private CinemachineVirtualCamera activeTrackingCamera; // Tracks the currently active tracking camera
+    private CinemachineVirtualCamera inactiveTrackingCamera; // Tracks the inactive tracking camera
+    public float obstructionCheckDuration = 0.25f; // Time before teleporting the camera
+    private float obstructionTimer = 0f; // Tracks how long the raycast is obstructed
+    public float minTeleportDistance = 2f; // Minimum distance to allow teleporting
+    public float teleportCooldown = 5f; // Cooldown time between teleports
+    private float lastTeleportTime; // Tracks the last teleport time
     #endregion
 
     #region Unity Lifecycle
@@ -32,7 +40,7 @@ public class CameraController : MonoBehaviour
         Instance = this;
 
         // Ensure the tracking camera has a track assigned
-        var trackedDolly = trackingCamera.GetCinemachineComponent<CinemachineTrackedDolly>();
+        var trackedDolly = trackingCamera1.GetCinemachineComponent<CinemachineTrackedDolly>();
         if (trackedDolly != null && trackedDolly.m_Path == null)
         {
             trackedDolly.m_Path = FindObjectOfType<CinemachineSmoothPath>();
@@ -46,6 +54,11 @@ public class CameraController : MonoBehaviour
         Domino.OnDominoDeleted.AddListener(HandleDominoDeleted);
 
         EnableFreeLook(); // Start with player control
+
+        // Initialize active and inactive tracking cameras
+        activeTrackingCamera = trackingCamera1;
+        inactiveTrackingCamera = trackingCamera2;
+        lastTeleportTime = -teleportCooldown;
     }
 
     void OnDestroy()
@@ -58,6 +71,7 @@ public class CameraController : MonoBehaviour
     {
         UpdateDominoTimers();
         DrawDebugLines(); // Draw debug lines to the target group
+        CheckForObstruction(); // Check for obstructions between the camera and the target group
 
         if (dominoTimers.Count >= minDominoesToTriggerTracking && !isTracking)
         {
@@ -96,7 +110,7 @@ public class CameraController : MonoBehaviour
     {
         isTracking = false;
         freeLookCamera.Priority = 20;
-        trackingCamera.Priority = 10;
+        trackingCamera1.Priority = 10;
         freeLookCamera.GetComponent<PlayerCameraController>().InitializeRotation();
         OnFreeLookCameraEnabled.Invoke();
         trackedDominoes.Clear(); // Allow dominoes to be tracked again
@@ -115,7 +129,7 @@ public class CameraController : MonoBehaviour
     {
         isTracking = true;
         freeLookCamera.Priority = 10;
-        trackingCamera.Priority = 20;
+        trackingCamera1.Priority = 20;
         GetComponent<PlayerDominoPlacement>().ReleaseDomino();
         OnFreeLookCameraDisabled.Invoke();
     }
@@ -155,6 +169,91 @@ public class CameraController : MonoBehaviour
             dominoTimers.Remove(domino);
             targetGroup.RemoveMember(domino); // Remove domino from the target group
         }
+    }
+    #endregion
+
+    #region Obstruction Management
+    private void CheckForObstruction()
+    {
+        if (!isTracking || targetGroup == null) return;
+
+        Vector3 cameraPosition = trackingCamera1.transform.position;
+        Vector3 targetGroupPosition = targetGroup.transform.position;
+        Vector3 direction = targetGroupPosition - cameraPosition;
+
+        if (Physics.Raycast(cameraPosition, direction, out RaycastHit hit, direction.magnitude, LayerMask.GetMask("EnvironmentLayer")))
+        {
+            obstructionTimer += Time.deltaTime;
+            if (obstructionTimer > obstructionCheckDuration)
+            {
+                TeleportTrackingCamera();
+                obstructionTimer = 0f; // Reset the timer after teleporting
+            }
+            Debug.DrawLine(cameraPosition, targetGroupPosition, Color.red,.2f);
+        }
+        else
+        {
+            Debug.DrawLine(cameraPosition, targetGroupPosition, Color.green,.2f);
+            obstructionTimer = 0f; // Reset the timer if no obstruction
+        }
+    }
+
+    private void TeleportTrackingCamera()
+    {
+        if (Time.time - lastTeleportTime < teleportCooldown) return; // Check cooldown
+
+        var trackedDolly = inactiveTrackingCamera.GetCinemachineComponent<CinemachineTrackedDolly>();
+        if (trackedDolly == null || trackedDolly.m_Path == null) return;
+
+        Vector3 targetGroupPosition = targetGroup.transform.position;
+        float closestDistance = float.MaxValue;
+        float closestPosition = 0f;
+
+        // Find the closest point on the dolly track to the target group
+        for (float t = 0f; t <= trackedDolly.m_Path.PathLength; t += 0.1f)
+        {
+            Vector3 dollyPoint = trackedDolly.m_Path.EvaluatePositionAtUnit(t, CinemachinePathBase.PositionUnits.Distance);
+            float distance = Vector3.Distance(dollyPoint, targetGroupPosition);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestPosition = t;
+            }
+        }
+
+        // Cancel teleporting if the closest distance is less than the minimum distance
+        if (closestDistance < minTeleportDistance) return;
+
+        // Set the dolly's path position to the closest point
+        trackedDolly.m_PathPosition = closestPosition;
+
+        // Synchronize the inactive camera's transform with the dolly's position and rotation
+        inactiveTrackingCamera.transform.position = trackedDolly.m_Path.EvaluatePositionAtUnit(closestPosition, CinemachinePathBase.PositionUnits.Distance);
+        inactiveTrackingCamera.transform.rotation = Quaternion.LookRotation(
+            trackedDolly.m_Path.EvaluateTangentAtUnit(closestPosition, CinemachinePathBase.PositionUnits.Distance),
+            Vector3.up
+        );
+
+        // Ensure the inactive camera is aimed at the target group
+        inactiveTrackingCamera.transform.LookAt(targetGroup.transform);
+
+        // Swap active and inactive cameras
+        SwapTrackingCameras();
+
+        lastTeleportTime = Time.time; // Update the last teleport time
+        Debug.Log("Switched to tracking camera: " + activeTrackingCamera.name);
+    }
+
+    private void SwapTrackingCameras()
+    {
+        // Set the priority to swap active and inactive cameras
+        activeTrackingCamera.Priority = 10;
+        inactiveTrackingCamera.Priority = 20;
+
+        // Swap references
+        var temp = activeTrackingCamera;
+        activeTrackingCamera = inactiveTrackingCamera;
+        inactiveTrackingCamera = temp;
     }
     #endregion
 
