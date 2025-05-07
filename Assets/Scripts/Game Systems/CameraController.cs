@@ -10,7 +10,7 @@ public class CameraController : MonoBehaviour
     public static CameraController Instance { get; private set; }
     public CinemachineVirtualCamera freeLookCamera; // Player-controlled camera
     public CinemachineVirtualCamera trackingCamera1; // Auto-framing camera
-    public CinemachineVirtualCamera trackingCamera2; // Secondary auto-framing camera
+    private CinemachineVirtualCamera trackingCamera2; // Secondary auto-framing camera
     public CinemachineTargetGroup targetGroup; // Group of falling dominoes
     public static UnityEvent OnFreeLookCameraEnabled = new();
     public static UnityEvent OnFreeLookCameraDisabled = new();
@@ -42,6 +42,12 @@ public class CameraController : MonoBehaviour
         }
         Instance = this;
 
+        // Clone trackingCamera1 to create trackingCamera2
+        if (trackingCamera1 != null)
+        {
+            trackingCamera2 = Instantiate(trackingCamera1, trackingCamera1.transform.parent);
+            trackingCamera2.name = trackingCamera1.name + "_Clone";
+        }
         // Ensure the tracking camera has a track assigned
         trackedDolly = trackingCamera1.GetCinemachineComponent<CinemachineTrackedDolly>();
         if (trackedDolly != null && trackedDolly.m_Path == null)
