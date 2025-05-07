@@ -32,7 +32,9 @@ public class SceneLoader : MonoBehaviour
         this.reloadScene = reloadScene; // Set the reload scene flag
         if (!reloadScene)
         {
-            if (SceneManager.GetActiveScene().name != "Main Menu")
+            if (SceneManager.GetActiveScene().name != "Main Menu" && 
+            SceneManager.GetActiveScene().name != "Testing Level" && 
+            SceneManager.GetActiveScene().name != "Tutorial Level")
             {
                 LevelProgressManager.SaveProgress(SceneManager.GetActiveScene().name, GameManager.Instance.GetFilledIndicators()); // Save progress when the level is destroyed
             }

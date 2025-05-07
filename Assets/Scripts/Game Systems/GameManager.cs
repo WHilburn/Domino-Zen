@@ -8,90 +8,70 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
+    #region Singleton
     public static GameManager Instance { get; private set; }
-    public HashSet<PlacementIndicator> allIndicators = new HashSet<PlacementIndicator>();  // Set of all dominoes in the scene
-    public bool debugMode = true; // Debug mode toggle
-    public static bool levelComplete = false; // Flag to indicate if the level is complete
-    public static bool gamePaused = false; // Flag to indicate if the game is paused
-    public Camera mainCamera; // Reference to the main camera
-    public VictoryAnimation victoryAnimation; // Reference to the VictoryAnimation script
-    public static float elapsedTime = 0f; // Time elapsed since the level started
+    #endregion
+
+    #region Public Fields
+    public HashSet<PlacementIndicator> allIndicators = new HashSet<PlacementIndicator>();
+    public bool debugMode = true;
+    public static bool levelComplete = false;
+    public static bool gamePaused = false;
+    public Camera mainCamera;
+    public VictoryAnimation victoryAnimation;
+    public static float elapsedTime = 0f;
     public static int resetsTriggered = 0;
-    private bool isTiming = false; // Flag to track if the timer is running
-    public GameObject originatorDomino; // Reference to the domino or placement indicator at the start of the chain in each level
+    public GameObject originatorDomino;
     public GameObject levelCompletePopup;
-    public static UnityEvent OnLevelComplete = new UnityEvent(); // Event triggered when the level is completed
-    public static int filledIndicators = 0; // Number of filled indicators in the scene
-    private Bucket bucket; // Reference to the Bucket script
-    public GameObject dominoPrefab; // Prefab for the domino
+    public static UnityEvent OnLevelComplete = new UnityEvent();
+    public static int filledIndicators = 0;
+    public GameObject dominoPrefab;
+    public List<LevelData> levels = new List<LevelData>();
+    #endregion
 
+    #region Private Fields
+    private bool isTiming = false;
+    private Bucket bucket;
     [SerializeField]
-    private GameDifficulty editorGameDifficulty = GameDifficulty.Relaxed; // Backing field for editor
+    private GameDifficulty editorGameDifficulty = GameDifficulty.Relaxed;
+    #endregion
 
+    #region Enums
     public enum GameDifficulty
     {
         Relaxed,
         Focused,
         Intense
     }
-    public static GameDifficulty gameDifficulty = GameDifficulty.Relaxed; // Default difficulty
+    public static GameDifficulty gameDifficulty = GameDifficulty.Relaxed;
     public static UnityEvent<GameDifficulty> OnGameDifficultyChanged = new UnityEvent<GameDifficulty>();
+    #endregion
 
+    #region Nested Classes
     [Serializable]
     public class LevelData
     {
-        public string levelName; // Name of the level
-        public string sceneName; // Unity scene associated with the level
-        [TextArea] public string description; // Description text for the level
-        public Sprite levelImage; // Image associated with the level
+        public string levelName;
+        public string sceneName;
+        [TextArea] public string description;
+        public Sprite levelImage;
     }
 
     [System.Serializable]
     public class LevelStats
     {
-        public float bestTime = float.MaxValue; // Best completion time (in seconds)
-        public GameDifficulty hardestDifficulty = GameDifficulty.Relaxed; // Hardest difficulty completed
-        public bool isInProgress = false; // Whether the level is currently in progress
-        public float inProgressTime = 0f; // Time elapsed for the current in-progress attempt
+        public float bestTime = float.MaxValue;
+        public GameDifficulty hardestDifficulty = GameDifficulty.Relaxed;
+        public bool isInProgress = false;
+        public float inProgressTime = 0f;
     }
+    #endregion
 
-    public static Dictionary<string, LevelStats> levelStats = new Dictionary<string, LevelStats>(); // Store stats for each level
+    #region Static Fields
+    public static Dictionary<string, LevelStats> levelStats = new Dictionary<string, LevelStats>();
+    #endregion
 
-    public void SaveLevelStats()
-    {
-        foreach (var level in levels)
-        {
-            if (levelStats.TryGetValue(level.sceneName, out var stats))
-            {
-                PlayerPrefs.SetFloat(level.sceneName + "_BestTime", stats.bestTime);
-                PlayerPrefs.SetInt(level.sceneName + "_HardestDifficulty", (int)stats.hardestDifficulty);
-            }
-        }
-        PlayerPrefs.Save();
-    }
-
-    public LevelStats LoadLevelStats(string levelName)
-    {
-        var stats = new LevelStats();
-
-        if (PlayerPrefs.HasKey(levelName + "_BestTime") && PlayerPrefs.HasKey(levelName + "_HardestDifficulty"))
-        {
-            stats.bestTime = PlayerPrefs.GetFloat(levelName + "_BestTime", float.MaxValue);
-            stats.hardestDifficulty = (GameDifficulty)PlayerPrefs.GetInt(levelName + "_HardestDifficulty", (int)GameDifficulty.Relaxed);
-        }
-        else
-        {
-            // Debug.LogWarning($"No saved stats found for level: {levelName}. Using default values.");
-            stats.bestTime = float.MaxValue;
-            stats.hardestDifficulty = GameDifficulty.Relaxed;
-        }
-
-        levelStats[levelName] = stats;
-        return stats;
-    }
-
-    public List<LevelData> levels = new List<LevelData>(); // List of levels, editable in the Unity Editor
-
+    #region Unity Lifecycle
     void Start()
     {
         DOTween.SetTweensCapacity(20000, 20000);
@@ -115,8 +95,6 @@ public class GameManager : MonoBehaviour
         else bucket.gameObject.SetActive(false);
         DominoResetManager.OnDominoesStoppedFalling.AddListener(OnDominoesStoppedFalling);
         gameDifficulty = editorGameDifficulty; // Synchronize static field with editor value
-        // if (SceneManager.GetActiveScene().name != "Main Menu")
-        // LevelProgressManager.LoadProgress(SceneManager.GetActiveScene().name, allIndicators); // Load progress at the start of the level
         StartCoroutine(LoadProgressCoroutine()); // Load progress at the start of the level
     }
 
@@ -125,9 +103,10 @@ public class GameManager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded; // Unsubscribe from sceneLoaded event
         DominoResetManager.OnResetStart.RemoveListener(OnResetStartHandler); // Unsubscribe from OnResetStart event
         DominoResetManager.OnDominoesStoppedFalling.RemoveListener(OnDominoesStoppedFalling);
-        // LevelProgressManager.SaveProgress(SceneManager.GetActiveScene().name, GetFilledIndicators()); // Save progress when the level is destroyed
     }
+    #endregion
 
+    #region Scene Management
     private IEnumerator LoadProgressCoroutine()
     {
         while (SceneLoader.asyncLoad != null)
@@ -135,7 +114,9 @@ public class GameManager : MonoBehaviour
             yield return null; // Wait for the async load to complete
         }
         yield return new WaitForSeconds(0.05f); // Wait for a short duration to ensure the scene is fully loaded
-        if (SceneManager.GetActiveScene().name != "Main Menu" && SceneManager.GetActiveScene().name != "Testing Level")
+        if (SceneManager.GetActiveScene().name != "Main Menu" && 
+            SceneManager.GetActiveScene().name != "Testing Level" && 
+            SceneManager.GetActiveScene().name != "Tutorial Level")
             LevelProgressManager.LoadProgress(SceneManager.GetActiveScene().name, allIndicators); // Load progress at the start of the level
     }
 
@@ -143,7 +124,9 @@ public class GameManager : MonoBehaviour
     {
         RebuildAllIndicators(); // Rebuild the list when a new scene is loaded
     }
+    #endregion
 
+    #region Indicator Management
     private void RebuildAllIndicators()
     {
         allIndicators.Clear();;
@@ -151,9 +134,23 @@ public class GameManager : MonoBehaviour
         {
             allIndicators.Add(indicator);
         }
-        // Debug.Log($"Rebuilt allIndicators list with {allIndicators.Count} indicators.");
     }
 
+    public HashSet<PlacementIndicator> GetFilledIndicators()
+    {
+        var filledIndicators = new HashSet<PlacementIndicator>();
+        foreach (var indicator in allIndicators)
+        {
+            if (indicator.currentState == PlacementIndicator.IndicatorState.Filled)
+            {
+                filledIndicators.Add(indicator);
+            }
+        }
+        return filledIndicators;
+    }
+    #endregion
+
+    #region Game State Management
     void Update()
     {
         if (debugMode)
@@ -193,7 +190,6 @@ public class GameManager : MonoBehaviour
 
     public void CheckCompletion()
     {
-        // check if every indicator is satisfied
         filledIndicators = 0;
         foreach (var indicator in allIndicators)
         {
@@ -202,7 +198,6 @@ public class GameManager : MonoBehaviour
                 filledIndicators++;
             }
         }
-        // Debug.Log($"Filled indicators: {filledIndicators} / {allIndicators.Count}");
         if (filledIndicators == allIndicators.Count || Input.GetKeyDown(KeyCode.K))
         {
             Debug.Log("*** All indicators have been filled! ***");
@@ -250,7 +245,9 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+    #endregion
 
+    #region Event Handlers
     private void OnResetStartHandler()
     {
         if (!levelComplete)
@@ -267,6 +264,40 @@ public class GameManager : MonoBehaviour
             Debug.Log("Victory animation triggered!");
         }
     }
+    #endregion
+
+    #region Level Stats
+    public void SaveLevelStats()
+    {
+        foreach (var level in levels)
+        {
+            if (levelStats.TryGetValue(level.sceneName, out var stats))
+            {
+                PlayerPrefs.SetFloat(level.sceneName + "_BestTime", stats.bestTime);
+                PlayerPrefs.SetInt(level.sceneName + "_HardestDifficulty", (int)stats.hardestDifficulty);
+            }
+        }
+        PlayerPrefs.Save();
+    }
+
+    public LevelStats LoadLevelStats(string levelName)
+    {
+        var stats = new LevelStats();
+
+        if (PlayerPrefs.HasKey(levelName + "_BestTime") && PlayerPrefs.HasKey(levelName + "_HardestDifficulty"))
+        {
+            stats.bestTime = PlayerPrefs.GetFloat(levelName + "_BestTime", float.MaxValue);
+            stats.hardestDifficulty = (GameDifficulty)PlayerPrefs.GetInt(levelName + "_HardestDifficulty", (int)GameDifficulty.Relaxed);
+        }
+        else
+        {
+            stats.bestTime = float.MaxValue;
+            stats.hardestDifficulty = GameDifficulty.Relaxed;
+        }
+
+        levelStats[levelName] = stats;
+        return stats;
+    }
 
     public void RecordLevelStats()
     {
@@ -278,36 +309,21 @@ public class GameManager : MonoBehaviour
             levelStats[currentSceneName] = stats;
         }
 
-        // Update best time if the current time is better
         if (elapsedTime < stats.bestTime)
         {
             stats.bestTime = elapsedTime;
         }
 
-        // Update hardest difficulty if the current difficulty is harder
         if (gameDifficulty > stats.hardestDifficulty)
         {
             stats.hardestDifficulty = gameDifficulty;
         }
 
-        stats.isInProgress = false; // Mark the level as not in progress
+        stats.isInProgress = false;
 
         Debug.Log($"Level stats updated: Best Time = {stats.bestTime}, Hardest Difficulty = {stats.hardestDifficulty}");
 
-        // Save the updated stats
         SaveLevelStats();
     }
-
-    public HashSet<PlacementIndicator> GetFilledIndicators()
-    {
-        var filledIndicators = new HashSet<PlacementIndicator>();
-        foreach (var indicator in allIndicators)
-        {
-            if (indicator.currentState == PlacementIndicator.IndicatorState.Filled)
-            {
-                filledIndicators.Add(indicator);
-            }
-        }
-        return filledIndicators;
-    }
+    #endregion
 }
