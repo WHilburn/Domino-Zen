@@ -23,6 +23,8 @@ public class CameraController : MonoBehaviour
     private bool readyToSwitch = false;
     private CinemachineVirtualCamera activeTrackingCamera; // Tracks the currently active tracking camera
     private CinemachineVirtualCamera inactiveTrackingCamera; // Tracks the inactive tracking camera
+
+    public float maxCameraDistance = 15f; // Maximum distance for the camera to be from the target group
     public float obstructionCheckDuration = 0.25f; // Time before teleporting the camera
     private float obstructionTimer = 0f; // Tracks how long the raycast is obstructed
     public float minTeleportDistance = 2f; // Minimum distance to allow teleporting
@@ -176,16 +178,24 @@ public class CameraController : MonoBehaviour
     private void CheckForObstruction()
     {
         if (!isTracking || targetGroup == null) return;
+        if (Time.time - lastTeleportTime < teleportCooldown) return; // Check cooldown
 
         Vector3 cameraPosition = trackingCamera1.transform.position;
         Vector3 targetGroupPosition = targetGroup.transform.position;
         Vector3 direction = targetGroupPosition - cameraPosition;
 
+        if (direction.magnitude > maxCameraDistance)
+        {
+            Debug.Log("Camera too far from target group, teleporting. Distance: " + direction.magnitude);
+            TeleportTrackingCamera(); // Teleport closer if the camera is too far
+            return;
+        } 
         if (Physics.Raycast(cameraPosition, direction, out RaycastHit hit, direction.magnitude, LayerMask.GetMask("EnvironmentLayer")))
         {
             obstructionTimer += Time.deltaTime;
             if (obstructionTimer > obstructionCheckDuration)
             {
+                Debug.Log("Obstruction detected, teleporting camera.");
                 TeleportTrackingCamera();
                 obstructionTimer = 0f; // Reset the timer after teleporting
             }
@@ -200,8 +210,6 @@ public class CameraController : MonoBehaviour
 
     private void TeleportTrackingCamera()
     {
-        if (Time.time - lastTeleportTime < teleportCooldown) return; // Check cooldown
-
         var trackedDolly = inactiveTrackingCamera.GetCinemachineComponent<CinemachineTrackedDolly>();
         if (trackedDolly == null || trackedDolly.m_Path == null) return;
 
