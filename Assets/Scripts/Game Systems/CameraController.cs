@@ -220,9 +220,14 @@ public class CameraController : MonoBehaviour
                 closestPosition = t;
             }
         }
+        Vector3 newPosition = trackedDolly.m_Path.EvaluatePositionAtUnit(closestPosition, CinemachinePathBase.PositionUnits.Distance);
 
         // Cancel teleporting if the closest distance is less than the minimum distance
-        if (closestDistance < minTeleportDistance) return;
+        if (Vector3.Distance(newPosition,activeTrackingCamera.transform.position) < minTeleportDistance)
+        {
+            Debug.Log("Teleport cancelled: too close to the active camera.");
+            return;
+        }
 
         // Set the dolly's path position to the closest point
         trackedDolly.m_PathPosition = closestPosition;
@@ -249,6 +254,7 @@ public class CameraController : MonoBehaviour
         // Set the priority to swap active and inactive cameras
         activeTrackingCamera.Priority = 10;
         inactiveTrackingCamera.Priority = 20;
+        Debug.Log($"Distance between cameras: {Vector3.Distance(activeTrackingCamera.transform.position, inactiveTrackingCamera.transform.position)}");
 
         // Swap references
         var temp = activeTrackingCamera;
