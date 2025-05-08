@@ -92,6 +92,10 @@ public class InGameUI : MonoBehaviour
         unpauseButton.onClick.AddListener(HandlePauseButton);
         optionsButton.onClick.AddListener(ToggleOptionsPanel); // Update to use ToggleOptionsPanel
         mainMenuButton.onClick.AddListener(mainMenuButtonPressed); // Wire up main menu button
+        buttonPrompt1.SetActive(false);
+        buttonPrompt2.SetActive(false);
+        buttonPrompt3.SetActive(false);
+        buttonPrompt4.SetActive(false);
 
         // Wire up sliders
         volumeSlider.onValueChanged.AddListener(UpdateVolume);
@@ -261,13 +265,20 @@ public class InGameUI : MonoBehaviour
         if (PlayerDominoPlacement.heldDomino != null)
         {
             buttonPrompt1.SetActive(true);
-            buttonPrompt2.SetActive(true);
-            buttonPrompt3.SetActive(true);
-            buttonPrompt4.SetActive(true);
-            KeybindText1.text = $"{rotatePositiveKey}/{rotateNegativeKey}";
-            buttonActionText1.text = "Rotate";
-            KeybindText2.text = spawnAndDropDominoKey;
-            buttonActionText2.text = "Drop";
+            if (PlayerDominoPlacement.Instance.placementLimited){ //disable some prompts for the tutorial
+                buttonPrompt2.SetActive(false);
+                buttonPrompt3.SetActive(false);
+                buttonPrompt4.SetActive(false);
+            }
+            else{
+                buttonPrompt2.SetActive(true);
+                buttonPrompt3.SetActive(true);
+                buttonPrompt4.SetActive(true);
+            }
+            KeybindText1.text = spawnAndDropDominoKey;
+            buttonActionText1.text = "Drop";
+            KeybindText2.text = $"{rotatePositiveKey}/{rotateNegativeKey}";
+            buttonActionText2.text = "Rotate";
             KeybindText3.text = cancelKey;
             buttonActionText3.text = "Delete";
             KeybindText4.text = $"{raiseDominoKey}/{lowerDominoKey}";
@@ -294,7 +305,10 @@ public class InGameUI : MonoBehaviour
             if (hit.collider.GetComponent<Domino>() != null && PlayerDominoPlacement.Instance.placementEnabled)
             {
                 buttonPrompt1.SetActive(true);
-                buttonPrompt2.SetActive(true);
+                if (PlayerDominoPlacement.Instance.flickEnabled)
+                {buttonPrompt2.SetActive(true);}
+                else
+                {buttonPrompt2.SetActive(false);}
                 buttonPrompt3.SetActive(false);
                 buttonPrompt4.SetActive(false);
                 KeybindText1.text = pickUpDominoKey;
@@ -314,9 +328,9 @@ public class InGameUI : MonoBehaviour
                 KeybindText2.text = interactKey;
                 buttonActionText2.text = "Relocate";
             }
-            else
+            else if (PlayerCameraController.Instance.isCameraEnabled)
             {
-                // Disable button prompts if no relevant object is under the cursor
+                // Button prompts if no relevant object is under the cursor
                 buttonPrompt1.SetActive(true);
                 buttonPrompt2.SetActive(true);
                 buttonPrompt3.SetActive(true);

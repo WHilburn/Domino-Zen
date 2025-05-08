@@ -21,8 +21,8 @@ public class PlayerDominoPlacement : MonoBehaviour
     private float savedDrag;
     private float savedAngularDrag;
     public float maxHandSpeed = 3f;
-    public readonly float defaultHoverOffset = 1.6f;
-    public float hoverOffset = 1.6f; // Offset for the hand above the domino
+    public float defaultHoverOffset = 1.6f;
+    [HideInInspector] public float hoverOffset = 1.6f; // Offset for the hand above the domino
     public float rotationSpeed = 100f;
     public float maxDistance = 15f; // Maximum distance from the camera
     public Camera activeCamera;
@@ -158,8 +158,22 @@ public class PlayerDominoPlacement : MonoBehaviour
     Vector3 GetMouseWorldPosition()
     {
         Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
-        int environmentLayerMask = LayerMask.GetMask("EnvironmentLayer");
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, environmentLayerMask))
+
+        // First raycast for items on the "Interactable" layer
+        int interactableLayerMask = LayerMask.GetMask("Interactable");
+        if (Physics.Raycast(ray, out RaycastHit interactableHit, Mathf.Infinity, interactableLayerMask))
+        {
+            // Raycast straight down from the interactable hit point to the "EnvironmentLayer"
+            int environmentLayerMask = LayerMask.GetMask("EnvironmentLayer");
+            if (Physics.Raycast(interactableHit.point, Vector3.down, out RaycastHit environmentHit, Mathf.Infinity, environmentLayerMask))
+            {
+                return environmentHit.point + Vector3.up * hoverOffset;
+            }
+        }
+
+        // Default behavior if no interactable is found
+        int defaultEnvironmentLayerMask = LayerMask.GetMask("EnvironmentLayer");
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, defaultEnvironmentLayerMask))
         {
             Vector3 position = hit.point + Vector3.up * hoverOffset;
 
@@ -172,6 +186,7 @@ public class PlayerDominoPlacement : MonoBehaviour
 
             return position;
         }
+
         return ray.origin + ray.direction * 5f;
     }
 
@@ -382,6 +397,7 @@ public class PlayerDominoPlacement : MonoBehaviour
         if (handAnchor == null) return;
 
         Vector3 bucketOffset = Vector3.zero; // Offset for the bucket mode
+        Vector3 finalOffset = handMouseOffset;
         if (bucketModeEnabled) //Move hand/domino up if over a bucket
         {
             Collider[] hitColliders = Physics.OverlapBox(
@@ -394,8 +410,7 @@ public class PlayerDominoPlacement : MonoBehaviour
             {
                 if (collider.CompareTag("Bucket"))
                 {
-                    bucketOffset = new Vector3(0f, 0f, 0f); // Adjust the offset for bucket mode
-                    Debug.Log("Over bucket");
+                    bucketOffset = new Vector3(0f, 1.25f, 0f); // Adjust the offset for bucket mode
                     break;
                 }
             }

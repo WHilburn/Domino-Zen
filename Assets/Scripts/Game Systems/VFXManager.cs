@@ -18,6 +18,9 @@ public class VFXManager : MonoBehaviour
         Renderer[] childRenderers = domino.GetComponentsInChildren<Renderer>();
         foreach (Renderer renderer in childRenderers)
         {
+            // Skip if the renderer is not a mesh renderer
+            if (!(renderer is MeshRenderer))
+                continue;
             Material[] materials = renderer.materials;
 
             // Handle gleam effect for material slot 1
