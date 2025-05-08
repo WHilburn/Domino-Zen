@@ -189,7 +189,7 @@ public class DominoResetManager : MonoBehaviour
     private IEnumerator DeactivateIndicator(Domino domino, PlacementIndicator indicator)
     {
         yield return new WaitForSeconds(PlacementIndicator.fadeSpeed); // Wait for a short duration
-        indicator.gameObject.SetActive(false); // Disable the placement indicator
+        //indicator.gameObject.SetActive(false); // Disable the placement indicator
         domino.placementIndicator = null; // Clear the reference to the placementIndicator
     }
 

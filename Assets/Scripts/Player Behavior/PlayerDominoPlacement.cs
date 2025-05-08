@@ -328,11 +328,11 @@ public class PlayerDominoPlacement : MonoBehaviour
         InstantiateLineRenderer();
         InitializeHeldDomino();
 
-        if (IsDominoMoving())
-        {
-            ClearHeldDomino();
-            return;
-        }
+        // if (IsDominoMoving())
+        // {
+        //     ClearHeldDomino();
+        //     return;
+        // }
 
         Vector3 spawnPos = AdjustSpawnPosition(heldDomino.transform.position);
         CreateHandAnchor(spawnPos);

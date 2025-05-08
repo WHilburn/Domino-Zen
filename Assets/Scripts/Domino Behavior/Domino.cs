@@ -213,6 +213,7 @@ public class Domino : DominoLike
     {
         rb.transform.position = lastStablePosition;
         rb.transform.rotation = lastStableRotation;
+        currentState = DominoState.Stationary;
         StartCoroutine(TogglePhysics(true));
         StartCoroutine(CheckStablePositionRoutine());
     }

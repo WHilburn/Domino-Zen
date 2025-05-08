@@ -80,11 +80,8 @@ public class PlacementIndicator : DominoLike
                 case IndicatorState.Filled:
                     if (trackedDomino.currentState == Domino.DominoState.Held)
                     {
-                        currentState = IndicatorState.TryingToFill;
-                        OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty
-                        OnIndicatorEmptiedInstance.Invoke(); // Notify individual subscribers
                         Debug.Log("Indicator fading in because the domino was lifted: " + trackedDomino.name);
-                        FadeIn(); // Fade back in if the domino is removed
+                        EmptyFilledIndicator();
                     }
                     break;
             }
@@ -133,23 +130,28 @@ public class PlacementIndicator : DominoLike
         Vector3.Distance(transform.position, trackedDomino.transform.position) > 0.001f
         )
         {
-            if (currentState == IndicatorState.Filled)
-            {
-                OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty;
-                OnIndicatorEmptiedInstance.Invoke();
-            }
-            Debug.Log("Indicator fading in because the domino fell out, distance: " + Vector3.Distance(transform.position, trackedDomino.transform.position));
             trackedDomino.placementIndicator = null; // Clear the domino's reference to this indicator 
             // Reset the tracked domino and its Rigidbody
             trackedDomino = null;
             trackedDominoRb = null;
-            currentState = IndicatorState.TryingToFill; // Transition to Empty state
-            FadeIn(); // Fade back in if the domino is removed
+            Debug.Log("Indicator fading in because the domino fell out, distance: " + Vector3.Distance(transform.position, trackedDomino.transform.position));
+            EmptyFilledIndicator(currentState == IndicatorState.Filled);
         }
     }
     #endregion
 
     #region Placement Logic
+
+    private void EmptyFilledIndicator(bool invokeEvents = true)
+    {
+        currentState = IndicatorState.TryingToFill;
+        FadeIn(); // Fade back in if the domino is removed
+        if (invokeEvents)
+        {
+            OnIndicatorEmptied.Invoke(this); // Notify that the indicator was filled and is now empty
+            OnIndicatorEmptiedInstance.Invoke(); // Notify individual subscribers
+        }
+    }
     private void CheckDominoPlacement()
     {
         if (trackedDominoRb == null ||
